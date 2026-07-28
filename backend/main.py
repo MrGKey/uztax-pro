@@ -14,6 +14,7 @@ import uvicorn
 from config import config
 from services.database import connect as db_connect, disconnect as db_disconnect
 from api.routes import router as api_router
+from fastapi.responses import JSONResponse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -37,6 +38,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(api_router, prefix="/api")
+
+
+@app.get("/")
+def health():
+    return JSONResponse({"status": "ok"})
 
 
 # --- Telegram Bot ---
