@@ -22,10 +22,10 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI):
-    await db_connect()
+    db_connect()
     logger.info("Database connected")
     yield
-    await db_disconnect()
+    db_disconnect()
     logger.info("Database disconnected")
 
 

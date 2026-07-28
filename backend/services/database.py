@@ -1,40 +1,65 @@
 from typing import Optional
 
-import asyncpg
+import psycopg2
+from psycopg2 import pool
+
 from config import config
 
-pool: Optional[asyncpg.Pool] = None
+connection_pool: Optional[pool.ThreadedConnectionPool] = None
 
 
-async def connect():
-    global pool
-    pool = await asyncpg.create_pool(config.database_url, min_size=2, max_size=10)
+def connect():
+    global connection_pool
+    connection_pool = pool.ThreadedConnectionPool(2, 10, config.database_url)
 
 
-async def disconnect():
-    global pool
-    if pool:
-        await pool.close()
-        pool = None
+def disconnect():
+    global connection_pool
+    if connection_pool:
+        connection_pool.closeall()
+        connection_pool = None
 
 
-async def execute(sql: str, *args):
-    async with pool.acquire() as conn:
-        return await conn.execute(sql, *args)
+def _getconn(conn=None):
+    if conn:
+        return conn
+    return connection_pool.getconn()
 
 
-async def fetch(sql: str, *args) -> list[dict]:
-    async with pool.acquire() as conn:
-        rows = await conn.fetch(sql, *args)
-        return [dict(r) for r in rows]
+def _putconn(conn):
+    connection_pool.putconn(conn)
 
 
-async def fetchrow(sql: str, *args) -> Optional[dict]:
-    async with pool.acquire() as conn:
-        row = await conn.fetchrow(sql, *args)
-        return dict(row) if row else None
+def execute(sql: str, *args):
+    conn = _getconn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, args)
+        conn.commit()
+    finally:
+        _putconn(conn)
 
 
-async def fetchval(sql: str, *args):
-    async with pool.acquire() as conn:
-        return await conn.fetchval(sql, *args)
+def fetch(sql: str, *args) -> list[dict]:
+    conn = _getconn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, args)
+            columns = [desc[0] for desc in cur.description] if cur.description else []
+            return [dict(zip(columns, row)) for row in cur.fetchall()]
+    finally:
+        _putconn(conn)
+
+
+def fetchrow(sql: str, *args) -> Optional[dict]:
+    conn = _getconn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, args)
+            columns = [desc[0] for desc in cur.description] if cur.description else []
+            row = cur.fetchone()
+            if row and sql.strip().upper().startswith("INSERT"):
+                conn.commit()
+            return dict(zip(columns, row)) if row else None
+    finally:
+        _putconn(conn)
