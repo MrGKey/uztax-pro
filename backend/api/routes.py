@@ -7,9 +7,9 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Header, Depends
 from pydantic import BaseModel
 
-from backend.services.database import fetch, fetchrow, execute
-from backend.services.payme import generate_payme_link
-from backend.config import config
+from services.database import fetch, fetchrow, execute
+from services.payme import generate_payme_link
+from config import config
 
 router = APIRouter()
 

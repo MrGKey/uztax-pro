@@ -1,5 +1,19 @@
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
+function offlineUser(): User {
+  return {
+    tg_id: 0,
+    full_name: "Тестовый ИП",
+    phone: "+998901234567",
+    inn: "123456789",
+    balance: 0,
+  };
+}
+
+async function offlineRequest<T>(fallback: T): Promise<T> {
+  return fallback;
+}
+
 async function initData(): Promise<string> {
   try {
     const WebApp = (window as any).Telegram?.WebApp;

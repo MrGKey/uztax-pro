@@ -11,9 +11,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from backend.config import config
-from backend.services.database import connect as db_connect, disconnect as db_disconnect
-from backend.api.routes import router as api_router
+from config import config
+from services.database import connect as db_connect, disconnect as db_disconnect
+from api.routes import router as api_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

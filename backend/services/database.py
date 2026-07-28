@@ -1,7 +1,7 @@
 from typing import Optional
 
 import asyncpg
-from backend.config import config
+from config import config
 
 pool: Optional[asyncpg.Pool] = None
 

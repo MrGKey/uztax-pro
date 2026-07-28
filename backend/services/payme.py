@@ -1,4 +1,4 @@
-from backend.config import config
+from config import config
 
 
 def generate_payme_link(amount: int, order_id: str) -> str:

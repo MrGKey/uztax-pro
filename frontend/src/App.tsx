@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useThemeParams } from "@telegram-apps/sdk-react";
+import { useEffect, useState } from "react";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import PaymentLink from "./pages/PaymentLink";
@@ -7,9 +7,29 @@ import TaxReport from "./pages/TaxReport";
 import Expenses from "./pages/Expenses";
 import Profile from "./pages/Profile";
 
+function useTheme() {
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    try {
+      const WebApp = (window as any).Telegram?.WebApp;
+      if (WebApp?.colorScheme) {
+        setIsDark(WebApp.colorScheme === "dark");
+        WebApp.ready();
+        WebApp.expand();
+        return;
+      }
+    } catch {}
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    setIsDark(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isDark ? "dark" : "light";
+}
+
 export default function App() {
-  const theme = useThemeParams();
-  const colorScheme = theme.isDark ? "dark" : "light";
+  const colorScheme = useTheme();
 
   return (
     <div className="app" data-theme={colorScheme}>
