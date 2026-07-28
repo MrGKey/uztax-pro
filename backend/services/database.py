@@ -1,21 +1,30 @@
 import os
 from typing import Optional
+from urllib.parse import urlparse
 
-import pg8000
-from pg8000.native import literal
+import pg8000.dbapi
 
 from config import config
 
 
 def _connect():
-    return pg8000.connect(dsn=config.database_url)
+    url = urlparse(config.database_url)
+    return pg8000.dbapi.connect(
+        host=url.hostname,
+        port=url.port or 5432,
+        database=url.path.lstrip("/"),
+        user=url.username,
+        password=url.password,
+    )
 
 
 def execute(sql: str, *args):
     conn = _connect()
     try:
-        conn.run(sql, args)
+        cur = conn.cursor()
+        cur.execute(sql, args)
         conn.commit()
+        cur.close()
     finally:
         conn.close()
 
@@ -23,9 +32,12 @@ def execute(sql: str, *args):
 def fetch(sql: str, *args) -> list[dict]:
     conn = _connect()
     try:
-        result = conn.run(sql, args)
-        columns = [d["name"] for d in conn.columns]
-        return [dict(zip(columns, row)) for row in result]
+        cur = conn.cursor()
+        cur.execute(sql, args)
+        columns = [desc[0] for desc in cur.description] if cur.description else []
+        rows = cur.fetchall()
+        cur.close()
+        return [dict(zip(columns, row)) for row in rows]
     finally:
         conn.close()
 
@@ -33,10 +45,13 @@ def fetch(sql: str, *args) -> list[dict]:
 def fetchrow(sql: str, *args) -> Optional[dict]:
     conn = _connect()
     try:
-        result = conn.run(sql, args)
-        if not result:
-            return None
-        columns = [d["name"] for d in conn.columns]
-        return dict(zip(columns, result[0]))
+        cur = conn.cursor()
+        cur.execute(sql, args)
+        columns = [desc[0] for desc in cur.description] if cur.description else []
+        row = cur.fetchone()
+        cur.close()
+        if row and sql.strip().upper().startswith("INSERT"):
+            conn.commit()
+        return dict(zip(columns, row)) if row else None
     finally:
         conn.close()
