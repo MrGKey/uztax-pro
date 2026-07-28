@@ -1,65 +1,42 @@
+import os
 from typing import Optional
 
-import psycopg2
-from psycopg2 import pool
+import pg8000
+from pg8000.native import literal
 
 from config import config
 
-connection_pool: Optional[pool.ThreadedConnectionPool] = None
 
-
-def connect():
-    global connection_pool
-    connection_pool = pool.ThreadedConnectionPool(2, 10, config.database_url)
-
-
-def disconnect():
-    global connection_pool
-    if connection_pool:
-        connection_pool.closeall()
-        connection_pool = None
-
-
-def _getconn(conn=None):
-    if conn:
-        return conn
-    return connection_pool.getconn()
-
-
-def _putconn(conn):
-    connection_pool.putconn(conn)
+def _connect():
+    return pg8000.connect(dsn=config.database_url)
 
 
 def execute(sql: str, *args):
-    conn = _getconn()
+    conn = _connect()
     try:
-        with conn.cursor() as cur:
-            cur.execute(sql, args)
+        conn.run(sql, args)
         conn.commit()
     finally:
-        _putconn(conn)
+        conn.close()
 
 
 def fetch(sql: str, *args) -> list[dict]:
-    conn = _getconn()
+    conn = _connect()
     try:
-        with conn.cursor() as cur:
-            cur.execute(sql, args)
-            columns = [desc[0] for desc in cur.description] if cur.description else []
-            return [dict(zip(columns, row)) for row in cur.fetchall()]
+        result = conn.run(sql, args)
+        columns = [d["name"] for d in conn.columns]
+        return [dict(zip(columns, row)) for row in result]
     finally:
-        _putconn(conn)
+        conn.close()
 
 
 def fetchrow(sql: str, *args) -> Optional[dict]:
-    conn = _getconn()
+    conn = _connect()
     try:
-        with conn.cursor() as cur:
-            cur.execute(sql, args)
-            columns = [desc[0] for desc in cur.description] if cur.description else []
-            row = cur.fetchone()
-            if row and sql.strip().upper().startswith("INSERT"):
-                conn.commit()
-            return dict(zip(columns, row)) if row else None
+        result = conn.run(sql, args)
+        if not result:
+            return None
+        columns = [d["name"] for d in conn.columns]
+        return dict(zip(columns, result[0]))
     finally:
-        _putconn(conn)
+        conn.close()
