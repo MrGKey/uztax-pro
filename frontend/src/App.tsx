@@ -6,6 +6,7 @@ import PaymentLink from "./pages/PaymentLink";
 import TaxReport from "./pages/TaxReport";
 import Expenses from "./pages/Expenses";
 import Profile from "./pages/Profile";
+import Onboarding, { useOnboarding } from "./components/Onboarding";
 
 function useTheme() {
   const [isDark, setIsDark] = useState(false);
@@ -30,9 +31,11 @@ function useTheme() {
 
 export default function App() {
   const colorScheme = useTheme();
+  const { seen, dismiss } = useOnboarding();
 
   return (
     <div className="app" data-theme={colorScheme}>
+      {!seen && <Onboarding onDone={dismiss} />}
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />

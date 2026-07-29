@@ -255,3 +255,48 @@ export const CatIcons: Record<string, JSX.Element> = {
     </svg>
   ),
 };
+
+export function OnboardIllustration1() {
+  return (
+    <svg width="200" height="180" viewBox="0 0 200 180" fill="none" style={{ maxWidth: "100%" }}>
+      <circle cx="100" cy="80" r="60" fill="var(--primary)" fillOpacity="0.08" />
+      <rect x="35" y="50" width="130" height="80" rx="16" fill="var(--surface)" stroke="var(--primary)" strokeWidth="2" strokeOpacity="0.3" />
+      <rect x="50" y="65" width="60" height="4" rx="2" fill="var(--primary)" fillOpacity="0.3" />
+      <rect x="50" y="75" width="80" height="4" rx="2" fill="var(--primary)" fillOpacity="0.2" />
+      <rect x="50" y="85" width="40" height="4" rx="2" fill="var(--gold)" fillOpacity="0.3" />
+      <circle cx="145" cy="70" r="12" fill="var(--gold)" fillOpacity="0.15" />
+      <path d="M57 114 L70 100 L83 108 L96 95 L109 105 L122 97" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.5" />
+    </svg>
+  );
+}
+
+export function OnboardIllustration2() {
+  return (
+    <svg width="200" height="180" viewBox="0 0 200 180" fill="none" style={{ maxWidth: "100%" }}>
+      <circle cx="100" cy="80" r="60" fill="var(--gold)" fillOpacity="0.08" />
+      <circle cx="80" cy="80" r="30" fill="var(--primary)" fillOpacity="0.1" />
+      <circle cx="120" cy="70" r="24" fill="var(--gold)" fillOpacity="0.12" />
+      <path d="M90 50 L95 65 L110 68" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      <rect x="40" y="110" width="120" height="6" rx="3" fill="var(--primary)" fillOpacity="0.15" />
+      <rect x="40" y="120" width="90" height="6" rx="3" fill="var(--gold)" fillOpacity="0.12" />
+      <rect x="40" y="130" width="60" height="6" rx="3" fill="var(--primary)" fillOpacity="0.1" />
+    </svg>
+  );
+}
+
+export function OnboardIllustration3() {
+  return (
+    <svg width="200" height="180" viewBox="0 0 200 180" fill="none" style={{ maxWidth: "100%" }}>
+      <circle cx="100" cy="80" r="60" fill="var(--primary)" fillOpacity="0.08" />
+      <rect x="40" y="45" width="120" height="90" rx="16" fill="var(--surface)" stroke="var(--gold)" strokeWidth="2" strokeOpacity="0.3" />
+      <rect x="55" y="60" width="50" height="3" rx="1.5" fill="var(--gold)" fillOpacity="0.3" />
+      <rect x="55" y="68" width="70" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.2" />
+      <rect x="55" y="76" width="35" height="3" rx="1.5" fill="var(--gold)" fillOpacity="0.25" />
+      <rect x="55" y="90" width="90" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.15" />
+      <rect x="55" y="98" width="75" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.15" />
+      <rect x="55" y="106" width="60" height="3" rx="1.5" fill="var(--gold)" fillOpacity="0.2" />
+      <path d="M60 120 L90 120" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="130" cy="120" r="6" fill="var(--gold)" fillOpacity="0.3" />
+    </svg>
+  );
+}

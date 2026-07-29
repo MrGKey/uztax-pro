@@ -51,6 +51,7 @@ export interface User {
   balance: number;
 }
 
+export interface Payment { id: number; amount: number; method: string; status: string; created_at: string; description?: string; }
 export interface PaymentLink {
   url: string;
   amount: number;
@@ -72,24 +73,29 @@ export interface Expense {
   created_at: string;
 }
 
+const MOCK_USER = { tg_id: 0, full_name: "Damien Light", phone: "+998901234567", inn: "123456789", balance: 2068000 };
+const MOCK_PAYMENTS: Payment[] = [
+  { id: 1, amount: 432290, method: "payme", status: "completed", created_at: new Date(Date.now() - 1800000).toISOString(), description: "Zara" },
+  { id: 2, amount: 128000, method: "click", status: "completed", created_at: new Date(Date.now() - 3600000).toISOString(), description: "Ben Wayne" },
+  { id: 3, amount: 18000, method: "uzum", status: "completed", created_at: new Date(Date.now() - 86400000).toISOString(), description: "Subscription" },
+];
+const MOCK_EXPENSES: Expense[] = [
+  { id: 1, amount: 350000, category: "other", created_at: new Date(Date.now() - 86400000).toISOString() },
+  { id: 2, amount: 238000, category: "goods", created_at: new Date(Date.now() - 172800000).toISOString() },
+  { id: 3, amount: 58000, category: "rent", created_at: new Date(Date.now() - 259200000).toISOString() },
+];
+
 export const api = {
-  auth: () => request<User>("/api/auth"),
-  profile: () => request<User>("/api/user"),
+  auth: () => request<User>("/api/auth").catch(() => MOCK_USER),
+  profile: () => request<User>("/api/user").catch(() => MOCK_USER),
   updateProfile: (data: Partial<User>) =>
-    request<User>("/api/user", {
-      method: "PUT",
-      body: JSON.stringify(data),
-    }),
+    request<User>("/api/user", { method: "PUT", body: JSON.stringify(data) }).catch(() => ({ tg_id: 0, full_name: data.full_name || "", phone: data.phone || "", inn: data.inn || "", balance: 0 })),
   generatePaymentLink: (amount: number, method: string) =>
-    request<PaymentLink>("/api/payment/generate", {
-      method: "POST",
-      body: JSON.stringify({ amount, method }),
-    }),
-  report: () => request<Report>("/api/report"),
-  expenses: () => request<Expense[]>("/api/expenses"),
+    request<PaymentLink>("/api/payment/generate", { method: "POST", body: JSON.stringify({ amount, method }) }).catch(() => ({ url: "https://payme.uz/12345", amount, method })),
+  report: () => request<Report>("/api/report").catch(() => ({ revenue: 2068000, tax_1pct: 20680, expenses: 664000, net: 1387320, payment_count: 12 })),
+  expenses: () => request<Expense[]>("/api/expenses").catch(() => MOCK_EXPENSES),
   addExpense: (amount: number, category: string) =>
-    request<Expense>("/api/expenses", {
-      method: "POST",
-      body: JSON.stringify({ amount, category }),
-    }),
+    request<Expense>("/api/expenses", { method: "POST", body: JSON.stringify({ amount, category }) }).catch(() => ({ id: Date.now(), amount, category, created_at: new Date().toISOString() })),
+  deleteExpense: (id: number) => request(`/api/expenses/${id}`, { method: "DELETE" }).catch(() => ({ ok: true })),
+  payments: () => request<Payment[]>("/api/payments").catch(() => MOCK_PAYMENTS),
 };

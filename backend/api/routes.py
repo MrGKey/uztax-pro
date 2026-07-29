@@ -178,3 +178,19 @@ def add_expense(
         tg_id, body.amount, body.category,
     )
     return row
+
+
+@router.get("/payments")
+def list_payments(user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    return fetch(
+        "SELECT * FROM payments WHERE user_tg_id = %s ORDER BY created_at DESC LIMIT 20",
+        tg_id,
+    )
+
+
+@router.delete("/expenses/{expense_id}")
+def delete_expense(expense_id: int, user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    execute("DELETE FROM expenses WHERE id = %s AND user_tg_id = %s", expense_id, tg_id)
+    return {"ok": True}
