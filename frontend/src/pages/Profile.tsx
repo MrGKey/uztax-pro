@@ -134,13 +134,23 @@ export default function Profile() {
 
       <div className="card fade-in-d1" style={{ textAlign: "center", padding: 24 }}>
         <div style={{
-          width: 64, height: 64, borderRadius: "50%",
+          width: 72, height: 72, borderRadius: "50%",
           background: "linear-gradient(145deg, var(--primary), var(--primary-dark))",
           color: "#0a0e1a", display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 28, fontWeight: 700, margin: "0 auto 12px",
-          boxShadow: "0 2px 16px rgba(119,179,155,0.3)"
+          fontSize: 32, fontWeight: 800, margin: "0 auto 12px",
+          boxShadow: "0 4px 20px rgba(119,179,155,0.4)",
+          border: "3px solid rgba(255,255,255,0.1)",
+          position: "relative",
         }}>
           {user.full_name[0]}
+          <div style={{
+            position: "absolute", bottom: 0, right: 0,
+            width: 24, height: 24, borderRadius: "50%",
+            background: "var(--success)", border: "3px solid var(--bg)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+          </div>
         </div>
         <div style={{ fontSize: 18, fontWeight: 600 }}>{user.full_name}</div>
         <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>Yakka tartibdagi tadbirkor</div>
