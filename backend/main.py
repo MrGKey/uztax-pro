@@ -24,6 +24,7 @@ import uvicorn
 
 from config import config
 from services.database import connect as db_connect, disconnect as db_disconnect, fetch
+from fastapi import Request as FastAPIRequest
 from api.routes import router as api_router
 
 logging.basicConfig(level=logging.INFO)
@@ -32,6 +33,8 @@ logger = logging.getLogger(__name__)
 # --- FastAPI ---
 
 limiter = Limiter(key_func=get_remote_address, default_limits=["30/minute"])
+
+bot_instance = None
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI):
@@ -57,18 +60,34 @@ app.include_router(api_router, prefix="/api")
 
 @app.get("/")
 def health():
-    return JSONResponse({"status": "ok"})
+    return JSONResponse({"status": "ok", "service": "UzTax Pro"})
+
+
+@app.post("/webhook")
+async def telegram_webhook(request: FastAPIRequest):
+    global bot_instance
+    if bot_instance is None:
+        return JSONResponse({"ok": False, "error": "Bot not ready"}, status_code=503)
+    update = await request.json()
+    dp = bot_instance.get("dp")
+    bot = bot_instance.get("bot")
+    if dp and bot:
+        from aiogram.types import Update
+        await dp.feed_webhook_update(bot, Update(**update))
+    return JSONResponse({"ok": True})
 
 
 # --- Telegram Bot ---
 
 def run_bot_sync():
     async def _run():
+        global bot_instance
         bot = Bot(
             token=config.bot_token,
             default=DefaultBotProperties(parse_mode="HTML"),
         )
         dp = Dispatcher()
+        bot_instance = {"bot": bot, "dp": dp}
 
         @dp.message(Command("start"))
         async def cmd_start(message: Message):
@@ -147,6 +166,13 @@ def run_bot_sync():
                                 pass
                 except:
                     pass
+
+        try:
+            webhook_url = f"{config.app_url.rstrip('/')}/webhook"
+            await bot.set_webhook(webhook_url, allowed_updates=["message", "inline_query", "callback_query"])
+            logger.info(f"Webhook set to {webhook_url}")
+        except Exception as e:
+            logger.warning(f"Webhook failed, falling back to polling: {e}")
 
         _asyncio.create_task(reminder_job())
 

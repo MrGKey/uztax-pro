@@ -531,6 +531,14 @@ def soliq_submit(user: dict = Depends(get_current_user)):
     }
 
 
+# ─── Analytics ────────────────────────────────────────────────
+@router.post("/analytics/track")
+def track_event(user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    logger.info(f"Analytics: user={tg_id} active")
+    return {"ok": True}
+
+
 class FeedbackRequest(BaseModel):
     message: str = Field(min_length=1, max_length=1000)
 

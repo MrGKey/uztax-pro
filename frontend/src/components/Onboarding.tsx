@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { haptic } from "../utils/telegram";
 import { OnboardIllustration1, OnboardIllustration2, OnboardIllustration3 } from "../utils/icons";
 
@@ -33,6 +34,7 @@ export function useOnboarding() {
 }
 
 export default function Onboarding({ onDone }: { onDone: () => void }) {
+  const navigate = useNavigate();
   const [slide, setSlide] = useState(0);
   const [animDir, setAnimDir] = useState<"left" | "right">("right");
   const s = slides[slide];
@@ -54,17 +56,22 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
     setSlide(i);
   };
 
+  const complete = () => {
+    onDone();
+    navigate("/profile");
+  };
+
   const next = () => {
     haptic("impact");
     if (slide < slides.length - 1) {
       setAnimDir("right");
       setSlide(slide + 1);
-    } else onDone();
+    } else complete();
   };
 
   const skip = () => {
     haptic("impact");
-    onDone();
+    complete();
   };
 
   return (
