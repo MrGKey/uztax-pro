@@ -32,9 +32,8 @@ export function copyToClipboard(text: string) {
   try {
     (window as any).Telegram?.WebApp?.clipboard?.writeText?.(text);
     haptic("success");
-    showAlert("Nusxalandi!");
   } catch {
-    navigator.clipboard.writeText(text).then(() => showAlert("Nusxalandi!"));
+    navigator.clipboard.writeText(text).catch(() => {});
   }
 }
 

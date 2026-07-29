@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api, type Report } from "../utils/api";
 import { Icons } from "../utils/icons";
+const MONTHS_UZ = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"];
 import { AnimatedNumber } from "../utils/useCountUp";
 import { haptic } from "../utils/telegram";
 import PullToRefresh from "../components/PullToRefresh";

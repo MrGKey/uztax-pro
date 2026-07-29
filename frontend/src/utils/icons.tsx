@@ -80,7 +80,8 @@ export const Icons = {
 };
 
 export function ChartSparkline({ data }: { data?: number[] }) {
-  const points = data && data.some((v) => v > 0) ? data : [0, 0];
+  const hasData = data && data.some((v) => v > 0);
+  const points = hasData ? data : [0, 0];
   const max = Math.max(...points);
   const w = 200; const h = 40;
   const cx = (i: number) => (i / (points.length - 1)) * w;

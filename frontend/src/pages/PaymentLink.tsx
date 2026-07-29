@@ -29,6 +29,7 @@ export default function PaymentLink() {
   const [toast, setToast] = useState("");
   const toastTimer = useRef<ReturnType<typeof setTimeout>>();
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [paymentsLimit, setPaymentsLimit] = useState(5);
 
   useEffect(() => { api.payments().then(setPayments).catch(() => {}); }, []);
 
@@ -158,10 +159,13 @@ export default function PaymentLink() {
       {payments.length > 0 && (
         <div className="fade-in-d4" style={{ marginTop: 16 }}>
           <div className="section-header">
-            <span className="section-title">To'lovlar tarixi</span>
+            <span className="section-title">To'lovlar tarixi ({payments.length})</span>
+            {payments.length > paymentsLimit && (
+              <span className="section-link" onClick={() => { haptic("impact"); setPaymentsLimit(paymentsLimit + 10); }}>Yana ko'rsatish</span>
+            )}
           </div>
           <div className="card" style={{ padding: "4px 16px" }}>
-            {payments.slice(0, 5).map((p, i) => (
+            {payments.slice(0, paymentsLimit).map((p, i) => (
               <div key={p.id} className="payment-item" style={{ animationDelay: `${i * 0.05}s` } as React.CSSProperties}>
                 <div className="payment-icon" style={{ background: `${METHOD_COLORS[p.method] || "#566478"}15` }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: METHOD_COLORS[p.method] || "#566478" }}>

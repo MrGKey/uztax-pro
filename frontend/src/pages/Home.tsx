@@ -79,7 +79,7 @@ export default function Home() {
       </div>
 
       {error && (
-        <div className="error-banner fade-in" onClick={() => load()}>
+        <div className="error-banner fade-in" onClick={() => { setError(null); load(); }}>
           {error} — bosing qayta yuklash
         </div>
       )}
@@ -121,13 +121,15 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="card fade-in-d4" style={{ padding: "12px 16px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <span style={{ fontSize: 13, color: "var(--text-secondary)", fontWeight: 500 }}>Daromad dinamikasi</span>
-          <span style={{ color: "var(--primary)", display: "flex" }}>{Icons.trendingUp}</span>
+      {payments.length > 0 && (
+        <div className="card fade-in-d4" style={{ padding: "12px 16px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+            <span style={{ fontSize: 13, color: "var(--text-secondary)", fontWeight: 500 }}>Daromad dinamikasi</span>
+            <span style={{ color: "var(--primary)", display: "flex" }}>{Icons.trendingUp}</span>
+          </div>
+          <ChartSparkline data={payments.map(p => p.amount)} />
         </div>
-        <ChartSparkline />
-      </div>
+      )}
 
       {payments.length > 0 && (
         <div className="fade-in-d5">

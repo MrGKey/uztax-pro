@@ -35,10 +35,10 @@ export default function Expenses() {
 
   const autoCategory = (text: string) => {
     const t = text.toLowerCase();
-    if (/ijara|ofis|bin|arenda/i.test(t)) return "rent";
-    if (/tovar|mahsulot|material|sotib/i.test(t)) return "goods";
-    if (/maosh|oklad|ish.?haqi|qarzdor/i.test(t)) return "salary";
-    if (/soliq|solik|gos|nalog/i.test(t)) return "tax";
+    if (/ijara|ofis|bin|arenda|аренда|офис/i.test(t)) return "rent";
+    if (/tovar|mahsulot|material|sotib|товар|материал/i.test(t)) return "goods";
+    if (/maosh|oklad|ish.?haqi|qarzdor|зарплата|оклад/i.test(t)) return "salary";
+    if (/soliq|solik|gos|nalog|налог|гос/i.test(t)) return "tax";
     return "other";
   };
 
