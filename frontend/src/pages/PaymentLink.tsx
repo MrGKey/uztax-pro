@@ -10,10 +10,13 @@ const METHODS = [
   { id: "payme", label: "Payme" },
   { id: "click", label: "Click" },
   { id: "uzum", label: "Uzum" },
+  { id: "humo", label: "Humo" },
+  { id: "uzcard", label: "Uzcard" },
 ];
 
 const METHOD_COLORS: Record<string, string> = {
   payme: "#27AE60", click: "#0972D3", uzum: "#7B2FF7",
+  humo: "#E31E24", uzcard: "#0066B3",
 };
 
 export default function PaymentLink() {
@@ -90,7 +93,11 @@ export default function PaymentLink() {
           <button className="btn btn-gold" onClick={handleCopy}>
             {Icons.check} Nusxalandi
           </button>
-          <button className="btn btn-secondary" style={{ marginTop: 10 }} onClick={() => { haptic("impact"); setLink(null); setAmount(""); }}>
+          <button className="btn btn-secondary" style={{ marginTop: 10 }} onClick={() => { haptic("impact"); handleShare(link.url, parsedAmount, method); }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
+            Ulashish
+          </button>
+          <button className="btn btn-ghost" style={{ marginTop: 10 }} onClick={() => { haptic("impact"); setLink(null); setAmount(""); }}>
             Yangi havola
           </button>
         </div>
@@ -184,4 +191,13 @@ export default function PaymentLink() {
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
+}
+
+function handleShare(url: string, amount: number, method: string) {
+  const text = `To'lov: ${amount.toLocaleString()} so'm (${method})\n${url}`;
+  if (navigator.share) {
+    navigator.share({ title: "To'lov havolasi", text, url });
+  } else {
+    navigator.clipboard.writeText(text).then(() => {});
+  }
 }

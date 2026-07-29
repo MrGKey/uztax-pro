@@ -205,10 +205,30 @@ export function UzumIcon() {
   );
 }
 
+export function HumoIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="12" fill="#E31E24" />
+      <text x="24" y="30" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold" fontFamily="sans-serif">H</text>
+    </svg>
+  );
+}
+
+export function UzcardIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="12" fill="#0066B3" />
+      <text x="24" y="30" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold" fontFamily="sans-serif">Uz</text>
+    </svg>
+  );
+}
+
 export const MethodIcons: Record<string, () => JSX.Element> = {
   payme: PaymeIcon,
   click: ClickIcon,
   uzum: UzumIcon,
+  humo: HumoIcon,
+  uzcard: UzcardIcon,
 };
 
 export const CatIcons: Record<string, JSX.Element> = {

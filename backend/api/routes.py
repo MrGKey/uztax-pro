@@ -1,16 +1,18 @@
 import hashlib
 import hmac
 import json
+import logging
 from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Header, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from services.database import fetch, fetchrow, execute
 from services.payme import generate_payme_link
 from config import config
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -28,9 +30,11 @@ def verify_init_data(init_data: str) -> Optional[dict]:
             secret_key, data_check_string.encode(), hashlib.sha256
         ).hexdigest()
         if computed != hash_val:
+            logger.warning("Invalid hash for init_data")
             return None
         return json.loads(params.get("user", "{}"))
-    except Exception:
+    except Exception as e:
+        logger.error(f"verify_init_data error: {e}")
         return None
 
 
@@ -53,19 +57,19 @@ def get_current_user(x_telegram_init_data: str = Header("")) -> dict:
 
 
 class UpdateProfileRequest(BaseModel):
-    full_name: Optional[str] = None
-    phone: Optional[str] = None
-    inn: Optional[str] = None
+    full_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    phone: Optional[str] = Field(None, pattern=r"^\+998\d{9}$")
+    inn: Optional[str] = Field(None, pattern=r"^\d{9}$")
 
 
 class PaymentRequest(BaseModel):
-    amount: int
-    method: str
+    amount: int = Field(ge=100, le=100_000_000, description="Summa (so'm)")
+    method: str = Field(pattern=r"^(payme|click|uzum|humo|uzcard)$")
 
 
 class AddExpenseRequest(BaseModel):
-    amount: int
-    category: str = "other"
+    amount: int = Field(ge=100, le=100_000_000)
+    category: str = Field(default="other", pattern=r"^(goods|rent|salary|tax|other)$")
 
 
 @router.get("/auth")
@@ -120,6 +124,10 @@ def generate_payment(
         )
     elif body.method == "uzum":
         url = f"https://uzum.uz/pay?amount={body.amount}&order_id={order_id}"
+    elif body.method == "humo":
+        url = f"https://humo.uz/merchant/pay?amount={body.amount}&order_id={order_id}&merchant={config.humo_merchant_id}"
+    elif body.method == "uzcard":
+        url = f"https://uzcard.uz/pay?amount={body.amount}&order_id={order_id}&merchant={config.uzcard_merchant_id}"
     else:
         raise HTTPException(400, "Unknown payment method")
 
@@ -128,6 +136,7 @@ def generate_payment(
         tg_id, body.amount, body.method,
     )
 
+    logger.info(f"Payment link generated: user={tg_id} method={body.method} amount={body.amount}")
     return {"url": url, "amount": body.amount, "method": body.method}
 
 
@@ -193,4 +202,5 @@ def list_payments(user: dict = Depends(get_current_user)):
 def delete_expense(expense_id: int, user: dict = Depends(get_current_user)):
     tg_id = user["tg_id"]
     execute("DELETE FROM expenses WHERE id = %s AND user_tg_id = %s", expense_id, tg_id)
+    logger.info(f"Expense deleted: user={tg_id} expense_id={expense_id}")
     return {"ok": True}

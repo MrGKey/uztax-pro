@@ -1,21 +1,31 @@
 import os
+import time
 from typing import Optional
 from urllib.parse import urlparse
+from collections import deque
 
 import pg8000.dbapi
 
 from config import config
 
 
-def connect():
-    pass
+_conn_pool: deque = deque(maxlen=5)
+_last_used: float = 0
+_POOL_TTL = 300
 
 
-def disconnect():
-    pass
-
-
-def _connect():
+def _get_conn():
+    global _last_used
+    now = time.time()
+    while _conn_pool:
+        conn = _conn_popleft()
+        _last_used = now
+        try:
+            conn.cursor().execute("SELECT 1")
+            return conn
+        except Exception:
+            conn.close()
+    _last_used = now
     url = urlparse(config.database_url)
     return pg8000.dbapi.connect(
         host=url.hostname,
@@ -26,19 +36,49 @@ def _connect():
     )
 
 
+def _conn_popleft():
+    try:
+        return _conn_pool.popleft()
+    except IndexError:
+        return None
+
+
+def _return_conn(conn):
+    if conn and len(_conn_pool) < _conn_pool.maxlen:
+        _conn_pool.append(conn)
+    else:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+
+def connect():
+    pass
+
+
+def disconnect():
+    for conn in list(_conn_pool):
+        try:
+            conn.close()
+        except Exception:
+            pass
+    _conn_pool.clear()
+
+
 def execute(sql: str, *args):
-    conn = _connect()
+    conn = _get_conn()
     try:
         cur = conn.cursor()
         cur.execute(sql, args)
         conn.commit()
         cur.close()
     finally:
-        conn.close()
+        _return_conn(conn)
 
 
 def fetch(sql: str, *args) -> list[dict]:
-    conn = _connect()
+    conn = _get_conn()
     try:
         cur = conn.cursor()
         cur.execute(sql, args)
@@ -47,11 +87,11 @@ def fetch(sql: str, *args) -> list[dict]:
         cur.close()
         return [dict(zip(columns, row)) for row in rows]
     finally:
-        conn.close()
+        _return_conn(conn)
 
 
 def fetchrow(sql: str, *args) -> Optional[dict]:
-    conn = _connect()
+    conn = _get_conn()
     try:
         cur = conn.cursor()
         cur.execute(sql, args)
@@ -62,4 +102,4 @@ def fetchrow(sql: str, *args) -> Optional[dict]:
             conn.commit()
         return dict(zip(columns, row)) if row else None
     finally:
-        conn.close()
+        _return_conn(conn)
