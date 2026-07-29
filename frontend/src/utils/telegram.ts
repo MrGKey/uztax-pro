@@ -14,13 +14,24 @@ export function showConfirm(msg: string): Promise<boolean> {
   }
 }
 
+export function haptic(type: "success" | "warning" | "error" | "impact" = "impact") {
+  try {
+    const h = (window as any).Telegram?.WebApp?.HapticFeedback;
+    if (!h) return;
+    if (type === "success") h.notificationOccurred?.("success");
+    else if (type === "warning") h.notificationOccurred?.("warning");
+    else if (type === "error") h.notificationOccurred?.("error");
+    else h.impactOccurred?.("medium");
+  } catch {}
+}
+
 export function copyToClipboard(text: string) {
   try {
-    (window as any).Telegram?.WebApp?.HapticFeedback?.notificationOccurred?.("success");
     (window as any).Telegram?.WebApp?.clipboard?.writeText?.(text);
-    showAlert("Скопировано!");
+    haptic("success");
+    showAlert("Skopirovano!");
   } catch {
-    navigator.clipboard.writeText(text).then(() => showAlert("Скопировано!"));
+    navigator.clipboard.writeText(text).then(() => showAlert("Skopirovano!"));
   }
 }
 

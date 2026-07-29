@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../utils/api";
 import { Icons, MethodIcons } from "../utils/icons";
 import BottomSheet from "../components/BottomSheet";
-import { copyToClipboard } from "../utils/telegram";
+import { copyToClipboard, haptic } from "../utils/telegram";
 
 const METHODS = [
   { id: "payme", label: "Payme" },
@@ -18,43 +18,52 @@ export default function PaymentLink() {
   const [method, setMethod] = useState("payme");
   const [link, setLink] = useState<{ url: string } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showToast, setShowToast] = useState(false);
+  const [toast, setToast] = useState("");
 
-  useEffect(() => {
-    if (showToast) {
-      const t = setTimeout(() => setShowToast(false), 2000);
-      return () => clearTimeout(t);
-    }
-  }, [showToast]);
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 2000);
+  };
+
+  const parsedAmount = parseInt(amount.replace(/\s/g, ""), 10) || 0;
+  const amountError = amount && (isNaN(parsedAmount) || parsedAmount < 100) ? "Minimal summa 100 so'm" : null;
 
   const handleGenerate = async () => {
-    const amt = parseInt(amount.replace(/\s/g, ""), 10);
-    if (!amt || amt < 100) return;
+    if (!parsedAmount || parsedAmount < 100) { showToast("Minimal summa 100 so'm"); return; }
     setLoading(true);
+    haptic("impact");
     try {
-      const res = await api.generatePaymentLink(amt, method);
+      const res = await api.generatePaymentLink(parsedAmount, method);
       setLink(res);
       setShowSheet(false);
+      haptic("success");
+      showToast("Havola yaratildi");
     } catch (e: any) {
-      alert(e.message);
+      showToast(e.message || "Xatolik");
+      haptic("error");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleCopy = () => {
+    if (!link) return;
+    copyToClipboard(link.url);
+    showToast("Havola nusxalandi");
+  };
+
   if (link) {
-    const amt = parseInt(amount.replace(/\s/g, ""), 10);
     return (
       <div>
         <div className="header fade-in">
-          <button className="header-back" onClick={() => { setLink(null); setAmount(""); }}>{Icons.chevronLeft}</button>
+          <button className="header-back" onClick={() => { haptic("impact"); setLink(null); setAmount(""); }}>{Icons.chevronLeft}</button>
           <h1 className="header-title">Havola yaratildi</h1>
         </div>
         <div className="card card-primary stat fade-in-d1" style={{ padding: 24 }}>
           <div className="link-result-icon">
             {MethodIcons[method]()}
           </div>
-          <div className="stat-value-lg" style={{ fontSize: 30 }}>{amt.toLocaleString()} so'm</div>
+          <div className="stat-value-lg" style={{ fontSize: 30 }}>{parsedAmount.toLocaleString()} so'm</div>
           <div className="stat-label" style={{ opacity: 0.6, marginTop: 8, textTransform: "none", fontSize: 13 }}>
             {METHODS.find((m) => m.id === method)?.label}
           </div>
@@ -67,14 +76,14 @@ export default function PaymentLink() {
           }}>
             {link.url}
           </div>
-          <button className="btn btn-gold" onClick={() => { copyToClipboard(link.url); setShowToast(true); }}>
+          <button className="btn btn-gold" onClick={handleCopy}>
             {Icons.check} Nusxalandi
           </button>
-          <button className="btn btn-secondary" style={{ marginTop: 10 }} onClick={() => { setLink(null); setAmount(""); }}>
+          <button className="btn btn-secondary" style={{ marginTop: 10 }} onClick={() => { haptic("impact"); setLink(null); setAmount(""); }}>
             Yangi havola
           </button>
         </div>
-        {showToast && <div className="toast">Havola nusxalandi</div>}
+        {toast && <div className="toast">{toast}</div>}
       </div>
     );
   }
@@ -82,7 +91,7 @@ export default function PaymentLink() {
   return (
     <div>
       <div className="header fade-in">
-        <button className="header-back" onClick={() => navigate("/")}>{Icons.chevronLeft}</button>
+        <button className="header-back" onClick={() => { haptic("impact"); navigate("/"); }}>{Icons.chevronLeft}</button>
         <h1 className="header-title">To'lov havolasi</h1>
       </div>
 
@@ -103,7 +112,7 @@ export default function PaymentLink() {
           {METHODS.map((m) => {
             const Icon = MethodIcons[m.id];
             return (
-              <button key={m.id} className={`method-btn${method === m.id ? " active" : ""}`} onClick={() => setMethod(m.id)}>
+              <button key={m.id} className={`method-btn${method === m.id ? " active" : ""}`} onClick={() => { haptic("impact"); setMethod(m.id); }}>
                 <Icon />
                 {m.label}
               </button>
@@ -112,7 +121,7 @@ export default function PaymentLink() {
         </div>
       </div>
 
-      <button className="btn fade-in-d3" onClick={() => setShowSheet(true)}>
+      <button className="btn fade-in-d3" onClick={() => { haptic("impact"); setShowSheet(true); }}>
         {Icons.payment} Summani kiriting
       </button>
 
@@ -120,21 +129,24 @@ export default function PaymentLink() {
         <div className="input-group" style={{ marginBottom: 20 }}>
           <label style={{ textAlign: "center", display: "block" }}>Summa (so'm)</label>
           <input
-            className="input input-lg"
+            className={`input input-lg${amountError ? " input-error" : ""}`}
             type="number"
             placeholder="0"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             autoFocus
           />
+          {amountError && <div className="input-error-text">{amountError}</div>}
         </div>
-        <button className="btn" onClick={handleGenerate} disabled={loading || !amount || parseInt(amount) < 100}>
+        <button className="btn" onClick={handleGenerate} disabled={loading || !amount || !!amountError}>
           {loading ? "Yaratilmoqda..." : "Havolani yaratish"}
         </button>
-        <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={() => setShowSheet(false)}>
+        <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={() => { haptic("impact"); setShowSheet(false); }}>
           Bekor qilish
         </button>
       </BottomSheet>
+
+      {toast && <div className="toast">{toast}</div>}
     </div>
   );
 }

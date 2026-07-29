@@ -2,6 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api, type Report } from "../utils/api";
 import { Icons, BarChart } from "../utils/icons";
+import { AnimatedNumber } from "../utils/useCountUp";
+import { haptic } from "../utils/telegram";
+import PullToRefresh from "../components/PullToRefresh";
 
 const MONTHS = ["Yan", "Fev", "Mar", "Apr", "May", "Iyun", "Iyul", "Avg", "Sen", "Okt"];
 
@@ -9,17 +12,32 @@ export default function TaxReport() {
   const navigate = useNavigate();
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    api.report().then(setReport).finally(() => setLoading(false));
-  }, []);
+  const load = async (silent = false) => {
+    if (!silent) setLoading(true);
+    try {
+      const r = await api.report();
+      setReport(r);
+    } catch {} finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await load(true);
+    setRefreshing(false);
+  };
 
   const fmt = (n: number) => n.toLocaleString("uz-UZ") + " so'm";
 
   return (
-    <div>
+    <PullToRefresh onRefresh={handleRefresh}>
       <div className="header fade-in">
-        <button className="header-back" onClick={() => navigate("/")}>{Icons.chevronLeft}</button>
+        <button className="header-back" onClick={() => { haptic("impact"); navigate("/"); }}>{Icons.chevronLeft}</button>
         <h1 className="header-title">Soliq hisoboti</h1>
       </div>
 
@@ -35,7 +53,7 @@ export default function TaxReport() {
               Oylik daromad
             </div>
             <div className="stat-value-lg" style={{ marginTop: 4 }}>
-              {fmt(report?.revenue ?? 0)}
+              <AnimatedNumber value={report?.revenue ?? 0} />
             </div>
           </div>
 
@@ -43,18 +61,20 @@ export default function TaxReport() {
             <div className="row">
               <span className="row-label">1% soliq</span>
               <span className="row-value" style={{ color: "var(--danger)" }}>
-                {fmt(report?.tax_1pct ?? 0)}
+                <AnimatedNumber value={report?.tax_1pct ?? 0} />
               </span>
             </div>
             <div className="row">
               <span className="row-label">Xarajatlar</span>
-              <span className="row-value">{fmt(report?.expenses ?? 0)}</span>
+              <span className="row-value">
+                <AnimatedNumber value={report?.expenses ?? 0} />
+              </span>
             </div>
             <div className="divider" />
             <div className="row">
               <span style={{ fontSize: 14, fontWeight: 600 }}>Sof daromad</span>
               <span style={{ fontSize: 15, fontWeight: 700, color: "var(--success)" }}>
-                {fmt(report?.net ?? 0)}
+                <AnimatedNumber value={report?.net ?? 0} />
               </span>
             </div>
             <div style={{ marginTop: 12 }}>
@@ -77,6 +97,8 @@ export default function TaxReport() {
           </div>
         </>
       )}
-    </div>
+
+      {refreshing && <div className="toast">Yangilanmoqda...</div>}
+    </PullToRefresh>
   );
 }

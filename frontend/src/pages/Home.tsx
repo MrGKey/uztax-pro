@@ -3,19 +3,27 @@ import { useEffect, useState } from "react";
 import { api, type User } from "../utils/api";
 import { Icons, ChartSparkline, PremiumHero } from "../utils/icons";
 import PullToRefresh from "../components/PullToRefresh";
+import { AnimatedNumber } from "../utils/useCountUp";
+import { haptic } from "../utils/telegram";
 
 export default function Home() {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = async (silent = false) => {
     if (!silent) setLoading(true);
+    setError(null);
     try {
-      await api.auth().then(setUser);
-    } catch {}
-    finally { setLoading(false); }
+      const u = await api.auth();
+      setUser(u);
+    } catch {
+      setError("Ma'lumotlarni yuklab bo'lmadi");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
@@ -25,6 +33,10 @@ export default function Home() {
     await load(true);
     setRefreshing(false);
   };
+
+  const todayRevenue = 0;
+  const monthlyRevenue = 0;
+  const monthlyTax = 0;
 
   if (loading) {
     return (
@@ -57,6 +69,12 @@ export default function Home() {
         <h1 className="header-title">UzTax Pro</h1>
       </div>
 
+      {error && (
+        <div className="error-banner fade-in" onClick={() => load()}>
+          {error} — bosing qayta yuklash
+        </div>
+      )}
+
       <div className="hero-section fade-in-d1">
         <div className="hero-text">
           <h2>Assalomu alaykum,<br />{user ? user.full_name.split(" ")[0] : "tadbirkor"}!</h2>
@@ -69,17 +87,21 @@ export default function Home() {
         <div className="stat-label" style={{ color: "rgba(0,0,0,0.55)", textTransform: "none", fontSize: 12 }}>
           Bugungi daromad
         </div>
-        <div className="stat-value-lg" style={{ marginTop: 2 }}>0 so'm</div>
+        <div className="stat-value-lg" style={{ marginTop: 2 }}>
+          <AnimatedNumber value={todayRevenue} />
+        </div>
       </div>
 
       <div className="grid-2 fade-in-d3">
         <div className="card stat" style={{ position: "relative" }}>
-          <div className="stat-value" style={{ color: "var(--success)" }}>0 so'm</div>
+          <div className="stat-value" style={{ color: "var(--success)" }}>
+            <AnimatedNumber value={monthlyRevenue} />
+          </div>
           <div className="stat-label">Oylik</div>
         </div>
         <div className="card stat" style={{ position: "relative" }}>
-          <div className="stat-value" style={{ color: !user ? "var(--text-secondary)" : "var(--warning)" }}>
-            {user ? "0 so'm" : "—"}
+          <div className="stat-value" style={{ color: "var(--warning)" }}>
+            {user ? <AnimatedNumber value={monthlyTax} /> : "—"}
           </div>
           <div className="stat-label">Soliq 1%</div>
         </div>
@@ -94,19 +116,19 @@ export default function Home() {
       </div>
 
       <div className="quick-actions fade-in-d4">
-        <div className="quick-action" onClick={() => navigate("/payment")}>
+        <div className="quick-action" onClick={() => { haptic("impact"); navigate("/payment"); }}>
           {Icons.payment}
           <span>To'lov</span>
         </div>
-        <div className="quick-action" onClick={() => navigate("/tax")}>
+        <div className="quick-action" onClick={() => { haptic("impact"); navigate("/tax"); }}>
           {Icons.tax}
           <span>Hisobot</span>
         </div>
-        <div className="quick-action" onClick={() => navigate("/expenses")}>
+        <div className="quick-action" onClick={() => { haptic("impact"); navigate("/expenses"); }}>
           {Icons.expense}
           <span>Xarajat</span>
         </div>
-        <div className="quick-action" onClick={() => navigate("/profile")}>
+        <div className="quick-action" onClick={() => { haptic("impact"); navigate("/profile"); }}>
           {Icons.profile}
           <span>Profil</span>
         </div>

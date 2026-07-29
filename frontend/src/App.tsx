@@ -7,6 +7,7 @@ import TaxReport from "./pages/TaxReport";
 import Expenses from "./pages/Expenses";
 import Profile from "./pages/Profile";
 import Onboarding, { useOnboarding } from "./components/Onboarding";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 function useTheme() {
   const [isDark, setIsDark] = useState(false);
@@ -34,18 +35,20 @@ export default function App() {
   const { seen, dismiss } = useOnboarding();
 
   return (
-    <div className="app" data-theme={colorScheme}>
-      {!seen && <Onboarding onDone={dismiss} />}
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/payment" element={<PaymentLink />} />
-          <Route path="/tax" element={<TaxReport />} />
-          <Route path="/expenses" element={<Expenses />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </div>
+    <ErrorBoundary>
+      <div className="app" data-theme={colorScheme}>
+        {!seen && <Onboarding onDone={dismiss} />}
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/payment" element={<PaymentLink />} />
+            <Route path="/tax" element={<TaxReport />} />
+            <Route path="/expenses" element={<Expenses />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </div>
+    </ErrorBoundary>
   );
 }

@@ -2,25 +2,37 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api, type User } from "../utils/api";
 import { Icons } from "../utils/icons";
+import { haptic } from "../utils/telegram";
+import PullToRefresh from "../components/PullToRefresh";
 
 export default function Profile() {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    api.auth().then(setUser).catch(() => {}).finally(() => setLoading(false));
-  }, []);
+  const load = async (silent = false) => {
+    if (!silent) setLoading(true);
+    try { const u = await api.auth(); setUser(u); } catch {} finally { if (!silent) setLoading(false); }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await load(true);
+    setRefreshing(false);
+  };
 
   if (loading) {
     return (
-      <div>
+      <PullToRefresh onRefresh={handleRefresh}>
         <div className="header"><h1 className="header-title">Profil</h1></div>
         <div className="card" style={{ textAlign: "center", padding: 24 }}>
           <div className="skeleton skeleton-circle" style={{ width: 64, height: 64, margin: "0 auto 12px" }} />
           <div className="skeleton skeleton-h24 skeleton-w50" style={{ margin: "0 auto" }} />
         </div>
-      </div>
+      </PullToRefresh>
     );
   }
 
@@ -29,9 +41,9 @@ export default function Profile() {
   }
 
   return (
-    <div>
+    <PullToRefresh onRefresh={handleRefresh}>
       <div className="header fade-in">
-        <button className="header-back" onClick={() => navigate("/")}>{Icons.chevronLeft}</button>
+        <button className="header-back" onClick={() => { haptic("impact"); navigate("/"); }}>{Icons.chevronLeft}</button>
         <h1 className="header-title">Profil</h1>
       </div>
 
@@ -74,7 +86,9 @@ export default function Profile() {
           <span className="badge badge-gold">Bepul</span>
         </div>
       </div>
-    </div>
+
+      {refreshing && <div className="toast">Yangilanmoqda...</div>}
+    </PullToRefresh>
   );
 }
 
@@ -84,14 +98,21 @@ function RegisterForm({ onDone }: { onDone: (u: User) => void }) {
   const [inn, setInn] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const nameValid = name.length >= 3;
+  const phoneValid = /^\+998\d{9}$/.test(phone);
+  const innValid = /^\d{9}$/.test(inn);
+  const canSubmit = nameValid && phoneValid && innValid;
+
   const handleSubmit = async () => {
-    if (!name || !phone || !inn) return;
+    if (!canSubmit) return;
     setSaving(true);
+    haptic("impact");
     try {
       const user = await api.updateProfile({ full_name: name, phone, inn } as User);
+      haptic("success");
       onDone(user);
     } catch (e: any) {
-      alert(e.message);
+      haptic("error");
     } finally {
       setSaving(false);
     }
@@ -119,19 +140,25 @@ function RegisterForm({ onDone }: { onDone: (u: User) => void }) {
       <div className="card fade-in-d1">
         <div className="input-group">
           <label>FIO</label>
-          <input className="input" placeholder="Aliyev Aliy" value={name} onChange={(e) => setName(e.target.value)} />
+          <input className={`input${name && !nameValid ? " input-error" : ""}`}
+            placeholder="Aliyev Aliy" value={name} onChange={(e) => setName(e.target.value)} />
+          {name && !nameValid && <div className="input-error-text">Kamida 3 belgi</div>}
         </div>
         <div className="input-group">
           <label>Telefon</label>
-          <input className="input" placeholder="+998901234567" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <input className={`input${phone && !phoneValid ? " input-error" : ""}`}
+            placeholder="+998901234567" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          {phone && !phoneValid && <div className="input-error-text">Format: +998901234567</div>}
         </div>
         <div className="input-group">
           <label>STIR (INN)</label>
-          <input className="input" placeholder="123456789" value={inn} onChange={(e) => setInn(e.target.value)} />
+          <input className={`input${inn && !innValid ? " input-error" : ""}`}
+            placeholder="123456789" value={inn} onChange={(e) => setInn(e.target.value)} />
+          {inn && !innValid && <div className="input-error-text">9 ta raqam</div>}
         </div>
       </div>
 
-      <button className="btn fade-in-d2" onClick={handleSubmit} disabled={saving || !name || !phone || !inn}>
+      <button className="btn fade-in-d2" onClick={handleSubmit} disabled={saving || !canSubmit}>
         {saving ? "Saqlanmoqda..." : "Ro'yxatdan o'tish"}
       </button>
     </div>

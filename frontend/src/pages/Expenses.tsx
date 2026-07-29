@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { api, type Expense } from "../utils/api";
 import { Icons, CatIcons } from "../utils/icons";
 import BottomSheet from "../components/BottomSheet";
-import { formatSum } from "../utils/telegram";
+import PullToRefresh from "../components/PullToRefresh";
+import { formatSum, haptic } from "../utils/telegram";
+import { AnimatedNumber } from "../utils/useCountUp";
 
 const categories: Record<string, string> = {
   goods: "Tovarlar",
@@ -17,35 +19,78 @@ export default function Expenses() {
   const navigate = useNavigate();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("other");
+  const [toast, setToast] = useState("");
+  const [deleting, setDeleting] = useState<number | null>(null);
+  const touchRef = useRef(0);
+  const [swiping, setSwiping] = useState<number | null>(null);
 
-  useEffect(() => {
-    api.expenses().then(setExpenses).finally(() => setLoading(false));
-  }, []);
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 2000);
+  };
+
+  const load = async (silent = false) => {
+    if (!silent) setLoading(true);
+    try {
+      const e = await api.expenses();
+      setExpenses(e);
+    } catch {} finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await load(true);
+    setRefreshing(false);
+  };
 
   const handleAdd = async () => {
     const amt = parseInt(amount, 10);
-    if (!amt) return;
+    if (!amt || amt < 100) { showToast("Minimal summa 100 so'm"); return; }
     try {
       const e = await api.addExpense(amt, category);
       setExpenses((prev) => [e, ...prev]);
       setShowSheet(false);
       setAmount("");
+      haptic("success");
+      showToast("Xarajat qo'shildi");
     } catch (e: any) {
-      alert(e.message);
+      showToast(e.message || "Xatolik");
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    setDeleting(id);
+    haptic("warning");
+    try {
+      const el = document.getElementById(`exp-${id}`);
+      el?.classList.add("expense-exit");
+      await new Promise((r) => setTimeout(r, 250));
+      await api.deleteExpense(id);
+      setExpenses((prev) => prev.filter((e) => e.id !== id));
+      showToast("Xarajat o'chirildi");
+    } catch {
+      showToast("O'chirib bo'lmadi");
+    } finally {
+      setDeleting(null);
     }
   };
 
   const total = expenses.reduce((s, e) => s + e.amount, 0);
 
   return (
-    <div>
+    <PullToRefresh onRefresh={handleRefresh}>
       <div className="header fade-in">
-        <button className="header-back" onClick={() => navigate("/")}>{Icons.chevronLeft}</button>
+        <button className="header-back" onClick={() => { haptic("impact"); navigate("/"); }}>{Icons.chevronLeft}</button>
         <h1 className="header-title">Xarajatlar</h1>
-        <button className="btn btn-sm btn-ghost" onClick={() => setShowSheet(true)} style={{ width: "auto", padding: "8px 12px" }}>
+        <button className="btn btn-sm btn-ghost" onClick={() => { haptic("impact"); setShowSheet(true); }} style={{ width: "auto", padding: "8px 12px" }}>
           {Icons.plus}
         </button>
       </div>
@@ -54,7 +99,7 @@ export default function Expenses() {
         <div className="stat-label" style={{ color: "rgba(0,0,0,0.55)", textTransform: "none", fontSize: 12 }}>
           Jami xarajatlar
         </div>
-        <div className="stat-value-lg" style={{ marginTop: 4 }}>{formatSum(total)}</div>
+        <div className="stat-value-lg" style={{ marginTop: 4 }}><AnimatedNumber value={total} /></div>
       </div>
 
       {loading ? (
@@ -66,14 +111,39 @@ export default function Expenses() {
         <div className="empty fade-in-d2">
           <div className="empty-icon" style={{ opacity: 0.3 }}>{Icons.expense}</div>
           <div className="empty-text">Xarajatlar yo'q</div>
-          <button className="btn btn-secondary" style={{ marginTop: 20, width: "auto" }} onClick={() => setShowSheet(true)}>
+          <button className="btn btn-secondary" style={{ marginTop: 20, width: "auto" }} onClick={() => { haptic("impact"); setShowSheet(true); }}>
             {Icons.plus} Birinchi xarajat
           </button>
         </div>
       ) : (
         <div className="card fade-in-d2" style={{ padding: "4px 16px" }}>
           {expenses.map((e, i) => (
-            <div key={e.id} className="expense-item" style={{ animationDelay: `${i * 0.05}s` } as React.CSSProperties}>
+            <div
+              key={e.id}
+              id={`exp-${e.id}`}
+              className={`expense-item ${deleting === e.id ? "expense-deleting" : ""}`}
+              style={{ animationDelay: `${i * 0.05}s`, position: "relative", overflow: "hidden" }}
+              onTouchStart={(ev) => { touchRef.current = ev.touches[0].clientX; setSwiping(e.id); }}
+              onTouchMove={(ev) => {
+                if (swiping !== e.id) return;
+                const dx = ev.touches[0].clientX - touchRef.current;
+                if (dx < -30) {
+                  const el = document.getElementById(`exp-${e.id}`);
+                  if (el) el.style.transform = `translateX(${Math.max(-80, dx)}px)`;
+                }
+              }}
+              onTouchEnd={(ev) => {
+                const dx = ev.changedTouches[0].clientX - touchRef.current;
+                const el = document.getElementById(`exp-${e.id}`);
+                if (dx < -60 && el) {
+                  el.style.transform = "translateX(-80px)";
+                  setTimeout(() => handleDelete(e.id), 200);
+                } else {
+                  if (el) el.style.transform = "";
+                }
+                setSwiping(null);
+              }}
+            >
               <div className="expense-icon">
                 {CatIcons[e.category] || CatIcons.other}
               </div>
@@ -104,13 +174,15 @@ export default function Expenses() {
             ))}
           </select>
         </div>
-        <button className="btn" onClick={handleAdd} disabled={!amount}>
+        <button className="btn" onClick={() => { haptic("impact"); handleAdd(); }} disabled={!amount || parseInt(amount) < 100}>
           {Icons.check} Saqlash
         </button>
-        <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={() => setShowSheet(false)}>
+        <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={() => { haptic("impact"); setShowSheet(false); }}>
           Bekor qilish
         </button>
       </BottomSheet>
-    </div>
+
+      {toast && <div className="toast">{toast}</div>}
+    </PullToRefresh>
   );
 }
