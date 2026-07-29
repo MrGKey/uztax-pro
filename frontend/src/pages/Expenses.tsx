@@ -24,12 +24,42 @@ export default function Expenses() {
   const [refreshing, setRefreshing] = useState(false);
   const [showSheet, setShowSheet] = useState(false);
   const [amount, setAmount] = useState("");
+  const [note, setNote] = useState("");
   const [category, setCategory] = useState("other");
   const [toast, setToast] = useState("");
+  const [listening, setListening] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>();
   const [deleting, setDeleting] = useState<number | null>(null);
   const touchRef = useRef(0);
   const [swiping, setSwiping] = useState<number | null>(null);
+
+  const autoCategory = (text: string) => {
+    const t = text.toLowerCase();
+    if (/ijara|ofis|bin|arenda/i.test(t)) return "rent";
+    if (/tovar|mahsulot|material|sotib/i.test(t)) return "goods";
+    if (/maosh|oklad|ish.?haqi|qarzdor/i.test(t)) return "salary";
+    if (/soliq|solik|gos|nalog/i.test(t)) return "tax";
+    return "other";
+  };
+
+  const handleVoice = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) { showToast("Voice not supported"); return; }
+    const rec = new SpeechRecognition();
+    rec.lang = "uz-UZ";
+    rec.interimResults = false;
+    setListening(true);
+    rec.onresult = (e: any) => {
+      const text = e.results[0][0].transcript;
+      const nums = text.replace(/[^0-9]/g, "");
+      if (nums) setAmount(nums);
+      const cat = autoCategory(text);
+      setCategory(cat);
+      setListening(false);
+    };
+    rec.onerror = () => setListening(false);
+    rec.start();
+  };
 
   const showToast = (msg: string) => {
     clearTimeout(toastTimer.current);
@@ -183,10 +213,19 @@ export default function Expenses() {
       <BottomSheet open={showSheet} onClose={() => setShowSheet(false)}>
         <div className="input-group" style={{ marginBottom: 16 }}>
           <label style={{ textAlign: "center", display: "block" }}>Summa (so'm)</label>
-          <input className="input input-lg" type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <input className="input input-lg" type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus style={{ flex: 1 }} />
+            <button className="btn btn-sm btn-ghost" onClick={() => { haptic("impact"); handleVoice(); }} style={{ padding: "12px", fontSize: 20, flexShrink: 0, borderRadius: "50%", height: 52, width: 52 }}>
+              {listening ? "🔴" : "🎤"}
+            </button>
+          </div>
+        </div>
+        <div className="input-group" style={{ marginBottom: 16 }}>
+          <label>Izoh</label>
+          <input className="input" placeholder="Masalan: ofis ijarasi" value={note} onChange={(e) => { setNote(e.target.value); const c = autoCategory(e.target.value); if (c !== "other") setCategory(c); }} />
         </div>
         <div className="input-group">
-          <label>Kategoriya</label>
+          <label>Kategoriya {note && <span style={{ color: "var(--primary)", fontSize: 11, fontWeight: 400 }}>(avtomat: {categories[autoCategory(note)]})</span>}</label>
           <select className="select" value={category} onChange={(e) => setCategory(e.target.value)}>
             {CATEGORY_LIST.map(([id, label]) => (
               <option key={id} value={id}>{label}</option>
