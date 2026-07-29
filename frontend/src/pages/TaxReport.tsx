@@ -18,16 +18,15 @@ export default function TaxReport() {
   const [monthOffset, setMonthOffset] = useState(0);
   const currentMonth = new Date(now.getFullYear(), now.getMonth() - monthOffset);
 
-  const load = async (silent = false) => {
-    if (!silent) setLoading(true);
-    try { const r = await api.report(); setReport(r); } catch {} finally { if (!silent) setLoading(false); }
+  const load = async (force = false) => {
+    if (!force) setLoading(true);
+    try { const r = await api.report(force); setReport(r); } catch {} finally { if (!force) setLoading(false); }
   };
 
   useEffect(() => { load(); }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await api.report(true);
     await load(true);
     setRefreshing(false);
   };
@@ -111,7 +110,7 @@ export default function TaxReport() {
         </>
       )}
 
-      {refreshing && <div className="toast">Yangilanmoqda...</div>}
+      {refreshing && <div className="toast toast-refresh">Yangilanmoqda...</div>}
     </PullToRefresh>
   );
 }

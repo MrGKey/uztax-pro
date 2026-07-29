@@ -26,22 +26,26 @@ export default function Expenses() {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("other");
   const [toast, setToast] = useState("");
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
   const [deleting, setDeleting] = useState<number | null>(null);
   const touchRef = useRef(0);
   const [swiping, setSwiping] = useState<number | null>(null);
 
-  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 2000); };
+  const showToast = (msg: string) => {
+    clearTimeout(toastTimer.current);
+    setToast(msg);
+    toastTimer.current = setTimeout(() => setToast(""), 2000);
+  };
 
-  const load = async (silent = false) => {
-    if (!silent) setLoading(true);
-    try { const e = await api.expenses(); setExpenses(e); } catch {} finally { if (!silent) setLoading(false); }
+  const load = async (force = false) => {
+    if (!force) setLoading(true);
+    try { const e = await api.expenses(force); setExpenses(e); } catch {} finally { if (!force) setLoading(false); }
   };
 
   useEffect(() => { load(); }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await api.expenses(true);
     await load(true);
     setRefreshing(false);
   };
@@ -151,6 +155,7 @@ export default function Expenses() {
                 }
               }}
               onTouchEnd={(ev) => {
+                if (swiping !== e.id) return;
                 const dx = ev.changedTouches[0].clientX - touchRef.current;
                 const el = document.getElementById(`exp-${e.id}`);
                 if (dx < -60 && el) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { haptic } from "../utils/telegram";
 import { OnboardIllustration1, OnboardIllustration2, OnboardIllustration3 } from "../utils/icons";
 
@@ -39,11 +39,20 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
 
   useEffect(() => {
     const t = setInterval(() => {
-      setAnimDir("right");
-      setSlide((p) => (p < slides.length - 1 ? p + 1 : 0));
+      setSlide((p) => {
+        const next = p < slides.length - 1 ? p + 1 : 0;
+        setAnimDir(next > p ? "right" : "left");
+        return next;
+      });
     }, 4000);
     return () => clearInterval(t);
   }, []);
+
+  const goToSlide = (i: number) => {
+    haptic("impact");
+    setAnimDir(i > slide ? "right" : "left");
+    setSlide(i);
+  };
 
   const next = () => {
     haptic("impact");
@@ -70,7 +79,7 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
         </div>
         <div className="onboard-dots">
           {slides.map((_, i) => (
-            <button key={i} className={`onboard-dot${i === slide ? " active" : ""}`} onClick={() => { haptic("impact"); setAnimDir(i > slide ? "right" : "left"); setSlide(i); }} />
+            <button key={i} className={`onboard-dot${i === slide ? " active" : ""}`} onClick={() => goToSlide(i)} />
           ))}
         </div>
       </div>

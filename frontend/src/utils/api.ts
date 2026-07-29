@@ -37,10 +37,10 @@ async function request<T>(path: string, options: RequestInit = {}, retries = 2):
   throw new Error("Request failed");
 }
 
-function withCache<T>(key: string, fetcher: () => Promise<T>, force = false): Promise<T> {
+function withCache<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
   const now = Date.now();
   const cached = cache.get(key);
-  if (!force && cached && now - cached.ts < CACHE_TTL) return Promise.resolve(cached.data as T);
+  if (cached && now - cached.ts < CACHE_TTL) return Promise.resolve(cached.data as T);
   return fetcher().then((data) => {
     cache.set(key, { data, ts: now });
     return data;
@@ -106,7 +106,9 @@ const mockReport = () => ({ revenue: 2068000, tax_1pct: 20680, expenses: 664000,
 
 export const api = {
   auth: (force = false) =>
-    force ? request<User>("/api/auth").catch(() => mockUser()) : withCache<User>("auth", () => request<User>("/api/auth").catch(() => mockUser())),
+    force
+      ? request<User>("/api/auth").catch(() => mockUser())
+      : withCache<User>("auth", () => request<User>("/api/auth").catch(() => mockUser())),
 
   profile: () => request<User>("/api/user").catch(() => mockUser()),
 
@@ -123,10 +125,14 @@ export const api = {
     }),
 
   report: (force = false) =>
-    force ? request<Report>("/api/report").catch(() => mockReport()) : withCache<Report>("report", () => request<Report>("/api/report").catch(() => mockReport())),
+    force
+      ? request<Report>("/api/report").catch(() => mockReport())
+      : withCache<Report>("report", () => request<Report>("/api/report").catch(() => mockReport())),
 
   expenses: (force = false) =>
-    force ? request<Expense[]>("/api/expenses").catch(() => mockExpenses()) : withCache<Expense[]>("expenses", () => request<Expense[]>("/api/expenses").catch(() => mockExpenses())),
+    force
+      ? request<Expense[]>("/api/expenses").catch(() => mockExpenses())
+      : withCache<Expense[]>("expenses", () => request<Expense[]>("/api/expenses").catch(() => mockExpenses())),
 
   addExpense: (amount: number, category: string) =>
     request<Expense>("/api/expenses", { method: "POST", body: JSON.stringify({ amount, category }) }).catch(() => {
@@ -140,5 +146,7 @@ export const api = {
   },
 
   payments: (force = false) =>
-    force ? request<Payment[]>("/api/payments").catch(() => mockPayments()) : withCache<Payment[]>("payments", () => request<Payment[]>("/api/payments").catch(() => mockPayments())),
+    force
+      ? request<Payment[]>("/api/payments").catch(() => mockPayments())
+      : withCache<Payment[]>("payments", () => request<Payment[]>("/api/payments").catch(() => mockPayments())),
 };

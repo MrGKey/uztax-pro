@@ -7,18 +7,16 @@ interface Props {
 }
 
 export default function PullToRefresh({ onRefresh, children }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<"idle" | "pulling" | "ready" | "loading">("idle");
   const startY = useRef(0);
   const pullDist = useRef(0);
   const triggered = useRef(false);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (containerRef.current && containerRef.current.scrollTop <= 0) {
-      startY.current = e.touches[0].clientY;
-      pullDist.current = 0;
-      triggered.current = false;
-    }
+    if (window.scrollY > 0) return;
+    startY.current = e.touches[0].clientY;
+    pullDist.current = 0;
+    triggered.current = false;
   }, []);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
@@ -26,11 +24,7 @@ export default function PullToRefresh({ onRefresh, children }: Props) {
     const dist = e.touches[0].clientY - startY.current;
     if (dist > 0) {
       pullDist.current = dist;
-      if (dist > 60 && !triggered.current) {
-        setState("ready");
-      } else if (dist <= 60) {
-        setState("pulling");
-      }
+      setState(dist > 60 ? "ready" : "pulling");
     }
   }, []);
 
@@ -55,7 +49,6 @@ export default function PullToRefresh({ onRefresh, children }: Props) {
 
   return (
     <div
-      ref={containerRef}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, type Payment } from "../utils/api";
 import { Icons, MethodIcons } from "../utils/icons";
@@ -24,13 +24,15 @@ export default function PaymentLink() {
   const [link, setLink] = useState<{ url: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState("");
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
   const [payments, setPayments] = useState<Payment[]>([]);
 
   useEffect(() => { api.payments().then(setPayments).catch(() => {}); }, []);
 
   const showToast = (msg: string) => {
+    clearTimeout(toastTimer.current);
     setToast(msg);
-    setTimeout(() => setToast(""), 2000);
+    toastTimer.current = setTimeout(() => setToast(""), 2000);
   };
 
   const parsedAmount = parseInt(amount.replace(/\s/g, ""), 10) || 0;
@@ -71,9 +73,7 @@ export default function PaymentLink() {
           <h1 className="header-title">Havola yaratildi</h1>
         </div>
         <div className="card card-primary stat fade-in-d1" style={{ padding: 24 }}>
-          <div className="link-result-icon">
-            {MethodIcons[method]()}
-          </div>
+          <div className="link-result-icon">{MethodIcons[method]()}</div>
           <div className="stat-value-lg" style={{ fontSize: 30 }}>{parsedAmount.toLocaleString()} so'm</div>
           <div className="stat-label" style={{ opacity: 0.6, marginTop: 8, textTransform: "none", fontSize: 13 }}>
             {METHODS.find((m) => m.id === method)?.label}

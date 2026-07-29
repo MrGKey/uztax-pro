@@ -11,16 +11,15 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const load = async (silent = false) => {
-    if (!silent) setLoading(true);
-    try { const u = await api.auth(); setUser(u); } catch {} finally { if (!silent) setLoading(false); }
+  const load = async (force = false) => {
+    if (!force) setLoading(true);
+    try { const u = await api.auth(force); setUser(u); } catch {} finally { if (!force) setLoading(false); }
   };
 
   useEffect(() => { load(); }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await api.auth(true);
     await load(true);
     setRefreshing(false);
   };
@@ -117,7 +116,7 @@ export default function Profile() {
         UzTax Pro v0.1.0
       </div>
 
-      {refreshing && <div className="toast">Yangilanmoqda...</div>}
+      {refreshing && <div className="toast toast-refresh">Yangilanmoqda...</div>}
     </PullToRefresh>
   );
 }

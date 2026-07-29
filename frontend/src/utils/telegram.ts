@@ -1,5 +1,3 @@
-let toastTimer: ReturnType<typeof setTimeout>;
-
 export function showAlert(msg: string) {
   try {
     (window as any).Telegram?.WebApp?.showAlert?.(msg);

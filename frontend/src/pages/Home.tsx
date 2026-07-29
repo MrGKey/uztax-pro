@@ -12,6 +12,8 @@ const PAYMENT_METHODS: Record<string, { label: string; color: string }> = {
   uzum: { label: "Uzum", color: "#7B2FF7" },
 };
 
+const todayStr = new Date().toDateString();
+
 export default function Home() {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
@@ -20,11 +22,11 @@ export default function Home() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const load = async (silent = false) => {
-    if (!silent) setLoading(true);
+  const load = async (force = false) => {
+    if (!force) setLoading(true);
     setError(null);
     try {
-      const [u, p] = await Promise.all([api.auth(), api.payments()]);
+      const [u, p] = await Promise.all([api.auth(force), api.payments(force)]);
       setUser(u);
       setPayments(p);
     } catch {
@@ -38,14 +40,12 @@ export default function Home() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([api.auth(true), api.payments(true)]);
     await load(true);
     setRefreshing(false);
   };
 
-  const todayRevenue = payments
-    .filter((p) => new Date(p.created_at).toDateString() === new Date().toDateString())
-    .reduce((s, p) => s + p.amount, 0);
+  const todayPayments = payments.filter((p) => new Date(p.created_at).toDateString() === todayStr);
+  const todayRevenue = todayPayments.reduce((s, p) => s + p.amount, 0);
   const monthlyRevenue = payments.reduce((s, p) => s + p.amount, 0);
   const monthlyTax = Math.round(monthlyRevenue * 0.01);
 
@@ -87,7 +87,7 @@ export default function Home() {
       <div className="hero-section fade-in-d1">
         <div className="hero-text">
           <h2>Assalomu alaykum,<br />{user ? user.full_name.split(" ")[0] : "tadbirkor"}!</h2>
-          <p>Bugun {payments.length} ta to'lov</p>
+          <p>Bugun {todayPayments.length} ta to'lov</p>
         </div>
         <PremiumHero />
       </div>
@@ -99,9 +99,9 @@ export default function Home() {
         <div className="stat-value-lg" style={{ marginTop: 2 }}>
           <AnimatedNumber value={todayRevenue} />
         </div>
-        {payments.length > 0 && (
+        {todayPayments.length > 0 && (
           <div style={{ position: "absolute", top: 12, right: 16, fontSize: 11, opacity: 0.5, fontWeight: 500 }}>
-            {payments.filter((p) => new Date(p.created_at).toDateString() === new Date().toDateString()).length} ta to'lov
+            {todayPayments.length} ta to'lov
           </div>
         )}
       </div>
@@ -178,7 +178,7 @@ export default function Home() {
         </div>
       </div>
 
-      {refreshing && <div className="toast">Yangilanmoqda...</div>}
+      {refreshing && <div className="toast toast-refresh">Yangilanmoqda...</div>}
     </PullToRefresh>
   );
 }
