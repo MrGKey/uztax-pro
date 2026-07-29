@@ -101,12 +101,14 @@ export default function TaxReport() {
             </div>
           </div>
 
-          <div className="card fade-in-d4">
-            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 10, fontWeight: 500 }}>
-              {monthOffset === 0 ? "Oylik daromadlar" : "Kunlik daromadlar"}
+          {report && report.payment_count > 0 && (
+            <div className="card fade-in-d4">
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 10, fontWeight: 500 }}>
+                {monthOffset === 0 ? "Oylik daromadlar" : "Kunlik daromadlar"}
+              </div>
+              <BarChart months={barMonths} data={barData} color="var(--primary)" />
             </div>
-            <BarChart months={barMonths} data={barData} color="var(--primary)" />
-          </div>
+          )}
         </>
       )}
 
