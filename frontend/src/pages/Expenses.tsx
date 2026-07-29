@@ -1,20 +1,23 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api, type Expense } from "../utils/api";
+import { Icons, CatIcons } from "../utils/icons";
+import BottomSheet from "../components/BottomSheet";
+import { formatSum } from "../utils/telegram";
 
 const categories: Record<string, string> = {
-  goods: "📦 Товары",
-  rent: "🏢 Аренда",
-  salary: "👥 Зарплата",
-  tax: "📋 Налоги",
-  other: "📌 Прочее",
+  goods: "Товары",
+  rent: "Аренда",
+  salary: "Зарплата",
+  tax: "Налоги",
+  other: "Прочее",
 };
 
 export default function Expenses() {
   const navigate = useNavigate();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [showSheet, setShowSheet] = useState(false);
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("other");
 
@@ -28,7 +31,7 @@ export default function Expenses() {
     try {
       const e = await api.addExpense(amt, category);
       setExpenses((prev) => [e, ...prev]);
-      setShowForm(false);
+      setShowSheet(false);
       setAmount("");
     } catch (e: any) {
       alert(e.message);
@@ -36,74 +39,78 @@ export default function Expenses() {
   };
 
   const total = expenses.reduce((s, e) => s + e.amount, 0);
-  const fmt = (n: number) => n.toLocaleString("uz-UZ") + " so'm";
 
   return (
     <div>
-      <div className="header">
+      <div className="header fade-in">
         <button className="header-back" onClick={() => navigate("/")}>←</button>
         <h1 className="header-title">Расходы</h1>
+        <button className="btn btn-sm btn-ghost" onClick={() => setShowSheet(true)} style={{ width: "auto", padding: "8px 12px" }}>
+          {Icons.plus}
+        </button>
       </div>
 
-      <div className="card stat card-primary">
-        <div className="stat-label" style={{ color: "rgba(255,255,255,0.7)", textTransform: "none" }}>
+      <div className="card card-primary stat fade-in-d1" style={{ padding: 20 }}>
+        <div className="stat-label" style={{ color: "rgba(0,0,0,0.6)", textTransform: "none", fontSize: 12 }}>
           Всего расходов
         </div>
-        <div className="stat-value" style={{ fontSize: 28, marginTop: 4 }}>{fmt(total)}</div>
+        <div className="stat-value-lg" style={{ marginTop: 4 }}>{formatSum(total)}</div>
       </div>
 
-      {!showForm && (
-        <button className="btn" onClick={() => setShowForm(true)} style={{ marginBottom: 12 }}>
-          + Добавить расход
-        </button>
-      )}
-
-      {showForm && (
-        <div className="card" style={{ marginBottom: 12 }}>
-          <div className="input-group">
-            <label>Сумма</label>
-            <input className="input input-lg" type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
-          </div>
-          <div className="input-group">
-            <label>Категория</label>
-            <select className="select" value={category} onChange={(e) => setCategory(e.target.value)}>
-              {Object.entries(categories).map(([id, label]) => (
-                <option key={id} value={id}>{label}</option>
-              ))}
-            </select>
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button className="btn" onClick={handleAdd} disabled={!amount} style={{ flex: 1 }}>Сохранить</button>
-            <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowForm(false)}>Отмена</button>
-          </div>
-        </div>
-      )}
-
       {loading ? (
-        <div className="card"><div className="skeleton skeleton-h24" /><div className="skeleton skeleton-h24" /></div>
+        <div className="fade-in-d2">
+          <div className="card"><div className="skeleton skeleton-h24" /></div>
+          <div className="card"><div className="skeleton skeleton-h24" /></div>
+        </div>
       ) : expenses.length === 0 ? (
-        <div className="empty">
-          <div className="empty-icon">🧾</div>
+        <div className="empty fade-in-d2">
+          <div className="empty-icon" style={{ opacity: 0.3 }}>{Icons.expense}</div>
           <div className="empty-text">Расходов пока нет</div>
-          <button className="btn btn-secondary" style={{ marginTop: 16, width: "auto" }} onClick={() => setShowForm(true)}>
-            + Добавить первый расход
+          <button className="btn btn-secondary" style={{ marginTop: 20, width: "auto" }} onClick={() => setShowSheet(true)}>
+            {Icons.plus} Добавить первый расход
           </button>
         </div>
       ) : (
-        expenses.map((e) => (
-          <div key={e.id} className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <div style={{ fontWeight: 600 }}>{fmt(e.amount)}</div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
-                {(categories[e.category] || e.category)} · {new Date(e.created_at).toLocaleDateString()}
+        <div className="card fade-in-d2" style={{ padding: "4px 16px" }}>
+          {expenses.map((e, i) => (
+            <div key={e.id} className="expense-item" style={{ animationDelay: `${i * 0.05}s` } as React.CSSProperties}>
+              <div className="expense-icon">
+                {CatIcons[e.category] || CatIcons.other}
               </div>
+              <div className="expense-info">
+                <div className="expense-amount">{formatSum(e.amount)}</div>
+                <div className="expense-meta">
+                  {categories[e.category] || e.category}
+                  {" · "}
+                  {new Date(e.created_at).toLocaleDateString("uz-UZ", { day: "numeric", month: "short" })}
+                </div>
+              </div>
+              <span className="tag">{categories[e.category]?.slice(0, 4) || "..."}</span>
             </div>
-            <div style={{ fontSize: 24 }}>{
-              { goods: "📦", rent: "🏢", salary: "👥", tax: "📋" }[e.category] || "📌"
-            }</div>
-          </div>
-        ))
+          ))}
+        </div>
       )}
+
+      <BottomSheet open={showSheet} onClose={() => setShowSheet(false)}>
+        <div className="input-group" style={{ marginBottom: 16 }}>
+          <label style={{ textAlign: "center", display: "block" }}>Сумма (сум)</label>
+          <input className="input input-lg" type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
+        </div>
+        <div className="input-group">
+          <label>Категория</label>
+          <select className="select" value={category} onChange={(e) => setCategory(e.target.value)}>
+            {Object.entries(categories).map(([id, label]) => (
+              <option key={id} value={id}>{label}</option>
+            ))}
+          </select>
+        </div>
+        <button className="btn" onClick={handleAdd} disabled={!amount}>
+          {Icons.check} Сохранить
+        </button>
+        <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={() => setShowSheet(false)}>
+          Отмена
+        </button>
+      </BottomSheet>
     </div>
   );
 }
