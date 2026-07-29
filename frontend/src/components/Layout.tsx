@@ -1,5 +1,14 @@
 import { Outlet, NavLink } from "react-router-dom";
 import { useEffect } from "react";
+import { Icons } from "../utils/icons";
+
+const links = [
+  { to: "/", icon: Icons.home, label: "Главная" },
+  { to: "/payment", icon: Icons.payment, label: "Платёж" },
+  { to: "/tax", icon: Icons.tax, label: "Налог" },
+  { to: "/expenses", icon: Icons.expense, label: "Расходы" },
+  { to: "/profile", icon: Icons.profile, label: "Профиль" },
+];
 
 export default function Layout() {
   useEffect(() => {
@@ -29,11 +38,3 @@ export default function Layout() {
     </div>
   );
 }
-
-const links = [
-  { to: "/", icon: "📊", label: "Главная" },
-  { to: "/payment", icon: "💳", label: "Платёж" },
-  { to: "/tax", icon: "💰", label: "Налог" },
-  { to: "/expenses", icon: "🧾", label: "Расходы" },
-  { to: "/profile", icon: "👤", label: "Профиль" },
-];
