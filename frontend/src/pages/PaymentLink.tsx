@@ -42,20 +42,22 @@ export default function PaymentLink() {
         </div>
 
         <div className="card card-primary stat" style={{ padding: 24 }}>
-          <div style={{ fontSize: 40, marginBottom: 8 }}>
+          <div style={{ fontSize: 40, marginBottom: 4 }}>
             {METHODS.find((m) => m.id === method)?.icon}
           </div>
-          <div className="stat-value" style={{ fontSize: 32 }}>{fmt(amt)} so'm</div>
-          <div className="stat-label" style={{ color: "rgba(255,255,255,0.7)", marginTop: 8 }}>
+          <div className="stat-value" style={{ fontSize: 30 }}>{fmt(amt)} so'm</div>
+          <div className="stat-label" style={{ color: "rgba(255,255,255,0.6)", marginTop: 6, textTransform: "none", fontSize: 13 }}>
             {METHODS.find((m) => m.id === method)?.label}
           </div>
         </div>
 
         <div className="card">
-          <div style={{ background: "var(--bg)", borderRadius: 8, padding: 12, fontSize: 12, wordBreak: "break-all", marginBottom: 12 }}>
+          <div style={{ background: "var(--bg)", borderRadius: 10, padding: 12, fontSize: 12, wordBreak: "break-all", marginBottom: 12, lineHeight: 1.5 }}>
             {link.url}
           </div>
-          <button className="btn" onClick={() => copyToClipboard(link.url)}>📋 Скопировать ссылку</button>
+          <button className="btn btn-gold" onClick={() => copyToClipboard(link.url)}>
+            📋 Скопировать ссылку
+          </button>
           <button className="btn btn-secondary" style={{ marginTop: 8 }} onClick={() => setLink(null)}>
             Создать ещё
           </button>
@@ -74,27 +76,17 @@ export default function PaymentLink() {
       <div className="card">
         <div className="input-group">
           <label>Сумма (сум)</label>
-          <input
-            className="input input-lg"
-            type="number"
-            placeholder="0"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
+          <input className="input input-lg" type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
         </div>
       </div>
 
       <div className="card">
-        <div className="input-group">
+        <div className="input-group" style={{ marginBottom: 10 }}>
           <label>Платёжная система</label>
         </div>
         <div className="method-grid">
           {METHODS.map((m) => (
-            <button
-              key={m.id}
-              className={`method-btn${method === m.id ? " active" : ""}`}
-              onClick={() => setMethod(m.id)}
-            >
+            <button key={m.id} className={`method-btn${method === m.id ? " active" : ""}`} onClick={() => setMethod(m.id)}>
               <div style={{ fontSize: 24, marginBottom: 4 }}>{m.icon}</div>
               {m.label}
             </button>
@@ -102,11 +94,7 @@ export default function PaymentLink() {
         </div>
       </div>
 
-      <button
-        className="btn"
-        onClick={handleGenerate}
-        disabled={loading || !amount || parseInt(amount) < 100}
-      >
+      <button className="btn" onClick={handleGenerate} disabled={loading || !amount || parseInt(amount) < 100}>
         {loading ? "Создание..." : "🔗 Создать ссылку"}
       </button>
     </div>

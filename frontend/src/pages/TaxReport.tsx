@@ -22,8 +22,8 @@ export default function TaxReport() {
 
       {loading ? (
         <div>
-          <div className="card"><div className="skeleton skeleton-h48 skeleton-w75" /></div>
-          <div className="card"><div className="skeleton skeleton-h24" /><div className="skeleton skeleton-h24" /></div>
+          <div className="card"><div className="skeleton skeleton-h40" /><div className="skeleton skeleton-h20 skeleton-w60" /></div>
+          <div className="card"><div className="skeleton skeleton-h20" /><div className="skeleton skeleton-h20" /><div className="skeleton skeleton-h20" /></div>
         </div>
       ) : (
         <>
@@ -31,12 +31,12 @@ export default function TaxReport() {
             <div className="stat-label" style={{ color: "rgba(255,255,255,0.7)", textTransform: "none" }}>
               Доход за месяц
             </div>
-            <div className="stat-value" style={{ fontSize: 32, marginTop: 4 }}>
+            <div className="stat-value" style={{ fontSize: 30, marginTop: 4 }}>
               {fmt(report?.revenue ?? 0)}
             </div>
           </div>
 
-          <div className="card">
+          <div className="card card-stripe">
             <div className="row">
               <span className="row-label">Налог 1%</span>
               <span className="row-value" style={{ color: "var(--danger)" }}>
@@ -49,17 +49,17 @@ export default function TaxReport() {
             </div>
             <div className="divider" />
             <div className="row">
-              <span className="row-label" style={{ fontWeight: 600, color: "var(--text)" }}>Чистый доход</span>
-              <span className="row-value" style={{ color: "var(--success)", fontSize: 16 }}>
+              <span style={{ fontSize: 14, fontWeight: 600 }}>Чистый доход</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: "var(--success)" }}>
                 {fmt(report?.net ?? 0)}
               </span>
             </div>
           </div>
 
-          <div className="card">
+          <div className="card card-stripe">
             <div className="row">
               <span className="row-label">Платежей за месяц</span>
-              <span className="badge badge-success">{report?.payment_count ?? 0}</span>
+              <span className="badge badge-primary">{report?.payment_count ?? 0}</span>
             </div>
           </div>
         </>
