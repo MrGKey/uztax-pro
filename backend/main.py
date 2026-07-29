@@ -119,7 +119,7 @@ def run_bot_sync():
                 "• /report — Отчёт за месяц\n"
                 "• /help — Это сообщение\n\n"
                 "<b>Inline режим:</b>\n"
-                "В любом чате: @uztax_bot 50000 payme\n"
+                "В любом чате: @uzbtax_bot 50000 payme\n"
                 "Создаст ссылку на оплату.\n\n"
                 "Поддерживаемые методы: payme, click, uzum, humo, uzcard"
             )
@@ -228,7 +228,7 @@ def run_bot_sync():
                         title="Создать ссылку на оплату",
                         description="Например: 50000 payme",
                         input_message_content=InputTextMessageContent(
-                            message_text="Использование: @uztax_bot 50000 payme\nМинимальная сумма: 100 so'm"
+                            message_text="Использование: @uzbtax_bot 50000 payme\nМинимальная сумма: 100 so'm"
                         ),
                     )
                 ]

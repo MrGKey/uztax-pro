@@ -344,7 +344,7 @@ def partner_register(body: UpdateProfileRequest, user: dict = Depends(get_curren
         "INSERT INTO partners (tg_id, full_name, phone, api_key) VALUES (%s, %s, %s, %s) ON CONFLICT (tg_id) DO NOTHING",
         tg_id, body.full_name or user.get("full_name", ""), body.phone or "", f"pk_{code}",
     )
-    return {"ok": True, "referral_link": f"https://t.me/uztax_pro_bot?start=partner_{code}"}
+    return {"ok": True, "referral_link": f"https://t.me/uzbtax_bot?start=partner_{code}"}
 
 
 @router.get("/partner/stats")
@@ -529,6 +529,26 @@ def soliq_submit(user: dict = Depends(get_current_user)):
         "rate": rate,
         "message": f"Deklaratsiya qabul qilindi. To'lanadigan: {tax_amount:,} so'm"
     }
+
+
+# ─── GDPR / Data Rights (Закон РУз «О персональных данных») ──
+@router.get("/user/data-export")
+def data_export(user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    payments = fetch("SELECT * FROM payments WHERE user_tg_id = %s ORDER BY created_at DESC", tg_id)
+    expenses = fetch("SELECT * FROM expenses WHERE user_tg_id = %s ORDER BY created_at DESC", tg_id)
+    data = {"user": user, "payments": payments, "expenses": expenses, "exported_at": datetime.now().isoformat()}
+    from fastapi.responses import JSONResponse
+    return JSONResponse(content=data, headers={"Content-Disposition": f'attachment; filename="uztax-data-{tg_id}.json"'})
+
+@router.delete("/user/data-delete")
+def data_delete(user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    execute("DELETE FROM payments WHERE user_tg_id = %s", tg_id)
+    execute("DELETE FROM expenses WHERE user_tg_id = %s", tg_id)
+    execute("DELETE FROM users WHERE tg_id = %s", tg_id)
+    logger.info(f"User data deleted: {tg_id}")
+    return {"ok": True, "message": "Barcha ma'lumotlar o'chirildi"}
 
 
 # ─── Analytics ────────────────────────────────────────────────

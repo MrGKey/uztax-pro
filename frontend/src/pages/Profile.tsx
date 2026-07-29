@@ -110,9 +110,20 @@ export default function Profile() {
     );
   }
 
-  if (!user) {
+  const needsReg = user && (!user.phone || !user.inn || !user.full_name);
+  if (!user || needsReg) {
     return <RegisterForm onDone={(u) => setUser(u)} />;
   }
+
+  // Track first visit
+  try {
+    if (!localStorage.getItem("uztax_visited")) {
+      localStorage.setItem("uztax_visited", "1");
+      fetch(`${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/analytics/track`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+      }).catch(() => {});
+    }
+  } catch {}
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -362,6 +373,24 @@ export default function Profile() {
             <span className="settings-label">Foydalanish shartlari</span>
             <span className="settings-arrow">{Icons.arrowRight}</span>
           </div>
+          <div className="settings-item" onClick={async () => {
+            haptic("impact");
+            try {
+              const res = await fetch(`${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/user/data-export`, {
+                headers: { "Content-Type": "application/json" },
+              });
+              const blob = await res.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a"); a.href = url; a.download = "uztax-data.json"; a.click();
+              showToast("Ma'lumotlar yuklandi");
+            } catch { showToast("Xatolik"); }
+          }}>
+            <div className="settings-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+            </div>
+            <span className="settings-label">Eksport ma'lumotlarni</span>
+            <span className="settings-arrow">{Icons.arrowRight}</span>
+          </div>
           <div className="settings-item" onClick={() => { haptic("impact"); clearAllData(); }}>
             <div className="settings-icon" style={{ background: "rgba(248, 113, 113, 0.1)" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
@@ -399,11 +428,12 @@ function RegisterForm({ onDone }: { onDone: (u: User) => void }) {
   const [taxRegime, setTaxRegime] = useState("service");
   const [currency, setCurrency] = useState("UZS");
   const [saving, setSaving] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   const nameValid = name.length >= 3;
   const phoneValid = /^\+998\d{9}$/.test(phone);
   const innValid = /^\d{9}$/.test(inn);
-  const canSubmit = nameValid && phoneValid && innValid;
+  const canSubmit = nameValid && phoneValid && innValid && consent;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -432,6 +462,11 @@ function RegisterForm({ onDone }: { onDone: (u: User) => void }) {
         <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.03em" }}>Ro'yxatdan o'tish</h2>
         <p style={{ color: "var(--text-secondary)", marginTop: 8, fontSize: 14 }}>IP ma'lumotlarini kiriting</p>
       </div>
+
+        <div style={{ background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.15)", borderRadius: 12, padding: "12px 16px", marginBottom: 12, fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5 }}>
+          <strong style={{ color: "var(--success)" }}>Уважаемый пользователь!</strong><br />
+          В соответствии с Законом РУз «О персональных данных» (№ЗРУ-547 от 02.07.2019), пожалуйста, подтвердите согласие.
+        </div>
 
         <div className="card fade-in-d1">
           <div className="input-group">
@@ -466,7 +501,13 @@ function RegisterForm({ onDone }: { onDone: (u: User) => void }) {
           </div>
         </div>
 
-      <button className="btn fade-in-d2" onClick={handleSubmit} disabled={saving || !canSubmit}>
+        <label style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 16, cursor: "pointer", fontSize: 13, color: "var(--text-secondary)" }}>
+          <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)}
+            style={{ width: 18, height: 18, accentColor: "var(--primary)", cursor: "pointer" }} />
+          Я согласен на обработку персональных данных согласно <span style={{ color: "var(--primary)", cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); window.location.href = "/#/legal"; }}>политике</span>
+        </label>
+
+        <button className="btn fade-in-d2" onClick={handleSubmit} disabled={saving || !canSubmit}>
         {saving ? "Saqlanmoqda..." : "Ro'yxatdan o'tish"}
       </button>
     </div>
