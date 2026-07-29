@@ -56,11 +56,26 @@ export default function Profile() {
     toastTimer.current = setTimeout(() => setToast(""), 2000);
   };
 
+  const clearAllData = async () => {
+    haptic("impact");
+    const ok = await showConfirm("Barcha ma'lumotlarni o'chirishni tasdiqlaysizmi?");
+    if (ok) {
+      try {
+        const keys = Object.keys(localStorage).filter((k) => k.startsWith("uztax_"));
+        keys.forEach((k) => localStorage.removeItem(k));
+      } catch {}
+      window.location.reload();
+    }
+  };
+
   const handleLogout = async () => {
     haptic("impact");
     const ok = await showConfirm("Chiqishni tasdiqlaysizmi?");
     if (ok) {
-      try { localStorage.removeItem("uztax_onboarded"); } catch {}
+      try {
+        const keys = Object.keys(localStorage).filter((k) => k.startsWith("uztax_"));
+        keys.forEach((k) => localStorage.removeItem(k));
+      } catch {}
       window.location.reload();
     }
   };
@@ -345,6 +360,13 @@ export default function Profile() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
             </div>
             <span className="settings-label">Foydalanish shartlari</span>
+            <span className="settings-arrow">{Icons.arrowRight}</span>
+          </div>
+          <div className="settings-item" onClick={() => { haptic("impact"); clearAllData(); }}>
+            <div className="settings-icon" style={{ background: "rgba(248, 113, 113, 0.1)" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+            </div>
+            <span className="settings-label" style={{ color: "var(--danger)" }}>O'chirish ma'lumotlarni</span>
             <span className="settings-arrow">{Icons.arrowRight}</span>
           </div>
           <div className="settings-item" onClick={() => { haptic("impact"); handleLogout(); }}>
