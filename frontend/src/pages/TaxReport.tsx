@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api, type Report } from "../utils/api";
-import { BarChart } from "../utils/icons";
+import { Icons, BarChart } from "../utils/icons";
 
-const MONTHS = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт"];
+const MONTHS = ["Yan", "Fev", "Mar", "Apr", "May", "Iyun", "Iyul", "Avg", "Sen", "Okt"];
 
 export default function TaxReport() {
   const navigate = useNavigate();
@@ -19,8 +19,8 @@ export default function TaxReport() {
   return (
     <div>
       <div className="header fade-in">
-        <button className="header-back" onClick={() => navigate("/")}>{/* Chevron via CSS */}←</button>
-        <h1 className="header-title">Налоговый отчёт</h1>
+        <button className="header-back" onClick={() => navigate("/")}>{Icons.chevronLeft}</button>
+        <h1 className="header-title">Soliq hisoboti</h1>
       </div>
 
       {loading ? (
@@ -31,8 +31,8 @@ export default function TaxReport() {
       ) : (
         <>
           <div className="card card-primary stat fade-in-d1" style={{ padding: 20 }}>
-            <div className="stat-label" style={{ color: "rgba(0,0,0,0.6)", textTransform: "none", fontSize: 12 }}>
-              Доход за месяц
+            <div className="stat-label" style={{ color: "rgba(0,0,0,0.55)", textTransform: "none", fontSize: 12 }}>
+              Oylik daromad
             </div>
             <div className="stat-value-lg" style={{ marginTop: 4 }}>
               {fmt(report?.revenue ?? 0)}
@@ -41,33 +41,33 @@ export default function TaxReport() {
 
           <div className="card fade-in-d2">
             <div className="row">
-              <span className="row-label">Налог 1%</span>
+              <span className="row-label">1% soliq</span>
               <span className="row-value" style={{ color: "var(--danger)" }}>
                 {fmt(report?.tax_1pct ?? 0)}
               </span>
             </div>
             <div className="row">
-              <span className="row-label">Расходы</span>
+              <span className="row-label">Xarajatlar</span>
               <span className="row-value">{fmt(report?.expenses ?? 0)}</span>
             </div>
             <div className="divider" />
             <div className="row">
-              <span style={{ fontSize: 14, fontWeight: 600 }}>Чистый доход</span>
+              <span style={{ fontSize: 14, fontWeight: 600 }}>Sof daromad</span>
               <span style={{ fontSize: 15, fontWeight: 700, color: "var(--success)" }}>
                 {fmt(report?.net ?? 0)}
               </span>
             </div>
             <div style={{ marginTop: 12 }}>
               <div className="row">
-                <span className="row-label">Платежей</span>
+                <span className="row-label">To'lovlar soni</span>
                 <span className="badge badge-primary">{report?.payment_count ?? 0}</span>
               </div>
             </div>
           </div>
 
           <div className="card fade-in-d3">
-            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8, fontWeight: 500 }}>
-              Доходы по месяцам
+            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 10, fontWeight: 500 }}>
+              Oylik daromadlar
             </div>
             <BarChart
               months={MONTHS}

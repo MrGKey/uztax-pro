@@ -20,9 +20,12 @@ export default function PaymentLink() {
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
-  const fmt = (n: number) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-
-  useEffect(() => { if (showToast) { const t = setTimeout(() => setShowToast(false), 2000); return () => clearTimeout(t); } }, [showToast]);
+  useEffect(() => {
+    if (showToast) {
+      const t = setTimeout(() => setShowToast(false), 2000);
+      return () => clearTimeout(t);
+    }
+  }, [showToast]);
 
   const handleGenerate = async () => {
     const amt = parseInt(amount.replace(/\s/g, ""), 10);
@@ -43,20 +46,20 @@ export default function PaymentLink() {
     const amt = parseInt(amount.replace(/\s/g, ""), 10);
     return (
       <div>
-        <div className="header">
+        <div className="header fade-in">
           <button className="header-back" onClick={() => { setLink(null); setAmount(""); }}>{Icons.chevronLeft}</button>
-          <h1 className="header-title">Ссылка создана</h1>
+          <h1 className="header-title">Havola yaratildi</h1>
         </div>
-        <div className="card card-primary stat" style={{ padding: 24 }}>
+        <div className="card card-primary stat fade-in-d1" style={{ padding: 24 }}>
           <div className="link-result-icon">
             {MethodIcons[method]()}
           </div>
-          <div className="stat-value-lg" style={{ fontSize: 30 }}>{fmt(amt)} so'm</div>
+          <div className="stat-value-lg" style={{ fontSize: 30 }}>{amt.toLocaleString()} so'm</div>
           <div className="stat-label" style={{ opacity: 0.6, marginTop: 8, textTransform: "none", fontSize: 13 }}>
             {METHODS.find((m) => m.id === method)?.label}
           </div>
         </div>
-        <div className="card">
+        <div className="card fade-in-d2">
           <div style={{
             background: "var(--surface-alt)", borderRadius: 12, padding: 14,
             fontSize: 12, wordBreak: "break-all", marginBottom: 16,
@@ -65,13 +68,13 @@ export default function PaymentLink() {
             {link.url}
           </div>
           <button className="btn btn-gold" onClick={() => { copyToClipboard(link.url); setShowToast(true); }}>
-            {Icons.check} Скопировано
+            {Icons.check} Nusxalandi
           </button>
           <button className="btn btn-secondary" style={{ marginTop: 10 }} onClick={() => { setLink(null); setAmount(""); }}>
-            Создать ещё
+            Yangi havola
           </button>
         </div>
-        {showToast && <div className="toast">Ссылка скопирована</div>}
+        {showToast && <div className="toast">Havola nusxalandi</div>}
       </div>
     );
   }
@@ -80,21 +83,21 @@ export default function PaymentLink() {
     <div>
       <div className="header fade-in">
         <button className="header-back" onClick={() => navigate("/")}>{Icons.chevronLeft}</button>
-        <h1 className="header-title">Ссылка на оплату</h1>
+        <h1 className="header-title">To'lov havolasi</h1>
       </div>
 
       <div className="card card-primary stat fade-in-d1" style={{ padding: 20 }}>
-        <div className="stat-label" style={{ color: "rgba(0,0,0,0.6)", textTransform: "none", fontSize: 12, marginBottom: 4 }}>
-          Создайте платёжную ссылку
+        <div className="stat-label" style={{ color: "rgba(0,0,0,0.55)", textTransform: "none", fontSize: 12, marginBottom: 4 }}>
+          To'lov havolasini yarating
         </div>
         <div style={{ fontSize: 14, opacity: 0.7 }}>
-          Клиент оплатит в один клик
+          Mijoz bir bosishda to'laydi
         </div>
       </div>
 
       <div className="card fade-in-d2">
         <div className="input-group" style={{ marginBottom: 12 }}>
-          <label>Платёжная система</label>
+          <label>To'lov tizimi</label>
         </div>
         <div className="method-grid">
           {METHODS.map((m) => {
@@ -110,12 +113,12 @@ export default function PaymentLink() {
       </div>
 
       <button className="btn fade-in-d3" onClick={() => setShowSheet(true)}>
-        {Icons.payment} Указать сумму
+        {Icons.payment} Summani kiriting
       </button>
 
       <BottomSheet open={showSheet} onClose={() => setShowSheet(false)}>
         <div className="input-group" style={{ marginBottom: 20 }}>
-          <label style={{ textAlign: "center", display: "block" }}>Сумма (сум)</label>
+          <label style={{ textAlign: "center", display: "block" }}>Summa (so'm)</label>
           <input
             className="input input-lg"
             type="number"
@@ -126,10 +129,10 @@ export default function PaymentLink() {
           />
         </div>
         <button className="btn" onClick={handleGenerate} disabled={loading || !amount || parseInt(amount) < 100}>
-          {loading ? "Создание..." : "Создать ссылку"}
+          {loading ? "Yaratilmoqda..." : "Havolani yaratish"}
         </button>
         <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={() => setShowSheet(false)}>
-          Отмена
+          Bekor qilish
         </button>
       </BottomSheet>
     </div>

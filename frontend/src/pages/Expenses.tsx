@@ -6,11 +6,11 @@ import BottomSheet from "../components/BottomSheet";
 import { formatSum } from "../utils/telegram";
 
 const categories: Record<string, string> = {
-  goods: "Товары",
-  rent: "Аренда",
-  salary: "Зарплата",
-  tax: "Налоги",
-  other: "Прочее",
+  goods: "Tovarlar",
+  rent: "Ijara",
+  salary: "Maosh",
+  tax: "Soliq",
+  other: "Boshqa",
 };
 
 export default function Expenses() {
@@ -43,16 +43,16 @@ export default function Expenses() {
   return (
     <div>
       <div className="header fade-in">
-        <button className="header-back" onClick={() => navigate("/")}>←</button>
-        <h1 className="header-title">Расходы</h1>
+        <button className="header-back" onClick={() => navigate("/")}>{Icons.chevronLeft}</button>
+        <h1 className="header-title">Xarajatlar</h1>
         <button className="btn btn-sm btn-ghost" onClick={() => setShowSheet(true)} style={{ width: "auto", padding: "8px 12px" }}>
           {Icons.plus}
         </button>
       </div>
 
       <div className="card card-primary stat fade-in-d1" style={{ padding: 20 }}>
-        <div className="stat-label" style={{ color: "rgba(0,0,0,0.6)", textTransform: "none", fontSize: 12 }}>
-          Всего расходов
+        <div className="stat-label" style={{ color: "rgba(0,0,0,0.55)", textTransform: "none", fontSize: 12 }}>
+          Jami xarajatlar
         </div>
         <div className="stat-value-lg" style={{ marginTop: 4 }}>{formatSum(total)}</div>
       </div>
@@ -65,9 +65,9 @@ export default function Expenses() {
       ) : expenses.length === 0 ? (
         <div className="empty fade-in-d2">
           <div className="empty-icon" style={{ opacity: 0.3 }}>{Icons.expense}</div>
-          <div className="empty-text">Расходов пока нет</div>
+          <div className="empty-text">Xarajatlar yo'q</div>
           <button className="btn btn-secondary" style={{ marginTop: 20, width: "auto" }} onClick={() => setShowSheet(true)}>
-            {Icons.plus} Добавить первый расход
+            {Icons.plus} Birinchi xarajat
           </button>
         </div>
       ) : (
@@ -93,11 +93,11 @@ export default function Expenses() {
 
       <BottomSheet open={showSheet} onClose={() => setShowSheet(false)}>
         <div className="input-group" style={{ marginBottom: 16 }}>
-          <label style={{ textAlign: "center", display: "block" }}>Сумма (сум)</label>
+          <label style={{ textAlign: "center", display: "block" }}>Summa (so'm)</label>
           <input className="input input-lg" type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
         </div>
         <div className="input-group">
-          <label>Категория</label>
+          <label>Kategoriya</label>
           <select className="select" value={category} onChange={(e) => setCategory(e.target.value)}>
             {Object.entries(categories).map(([id, label]) => (
               <option key={id} value={id}>{label}</option>
@@ -105,10 +105,10 @@ export default function Expenses() {
           </select>
         </div>
         <button className="btn" onClick={handleAdd} disabled={!amount}>
-          {Icons.check} Сохранить
+          {Icons.check} Saqlash
         </button>
         <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={() => setShowSheet(false)}>
-          Отмена
+          Bekor qilish
         </button>
       </BottomSheet>
     </div>

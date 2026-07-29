@@ -90,7 +90,7 @@ export function ChartSparkline({ data }: { data?: number[] }) {
           <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <path d={fillD} fill="url(#sparkFill)" className="spark-fill" />
+      <path d={fillD} fill="url(#sparkFill)" />
       <path d={d} fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" className="spark-line" />
     </svg>
   );
@@ -106,8 +106,8 @@ export function BarChart({ months, data, color = "var(--primary)" }: { months: s
     <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} className="bar-chart">
       <defs>
         <linearGradient id="barGrad" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.9" />
+          <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.85" />
         </linearGradient>
       </defs>
       {data.map((v, i) => {
@@ -116,13 +116,13 @@ export function BarChart({ months, data, color = "var(--primary)" }: { months: s
         const y = chartH - barH;
         return (
           <g key={i} className="bar-group">
-            <rect x={x} y={y} width={barW} height={barH || 2} rx="4" fill={color} fillOpacity="0.7" className="bar-rect" />
+            <rect x={x} y={y} width={barW} height={barH || 2} rx="4" fill={color} fillOpacity="0.6" className="bar-rect" />
             <rect x={x} y={y} width={barW} height={barH || 2} rx="4" fill="url(#barGrad)" className="bar-gradient-rect" />
           </g>
         );
       })}
       {months.map((m, i) => (
-        <text key={i} x={i * (barW + 6) + barW / 2} y={h - 2} textAnchor="middle" fill="var(--text-secondary)" fontSize="8" fontFamily="inherit">
+        <text key={i} x={i * (barW + 6) + barW / 2} y={h - 2} textAnchor="middle" fill="var(--text-secondary)" fontSize="8" fontFamily="Inter, sans-serif">
           {m}
         </text>
       ))}
@@ -130,23 +130,60 @@ export function BarChart({ months, data, color = "var(--primary)" }: { months: s
   );
 }
 
-export function HeroIllustration() {
+export function PremiumHero() {
   return (
-    <svg width="140" height="120" viewBox="0 0 140 120" fill="none" className="hero-illustration">
-      <circle cx="100" cy="40" r="28" fill="var(--gold)" fillOpacity="0.08" />
-      <circle cx="100" cy="40" r="18" fill="var(--gold)" fillOpacity="0.15" />
-      <circle cx="100" cy="40" r="8" fill="var(--gold)" fillOpacity="0.4" />
-      <rect x="6" y="20" width="32" height="44" rx="6" fill="var(--primary)" fillOpacity="0.15" stroke="var(--primary)" strokeWidth="1.2" />
-      <rect x="10" y="28" width="24" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.4" />
-      <rect x="10" y="36" width="16" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.25" />
-      <rect x="10" y="44" width="20" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.25" />
-      <rect x="10" y="52" width="12" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.25" />
-      <path d="M50 80 L60 52 L70 65 L80 35 L90 58 L100 42" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.6" />
-      <circle cx="100" cy="42" r="3" fill="var(--gold)" />
-      <path d="M50 80 L60 52 L70 65 L80 35 L90 58 L100 42" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" fill="none" strokeDasharray="2 4" opacity="0.4" />
-      <rect x="116" y="28" width="18" height="36" rx="5" fill="var(--gold)" fillOpacity="0.12" stroke="var(--gold)" strokeWidth="1" />
-      <rect x="120" y="40" width="10" height="2" rx="1" fill="var(--gold)" fillOpacity="0.35" />
-      <rect x="120" y="46" width="7" height="2" rx="1" fill="var(--gold)" fillOpacity="0.35" />
+    <svg width="150" height="130" viewBox="0 0 150 130" fill="none" className="hero-illustration">
+      <defs>
+        <linearGradient id="tealGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#77b39b" />
+          <stop offset="100%" stopColor="#5a9a82" />
+        </linearGradient>
+        <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#f9d898" />
+          <stop offset="100%" stopColor="#f0c470" />
+        </linearGradient>
+        <linearGradient id="cardGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgba(119,179,155,0.2)" />
+          <stop offset="100%" stopColor="rgba(119,179,155,0.05)" />
+        </linearGradient>
+      </defs>
+
+      {/* Glow behind */}
+      <circle cx="90" cy="45" r="40" fill="url(#tealGrad)" fillOpacity="0.08" />
+      <circle cx="90" cy="45" r="25" fill="url(#goldGrad)" fillOpacity="0.06" />
+
+      {/* Stack of cards */}
+      <rect x="16" y="46" width="34" height="44" rx="6" fill="url(#cardGrad)" stroke="var(--primary)" strokeWidth="0.8" strokeOpacity="0.3" />
+      <rect x="12" y="40" width="34" height="44" rx="6" fill="var(--surface-alt)" stroke="var(--primary)" strokeWidth="0.8" strokeOpacity="0.2" />
+      <rect x="8" y="34" width="34" height="44" rx="6" fill="var(--surface)" stroke="var(--primary)" strokeWidth="1" strokeOpacity="0.4" />
+      {/* Lines on card */}
+      <rect x="14" y="42" width="22" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.3" />
+      <rect x="14" y="49" width="16" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.2" />
+      <rect x="14" y="56" width="18" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.2" />
+      {/* Gold accent on card */}
+      <rect x="14" y="63" width="10" height="3" rx="1.5" fill="var(--gold)" fillOpacity="0.3" />
+
+      {/* Chart line */}
+      <path d="M54 65 L68 48 L80 58 L92 38 L104 52 L116 42" stroke="url(#goldGrad)" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7" />
+      <path d="M54 65 L68 48 L80 58 L92 38 L104 52 L116 42" stroke="url(#tealGrad)" strokeWidth="1.2" strokeLinecap="round" fill="none" strokeDasharray="2 3" opacity="0.5" />
+
+      {/* End dot */}
+      <circle cx="116" cy="42" r="4" fill="var(--gold)" />
+
+      {/* Gold coin */}
+      <circle cx="120" cy="68" r="14" fill="url(#goldGrad)" fillOpacity="0.15" stroke="var(--gold)" strokeWidth="0.8" strokeOpacity="0.3" />
+      <circle cx="120" cy="68" r="10" fill="url(#goldGrad)" fillOpacity="0.1" />
+      <text x="120" y="72" textAnchor="middle" fill="var(--gold)" fontSize="11" fontWeight="700" opacity="0.6">$</text>
+
+      {/* Teal coin */}
+      <circle cx="136" cy="58" r="10" fill="url(#tealGrad)" fillOpacity="0.12" stroke="var(--primary)" strokeWidth="0.8" strokeOpacity="0.3" />
+      <text x="136" y="62" textAnchor="middle" fill="var(--primary)" fontSize="9" fontWeight="700" opacity="0.5">S</text>
+
+      {/* Decorative dots */}
+      <circle cx="4" cy="12" r="2" fill="var(--gold)" fillOpacity="0.15" />
+      <circle cx="60" cy="8" r="1.5" fill="var(--primary)" fillOpacity="0.12" />
+      <circle cx="140" cy="20" r="2.5" fill="var(--gold)" fillOpacity="0.1" />
+      <circle cx="30" cy="28" r="1" fill="var(--primary)" fillOpacity="0.08" />
     </svg>
   );
 }
