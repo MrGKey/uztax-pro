@@ -6,9 +6,13 @@ import httpx
 from datetime import datetime, timezone, date, timedelta
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Header, Depends
+from fastapi import APIRouter, HTTPException, Header, Depends, Request
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
 
 from services.database import fetch, fetchrow, execute
 from services.payme import generate_payme_link
@@ -118,7 +122,8 @@ def update_profile(
 
 
 @router.post("/payment/generate")
-def generate_payment(
+@limiter.limit("10/minute")
+def generate_payment(request: Request,
     body: PaymentRequest,
     user: dict = Depends(get_current_user),
 ):
@@ -187,7 +192,8 @@ def list_expenses(user: dict = Depends(get_current_user)):
 
 
 @router.post("/expenses")
-def add_expense(
+@limiter.limit("20/minute")
+def add_expense(request: Request,
     body: AddExpenseRequest,
     user: dict = Depends(get_current_user),
 ):

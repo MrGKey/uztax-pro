@@ -14,8 +14,9 @@ from aiogram.types import (
 )
 from aiogram.filters import Command
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -49,11 +50,41 @@ app = FastAPI(title="UzTax Pro API", lifespan=app_lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 FRONTEND_URL = config.app_url.rstrip("/")
+
+# Security Middleware Stack
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Content-Security-Policy"] = f"default-src 'self'; frame-ancestors https://telegram.org; script-src 'self'"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    return response
+
+@app.middleware("http")
+async def audit_logging(request: Request, call_next):
+    logger.info(f"👉 {request.method} {request.url.path}")
+    response = await call_next(request)
+    if request.method in ("POST", "PUT", "DELETE"):
+        logger.info(f"✅ {request.method} {request.url.path} → {response.status_code}")
+    return response
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=[
+    "uztax-pro.onrender.com",
+    "uztax-frontend.onrender.com",
+    "localhost",
+    "127.0.0.1",
+    "*.onrender.com",
+])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[FRONTEND_URL],
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 app.include_router(api_router, prefix="/api")
 
@@ -135,38 +166,38 @@ def run_bot_sync():
 
         import asyncio as _asyncio
 
+        async def broadcast_messages(users, text_func):
+            sem = _asyncio.Semaphore(20)
+            async def send(u):
+                async with sem:
+                    try:
+                        await bot.send_message(u["tg_id"], text_func(u))
+                    except:
+                        pass
+            await _asyncio.gather(*[send(u) for u in users])
+
         async def reminder_job():
-            tz = timezone(timedelta(hours=5))  # Tashkent UTC+5
+            tz = timezone(timedelta(hours=5))
             while True:
                 try:
                     await _asyncio.sleep(3600)
                     now = datetime.now(tz)
                     if now.day == 22 and now.hour == 10:
                         users = fetch("SELECT tg_id, full_name FROM users")
-                        for u in users:
-                            try:
-                                await bot.send_message(
-                                    u["tg_id"],
-                                    f"🔔 <b>Eslatma!</b>\n\n"
-                                    f"{u['full_name']}, 25-kungacha {3 - (now.day - 22)} kun qoldi.\n"
-                                    f"1% soliqni to'lashni unutmang.\n\n"
-                                    f"Открыть приложение: {config.app_url}"
-                                )
-                            except:
-                                pass
+                        await broadcast_messages(users, lambda u:
+                            f"🔔 <b>Eslatma!</b>\n\n"
+                            f"{u['full_name']}, 25-kungacha {3 - now.day + 22} kun qoldi.\n"
+                            f"1% soliqni to'lashni unutmang.\n\n"
+                            f"Открыть приложение: {config.app_url}"
+                        )
                     if now.day == 25 and now.hour == 9:
                         users = fetch("SELECT tg_id FROM users")
-                        for u in users:
-                            try:
-                                await bot.send_message(
-                                    u["tg_id"],
-                                    f"⚠️ <b>Bugun — soliq to'lovi kuni!</b>\n\n"
-                                    f"Bugun 1% soliqni to'lash kuni. Kechikish uchun peni 0.5%/kun."
-                                )
-                            except:
-                                pass
-                except:
-                    pass
+                        await broadcast_messages(users, lambda u:
+                            f"⚠️ <b>Bugun — soliq to'lovi kuni!</b>\n\n"
+                            f"Bugun 1% soliqni to'lash kuni. Kechikish uchun peni 0.5%/kun."
+                        )
+                except Exception as e:
+                    logger.error(f"Reminder job error: {e}")
 
         webhook_ok = False
         try:
