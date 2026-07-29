@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { haptic } from "../utils/telegram";
 import { OnboardIllustration1, OnboardIllustration2, OnboardIllustration3 } from "../utils/icons";
 
 const slides = [
@@ -33,24 +34,43 @@ export function useOnboarding() {
 
 export default function Onboarding({ onDone }: { onDone: () => void }) {
   const [slide, setSlide] = useState(0);
+  const [animDir, setAnimDir] = useState<"left" | "right">("right");
   const s = slides[slide];
 
+  useEffect(() => {
+    const t = setInterval(() => {
+      setAnimDir("right");
+      setSlide((p) => (p < slides.length - 1 ? p + 1 : 0));
+    }, 4000);
+    return () => clearInterval(t);
+  }, []);
+
   const next = () => {
-    if (slide < slides.length - 1) setSlide(slide + 1);
-    else onDone();
+    haptic("impact");
+    if (slide < slides.length - 1) {
+      setAnimDir("right");
+      setSlide(slide + 1);
+    } else onDone();
+  };
+
+  const skip = () => {
+    haptic("impact");
+    onDone();
   };
 
   return (
     <div className="onboard-overlay">
       <div className="onboard-content">
-        <div className="onboard-illustration">
-          <s.Illustration />
+        <div key={slide} className={`onboard-slide slide-${animDir}`}>
+          <div className="onboard-illustration">
+            <s.Illustration />
+          </div>
+          <h2 className="onboard-title">{s.title}</h2>
+          <p className="onboard-desc">{s.desc}</p>
         </div>
-        <h2 className="onboard-title">{s.title}</h2>
-        <p className="onboard-desc">{s.desc}</p>
         <div className="onboard-dots">
           {slides.map((_, i) => (
-            <button key={i} className={`onboard-dot${i === slide ? " active" : ""}`} onClick={() => setSlide(i)} />
+            <button key={i} className={`onboard-dot${i === slide ? " active" : ""}`} onClick={() => { haptic("impact"); setAnimDir(i > slide ? "right" : "left"); setSlide(i); }} />
           ))}
         </div>
       </div>
@@ -59,7 +79,7 @@ export default function Onboarding({ onDone }: { onDone: () => void }) {
           {slide < slides.length - 1 ? "Davom etish" : "Boshlash"}
         </button>
         {slide < slides.length - 1 && (
-          <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={onDone}>
+          <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={skip}>
             O'tkazib yuborish
           </button>
         )}

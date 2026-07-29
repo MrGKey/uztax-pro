@@ -1,24 +1,16 @@
 import { Outlet, NavLink } from "react-router-dom";
-import { useEffect } from "react";
+import { haptic } from "../utils/telegram";
 import { Icons } from "../utils/icons";
 
 const links = [
-  { to: "/", icon: Icons.home, label: "Главная" },
-  { to: "/payment", icon: Icons.payment, label: "Платёж" },
-  { to: "/tax", icon: Icons.tax, label: "Налог" },
-  { to: "/expenses", icon: Icons.expense, label: "Расходы" },
-  { to: "/profile", icon: Icons.profile, label: "Профиль" },
+  { to: "/", icon: Icons.home, label: "Bosh sahifa" },
+  { to: "/payment", icon: Icons.payment, label: "To'lov" },
+  { to: "/tax", icon: Icons.tax, label: "Soliq" },
+  { to: "/expenses", icon: Icons.expense, label: "Xarajat" },
+  { to: "/profile", icon: Icons.profile, label: "Profil" },
 ];
 
 export default function Layout() {
-  useEffect(() => {
-    try {
-      const WebApp = (window as any).Telegram?.WebApp;
-      WebApp?.ready();
-      WebApp?.expand();
-    } catch {}
-  }, []);
-
   return (
     <div>
       <Outlet />
@@ -29,6 +21,7 @@ export default function Layout() {
             to={l.to}
             end={l.to === "/"}
             className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+            onClick={() => haptic("impact")}
           >
             <div className="nav-icon">{l.icon}</div>
             {l.label}

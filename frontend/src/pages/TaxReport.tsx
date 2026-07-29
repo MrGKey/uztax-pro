@@ -6,7 +6,7 @@ import { AnimatedNumber } from "../utils/useCountUp";
 import { haptic } from "../utils/telegram";
 import PullToRefresh from "../components/PullToRefresh";
 
-const MONTHS = ["Yan", "Fev", "Mar", "Apr", "May", "Iyun", "Iyul", "Avg", "Sen", "Okt"];
+const MONTHS = ["Yan", "Fev", "Mar", "Apr", "May", "Iyun", "Iyul", "Avg", "Sen", "Okt", "Noy", "Dek"];
 
 export default function TaxReport() {
   const navigate = useNavigate();
@@ -14,31 +14,48 @@ export default function TaxReport() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  const now = new Date();
+  const [monthOffset, setMonthOffset] = useState(0);
+  const currentMonth = new Date(now.getFullYear(), now.getMonth() - monthOffset);
+
   const load = async (silent = false) => {
     if (!silent) setLoading(true);
-    try {
-      const r = await api.report();
-      setReport(r);
-    } catch {} finally {
-      setLoading(false);
-    }
+    try { const r = await api.report(); setReport(r); } catch {} finally { if (!silent) setLoading(false); }
   };
 
   useEffect(() => { load(); }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
+    await api.report(true);
     await load(true);
     setRefreshing(false);
   };
 
-  const fmt = (n: number) => n.toLocaleString("uz-UZ") + " so'm";
+  const monthLabel = monthOffset === 0
+    ? "Joriy oy"
+    : currentMonth.toLocaleDateString("uz-UZ", { month: "long", year: "numeric" });
+
+  const barData = [80, 95, 70, 120, 110, 90, 130, 100, 115, 140];
+  const barMonths = monthOffset === 0
+    ? MONTHS.slice(0, 10)
+    : ["1", "5", "10", "15", "20", "25", "30"];
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="header fade-in">
         <button className="header-back" onClick={() => { haptic("impact"); navigate("/"); }}>{Icons.chevronLeft}</button>
         <h1 className="header-title">Soliq hisoboti</h1>
+      </div>
+
+      <div className="month-selector fade-in-d1">
+        <button className="month-nav" onClick={() => { haptic("impact"); setMonthOffset(Math.min(monthOffset + 1, 11)); }} disabled={monthOffset >= 11}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
+        </button>
+        <span className="month-current">{monthLabel}</span>
+        <button className="month-nav" onClick={() => { haptic("impact"); setMonthOffset(Math.max(monthOffset - 1, 0)); }} disabled={monthOffset <= 0}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6" /></svg>
+        </button>
       </div>
 
       {loading ? (
@@ -48,16 +65,16 @@ export default function TaxReport() {
         </div>
       ) : (
         <>
-          <div className="card card-primary stat fade-in-d1" style={{ padding: 20 }}>
+          <div className="card card-primary stat fade-in-d2" style={{ padding: 20 }}>
             <div className="stat-label" style={{ color: "rgba(0,0,0,0.55)", textTransform: "none", fontSize: 12 }}>
-              Oylik daromad
+              Daromad
             </div>
             <div className="stat-value-lg" style={{ marginTop: 4 }}>
               <AnimatedNumber value={report?.revenue ?? 0} />
             </div>
           </div>
 
-          <div className="card fade-in-d2">
+          <div className="card fade-in-d3">
             <div className="row">
               <span className="row-label">1% soliq</span>
               <span className="row-value" style={{ color: "var(--danger)" }}>
@@ -85,15 +102,11 @@ export default function TaxReport() {
             </div>
           </div>
 
-          <div className="card fade-in-d3">
+          <div className="card fade-in-d4">
             <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 10, fontWeight: 500 }}>
-              Oylik daromadlar
+              {monthOffset === 0 ? "Oylik daromadlar" : "Kunlik daromadlar"}
             </div>
-            <BarChart
-              months={MONTHS}
-              data={[80, 95, 70, 120, 110, 90, 130, 100, 115, 140]}
-              color="var(--primary)"
-            />
+            <BarChart months={barMonths} data={barData} color="var(--primary)" />
           </div>
         </>
       )}

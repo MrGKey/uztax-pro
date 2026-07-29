@@ -71,6 +71,12 @@ export const Icons = {
       <polyline points="20 6 9 17 4 12" />
     </svg>
   ),
+  trash: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
+  ),
 };
 
 export function ChartSparkline({ data }: { data?: number[] }) {
@@ -147,39 +153,23 @@ export function PremiumHero() {
           <stop offset="100%" stopColor="rgba(119,179,155,0.05)" />
         </linearGradient>
       </defs>
-
-      {/* Glow behind */}
       <circle cx="90" cy="45" r="40" fill="url(#tealGrad)" fillOpacity="0.08" />
       <circle cx="90" cy="45" r="25" fill="url(#goldGrad)" fillOpacity="0.06" />
-
-      {/* Stack of cards */}
       <rect x="16" y="46" width="34" height="44" rx="6" fill="url(#cardGrad)" stroke="var(--primary)" strokeWidth="0.8" strokeOpacity="0.3" />
       <rect x="12" y="40" width="34" height="44" rx="6" fill="var(--surface-alt)" stroke="var(--primary)" strokeWidth="0.8" strokeOpacity="0.2" />
       <rect x="8" y="34" width="34" height="44" rx="6" fill="var(--surface)" stroke="var(--primary)" strokeWidth="1" strokeOpacity="0.4" />
-      {/* Lines on card */}
       <rect x="14" y="42" width="22" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.3" />
       <rect x="14" y="49" width="16" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.2" />
       <rect x="14" y="56" width="18" height="3" rx="1.5" fill="var(--primary)" fillOpacity="0.2" />
-      {/* Gold accent on card */}
       <rect x="14" y="63" width="10" height="3" rx="1.5" fill="var(--gold)" fillOpacity="0.3" />
-
-      {/* Chart line */}
       <path d="M54 65 L68 48 L80 58 L92 38 L104 52 L116 42" stroke="url(#goldGrad)" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7" />
       <path d="M54 65 L68 48 L80 58 L92 38 L104 52 L116 42" stroke="url(#tealGrad)" strokeWidth="1.2" strokeLinecap="round" fill="none" strokeDasharray="2 3" opacity="0.5" />
-
-      {/* End dot */}
       <circle cx="116" cy="42" r="4" fill="var(--gold)" />
-
-      {/* Gold coin */}
       <circle cx="120" cy="68" r="14" fill="url(#goldGrad)" fillOpacity="0.15" stroke="var(--gold)" strokeWidth="0.8" strokeOpacity="0.3" />
       <circle cx="120" cy="68" r="10" fill="url(#goldGrad)" fillOpacity="0.1" />
       <text x="120" y="72" textAnchor="middle" fill="var(--gold)" fontSize="11" fontWeight="700" opacity="0.6">$</text>
-
-      {/* Teal coin */}
       <circle cx="136" cy="58" r="10" fill="url(#tealGrad)" fillOpacity="0.12" stroke="var(--primary)" strokeWidth="0.8" strokeOpacity="0.3" />
       <text x="136" y="62" textAnchor="middle" fill="var(--primary)" fontSize="9" fontWeight="700" opacity="0.5">S</text>
-
-      {/* Decorative dots */}
       <circle cx="4" cy="12" r="2" fill="var(--gold)" fillOpacity="0.15" />
       <circle cx="60" cy="8" r="1.5" fill="var(--primary)" fillOpacity="0.12" />
       <circle cx="140" cy="20" r="2.5" fill="var(--gold)" fillOpacity="0.1" />

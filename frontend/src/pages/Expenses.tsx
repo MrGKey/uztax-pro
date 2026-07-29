@@ -15,6 +15,8 @@ const categories: Record<string, string> = {
   other: "Boshqa",
 };
 
+const CATEGORY_LIST = Object.entries(categories);
+
 export default function Expenses() {
   const navigate = useNavigate();
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -28,25 +30,18 @@ export default function Expenses() {
   const touchRef = useRef(0);
   const [swiping, setSwiping] = useState<number | null>(null);
 
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(""), 2000);
-  };
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 2000); };
 
   const load = async (silent = false) => {
     if (!silent) setLoading(true);
-    try {
-      const e = await api.expenses();
-      setExpenses(e);
-    } catch {} finally {
-      setLoading(false);
-    }
+    try { const e = await api.expenses(); setExpenses(e); } catch {} finally { if (!silent) setLoading(false); }
   };
 
   useEffect(() => { load(); }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
+    await api.expenses(true);
     await load(true);
     setRefreshing(false);
   };
@@ -57,13 +52,10 @@ export default function Expenses() {
     try {
       const e = await api.addExpense(amt, category);
       setExpenses((prev) => [e, ...prev]);
-      setShowSheet(false);
-      setAmount("");
+      setShowSheet(false); setAmount("");
       haptic("success");
       showToast("Xarajat qo'shildi");
-    } catch (e: any) {
-      showToast(e.message || "Xatolik");
-    }
+    } catch (e: any) { showToast(e.message || "Xatolik"); }
   };
 
   const handleDelete = async (id: number) => {
@@ -76,14 +68,17 @@ export default function Expenses() {
       await api.deleteExpense(id);
       setExpenses((prev) => prev.filter((e) => e.id !== id));
       showToast("Xarajat o'chirildi");
-    } catch {
-      showToast("O'chirib bo'lmadi");
-    } finally {
-      setDeleting(null);
-    }
+    } catch { showToast("O'chirib bo'lmadi"); }
+    finally { setDeleting(null); }
   };
 
   const total = expenses.reduce((s, e) => s + e.amount, 0);
+
+  const categoryTotals = CATEGORY_LIST.map(([id, label]) => ({
+    id, label,
+    total: expenses.filter((e) => e.category === id).reduce((s, e) => s + e.amount, 0),
+    count: expenses.filter((e) => e.category === id).length,
+  })).filter((c) => c.count > 0);
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -100,15 +95,38 @@ export default function Expenses() {
           Jami xarajatlar
         </div>
         <div className="stat-value-lg" style={{ marginTop: 4 }}><AnimatedNumber value={total} /></div>
+        <div style={{ fontSize: 12, opacity: 0.5, marginTop: 4 }}>{expenses.length} ta xarajat</div>
       </div>
 
+      {categoryTotals.length > 0 && (
+        <div className="card fade-in-d2" style={{ padding: "12px 16px" }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.6px" }}>
+            Kategoriyalar bo'yicha
+          </div>
+          {categoryTotals.map((c) => {
+            const pct = total > 0 ? Math.round((c.total / total) * 100) : 0;
+            return (
+              <div key={c.id} style={{ marginBottom: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                  <span>{c.label}</span>
+                  <span style={{ fontWeight: 600 }}>{formatSum(c.total)}</span>
+                </div>
+                <div style={{ height: 4, background: "var(--surface-alt)", borderRadius: 2, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${pct}%`, background: "var(--primary)", borderRadius: 2, transition: "width 0.6s cubic-bezier(0.16, 1, 0.3, 1)" }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {loading ? (
-        <div className="fade-in-d2">
+        <div className="fade-in-d3">
           <div className="card"><div className="skeleton skeleton-h24" /></div>
           <div className="card"><div className="skeleton skeleton-h24" /></div>
         </div>
       ) : expenses.length === 0 ? (
-        <div className="empty fade-in-d2">
+        <div className="empty fade-in-d3">
           <div className="empty-icon" style={{ opacity: 0.3 }}>{Icons.expense}</div>
           <div className="empty-text">Xarajatlar yo'q</div>
           <button className="btn btn-secondary" style={{ marginTop: 20, width: "auto" }} onClick={() => { haptic("impact"); setShowSheet(true); }}>
@@ -116,13 +134,13 @@ export default function Expenses() {
           </button>
         </div>
       ) : (
-        <div className="card fade-in-d2" style={{ padding: "4px 16px" }}>
+        <div className="card fade-in-d3" style={{ padding: "4px 16px" }}>
           {expenses.map((e, i) => (
             <div
               key={e.id}
               id={`exp-${e.id}`}
               className={`expense-item ${deleting === e.id ? "expense-deleting" : ""}`}
-              style={{ animationDelay: `${i * 0.05}s`, position: "relative", overflow: "hidden" }}
+              style={{ animationDelay: `${i * 0.04}s`, position: "relative", overflow: "hidden" }}
               onTouchStart={(ev) => { touchRef.current = ev.touches[0].clientX; setSwiping(e.id); }}
               onTouchMove={(ev) => {
                 if (swiping !== e.id) return;
@@ -138,15 +156,11 @@ export default function Expenses() {
                 if (dx < -60 && el) {
                   el.style.transform = "translateX(-80px)";
                   setTimeout(() => handleDelete(e.id), 200);
-                } else {
-                  if (el) el.style.transform = "";
-                }
+                } else { if (el) el.style.transform = ""; }
                 setSwiping(null);
               }}
             >
-              <div className="expense-icon">
-                {CatIcons[e.category] || CatIcons.other}
-              </div>
+              <div className="expense-icon">{CatIcons[e.category] || CatIcons.other}</div>
               <div className="expense-info">
                 <div className="expense-amount">{formatSum(e.amount)}</div>
                 <div className="expense-meta">
@@ -169,7 +183,7 @@ export default function Expenses() {
         <div className="input-group">
           <label>Kategoriya</label>
           <select className="select" value={category} onChange={(e) => setCategory(e.target.value)}>
-            {Object.entries(categories).map(([id, label]) => (
+            {CATEGORY_LIST.map(([id, label]) => (
               <option key={id} value={id}>{label}</option>
             ))}
           </select>

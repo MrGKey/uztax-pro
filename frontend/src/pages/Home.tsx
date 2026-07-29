@@ -1,14 +1,21 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { api, type User } from "../utils/api";
+import { api, type User, type Payment } from "../utils/api";
 import { Icons, ChartSparkline, PremiumHero } from "../utils/icons";
 import PullToRefresh from "../components/PullToRefresh";
 import { AnimatedNumber } from "../utils/useCountUp";
-import { haptic } from "../utils/telegram";
+import { haptic, formatSum, formatDate } from "../utils/telegram";
+
+const PAYMENT_METHODS: Record<string, { label: string; color: string }> = {
+  payme: { label: "Payme", color: "#27AE60" },
+  click: { label: "Click", color: "#0972D3" },
+  uzum: { label: "Uzum", color: "#7B2FF7" },
+};
 
 export default function Home() {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,8 +24,9 @@ export default function Home() {
     if (!silent) setLoading(true);
     setError(null);
     try {
-      const u = await api.auth();
+      const [u, p] = await Promise.all([api.auth(), api.payments()]);
       setUser(u);
+      setPayments(p);
     } catch {
       setError("Ma'lumotlarni yuklab bo'lmadi");
     } finally {
@@ -30,26 +38,27 @@ export default function Home() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
+    await Promise.all([api.auth(true), api.payments(true)]);
     await load(true);
     setRefreshing(false);
   };
 
-  const todayRevenue = 0;
-  const monthlyRevenue = 0;
-  const monthlyTax = 0;
+  const todayRevenue = payments
+    .filter((p) => new Date(p.created_at).toDateString() === new Date().toDateString())
+    .reduce((s, p) => s + p.amount, 0);
+  const monthlyRevenue = payments.reduce((s, p) => s + p.amount, 0);
+  const monthlyTax = Math.round(monthlyRevenue * 0.01);
 
   if (loading) {
     return (
       <div>
-        <div className="header"><h1 className="header-title">UzTax Pro</h1></div>
-        <div>
-          <div className="skeleton skeleton-block" style={{ height: 100 }} />
-          <div className="grid-2" style={{ marginTop: 12 }}>
-            <div className="skeleton skeleton-h40" />
-            <div className="skeleton skeleton-h40" />
-          </div>
-          <div className="skeleton skeleton-h20" style={{ marginTop: 12 }} />
+        <div className="header"><h1 className="header-title shimmer-card">UzTax Pro</h1></div>
+        <div><div className="skeleton skeleton-block" style={{ height: 120 }} /></div>
+        <div className="grid-2" style={{ marginTop: 12 }}>
+          <div className="skeleton skeleton-h60" />
+          <div className="skeleton skeleton-h60" />
         </div>
+        <div className="skeleton skeleton-h20" style={{ marginTop: 12, height: 40 }} />
       </div>
     );
   }
@@ -57,7 +66,7 @@ export default function Home() {
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="header fade-in">
-        <div style={{
+        <div className="header-avatar" style={{
           width: 38, height: 38, borderRadius: "50%",
           background: "linear-gradient(145deg, var(--primary), var(--primary-dark))",
           color: "#0a0e1a", display: "flex", alignItems: "center",
@@ -78,7 +87,7 @@ export default function Home() {
       <div className="hero-section fade-in-d1">
         <div className="hero-text">
           <h2>Assalomu alaykum,<br />{user ? user.full_name.split(" ")[0] : "tadbirkor"}!</h2>
-          <p>1% soliq avtomatik hisoblanadi</p>
+          <p>Bugun {payments.length} ta to'lov</p>
         </div>
         <PremiumHero />
       </div>
@@ -90,6 +99,11 @@ export default function Home() {
         <div className="stat-value-lg" style={{ marginTop: 2 }}>
           <AnimatedNumber value={todayRevenue} />
         </div>
+        {payments.length > 0 && (
+          <div style={{ position: "absolute", top: 12, right: 16, fontSize: 11, opacity: 0.5, fontWeight: 500 }}>
+            {payments.filter((p) => new Date(p.created_at).toDateString() === new Date().toDateString()).length} ta to'lov
+          </div>
+        )}
       </div>
 
       <div className="grid-2 fade-in-d3">
@@ -115,7 +129,37 @@ export default function Home() {
         <ChartSparkline />
       </div>
 
-      <div className="quick-actions fade-in-d4">
+      {payments.length > 0 && (
+        <div className="fade-in-d5">
+          <div className="section-header" style={{ padding: "0 4px" }}>
+            <span className="section-title">Oxirgi to'lovlar</span>
+            <span className="section-link" onClick={() => { haptic("impact"); navigate("/payment"); }}>Barchasi</span>
+          </div>
+          <div className="card" style={{ padding: "4px 16px" }}>
+            {payments.slice(0, 3).map((p, i) => (
+              <div key={p.id} className="payment-item" style={{ animationDelay: `${i * 0.05}s` } as React.CSSProperties}>
+                <div className="payment-icon" style={{ background: `${PAYMENT_METHODS[p.method]?.color || "#566478"}15` }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: PAYMENT_METHODS[p.method]?.color || "#566478" }}>
+                    {p.method[0].toUpperCase()}
+                  </span>
+                </div>
+                <div className="payment-info">
+                  <div className="payment-amount">{formatSum(p.amount)}</div>
+                  <div className="payment-meta">
+                    {p.description || PAYMENT_METHODS[p.method]?.label || p.method}
+                    {" · "}{formatDate(p.created_at)}
+                  </div>
+                </div>
+                <span className={`badge ${p.status === "completed" ? "badge-success" : "badge-primary"}`} style={{ fontSize: 10 }}>
+                  {p.status === "completed" ? "Bajarildi" : "Kutilmoqda"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="quick-actions fade-in-d5" style={{ marginTop: 4 }}>
         <div className="quick-action" onClick={() => { haptic("impact"); navigate("/payment"); }}>
           {Icons.payment}
           <span>To'lov</span>

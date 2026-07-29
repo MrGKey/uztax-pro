@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api, type User } from "../utils/api";
 import { Icons } from "../utils/icons";
-import { haptic } from "../utils/telegram";
+import { haptic, showConfirm } from "../utils/telegram";
 import PullToRefresh from "../components/PullToRefresh";
 
 export default function Profile() {
@@ -20,8 +20,18 @@ export default function Profile() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
+    await api.auth(true);
     await load(true);
     setRefreshing(false);
+  };
+
+  const handleLogout = async () => {
+    haptic("impact");
+    const ok = await showConfirm("Chiqishni tasdiqlaysizmi?");
+    if (ok) {
+      try { localStorage.removeItem("uztax_onboarded"); } catch {}
+      window.location.reload();
+    }
   };
 
   if (loading) {
@@ -51,8 +61,7 @@ export default function Profile() {
         <div style={{
           width: 64, height: 64, borderRadius: "50%",
           background: "linear-gradient(145deg, var(--primary), var(--primary-dark))",
-          color: "#0a0e1a",
-          display: "flex", alignItems: "center", justifyContent: "center",
+          color: "#0a0e1a", display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 28, fontWeight: 700, margin: "0 auto 12px",
           boxShadow: "0 2px 16px rgba(119,179,155,0.3)"
         }}>
@@ -87,6 +96,27 @@ export default function Profile() {
         </div>
       </div>
 
+      <div className="card fade-in-d4">
+        <div className="section-header" style={{ marginBottom: 4 }}>
+          <span className="section-title">Sozlamalar</span>
+        </div>
+        <div className="settings-item" onClick={() => { haptic("impact"); handleLogout(); }}>
+          <div className="settings-icon" style={{ background: "rgba(248, 113, 113, 0.1)" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </div>
+          <span className="settings-label" style={{ color: "var(--danger)" }}>Chiqish</span>
+          <span className="settings-arrow">{Icons.arrowRight}</span>
+        </div>
+      </div>
+
+      <div style={{ textAlign: "center", padding: "16px 0", fontSize: 11, color: "var(--text-muted)" }}>
+        UzTax Pro v0.1.0
+      </div>
+
       {refreshing && <div className="toast">Yangilanmoqda...</div>}
     </PullToRefresh>
   );
@@ -111,11 +141,8 @@ function RegisterForm({ onDone }: { onDone: (u: User) => void }) {
       const user = await api.updateProfile({ full_name: name, phone, inn } as User);
       haptic("success");
       onDone(user);
-    } catch (e: any) {
-      haptic("error");
-    } finally {
-      setSaving(false);
-    }
+    } catch { haptic("error"); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -124,17 +151,14 @@ function RegisterForm({ onDone }: { onDone: (u: User) => void }) {
         <div style={{
           width: 72, height: 72, borderRadius: "50%",
           background: "linear-gradient(145deg, var(--primary), var(--primary-dark))",
-          color: "#0a0e1a",
-          display: "flex", alignItems: "center", justifyContent: "center",
+          color: "#0a0e1a", display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 36, margin: "0 auto 16px",
           boxShadow: "0 2px 20px rgba(119,179,155,0.3)"
         }}>
           {Icons.profile}
         </div>
         <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.03em" }}>Ro'yxatdan o'tish</h2>
-        <p style={{ color: "var(--text-secondary)", marginTop: 8, fontSize: 14 }}>
-          IP ma'lumotlarini kiriting
-        </p>
+        <p style={{ color: "var(--text-secondary)", marginTop: 8, fontSize: 14 }}>IP ma'lumotlarini kiriting</p>
       </div>
 
       <div className="card fade-in-d1">

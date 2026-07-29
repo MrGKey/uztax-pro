@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
@@ -18,6 +18,7 @@ function useTheme() {
         setIsDark(WebApp.colorScheme === "dark");
         WebApp.ready();
         WebApp.expand();
+        WebApp.enableClosingConfirmation?.();
         return;
       }
     } catch {}
@@ -30,6 +31,24 @@ function useTheme() {
   return isDark ? "dark" : "light";
 }
 
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <div key={location.pathname} className="page-enter">
+      <Routes location={location}>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/payment" element={<PaymentLink />} />
+          <Route path="/tax" element={<TaxReport />} />
+          <Route path="/expenses" element={<Expenses />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </div>
+  );
+}
+
 export default function App() {
   const colorScheme = useTheme();
   const { seen, dismiss } = useOnboarding();
@@ -38,16 +57,7 @@ export default function App() {
     <ErrorBoundary>
       <div className="app" data-theme={colorScheme}>
         {!seen && <Onboarding onDone={dismiss} />}
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/payment" element={<PaymentLink />} />
-            <Route path="/tax" element={<TaxReport />} />
-            <Route path="/expenses" element={<Expenses />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        </Routes>
+        <AnimatedRoutes />
       </div>
     </ErrorBoundary>
   );
