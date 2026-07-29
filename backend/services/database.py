@@ -7,6 +7,14 @@ import pg8000.dbapi
 from config import config
 
 
+def connect():
+    pass
+
+
+def disconnect():
+    pass
+
+
 def _connect():
     url = urlparse(config.database_url)
     return pg8000.dbapi.connect(
