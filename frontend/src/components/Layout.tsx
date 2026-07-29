@@ -13,49 +13,25 @@ export default function Layout() {
   return (
     <div>
       <Outlet />
-      <BottomNav />
+      <nav className="bottom-nav">
+        {links.map((l) => (
+          <NavLink
+            key={l.to}
+            to={l.to}
+            end={l.to === "/"}
+            className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+          >
+            <div className="nav-icon">{l.icon}</div>
+            {l.label}
+          </NavLink>
+        ))}
+      </nav>
     </div>
   );
 }
 
-function BottomNav() {
-  return (
-    <nav
-      style={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: "var(--bg)",
-        borderTop: "1px solid var(--border)",
-        display: "flex",
-        padding: "8px 0",
-        paddingBottom: "max(8px, env(safe-area-inset-bottom))",
-      }}
-    >
-      {links.map((l) => (
-        <NavLink
-          key={l.to}
-          to={l.to}
-          style={({ isActive }) => ({
-            flex: 1,
-            textAlign: "center",
-            textDecoration: "none",
-            color: isActive ? "var(--btn)" : "var(--hint)",
-            fontSize: 12,
-            fontWeight: isActive ? 600 : 400,
-          })}
-        >
-          <div style={{ fontSize: 20, marginBottom: 2 }}>{l.icon}</div>
-          {l.label}
-        </NavLink>
-      ))}
-    </nav>
-  );
-}
-
 const links = [
-  { to: "/", icon: "🏠", label: "Главная" },
+  { to: "/", icon: "📊", label: "Главная" },
   { to: "/payment", icon: "💳", label: "Платёж" },
   { to: "/tax", icon: "💰", label: "Налог" },
   { to: "/expenses", icon: "🧾", label: "Расходы" },

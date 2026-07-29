@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api, type Report } from "../utils/api";
-import { formatSum } from "../utils/telegram";
 
 export default function TaxReport() {
   const navigate = useNavigate();
@@ -9,52 +8,59 @@ export default function TaxReport() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api
-      .report()
-      .then(setReport)
-      .finally(() => setLoading(false));
+    api.report().then(setReport).finally(() => setLoading(false));
   }, []);
+
+  const fmt = (n: number) => n.toLocaleString("uz-UZ") + " so'm";
 
   return (
     <div>
-      <div className="topbar">
-        <button className="back" onClick={() => navigate("/")}>←</button>
-        <h1>Налоговый отчёт</h1>
+      <div className="header">
+        <button className="header-back" onClick={() => navigate("/")}>←</button>
+        <h1 className="header-title">Налоговый отчёт</h1>
       </div>
 
       {loading ? (
-        <p style={{ textAlign: "center", color: "var(--hint)", marginTop: 40 }}>
-          Загрузка...
-        </p>
+        <div>
+          <div className="card"><div className="skeleton skeleton-h48 skeleton-w75" /></div>
+          <div className="card"><div className="skeleton skeleton-h24" /><div className="skeleton skeleton-h24" /></div>
+        </div>
       ) : (
         <>
-          <div className="card stat">
-            <div className="stat-value" style={{ color: "var(--success)" }}>
-              {formatSum(report?.revenue ?? 0)}
+          <div className="card card-primary stat" style={{ padding: 24 }}>
+            <div className="stat-label" style={{ color: "rgba(255,255,255,0.7)", textTransform: "none" }}>
+              Доход за месяц
             </div>
-            <div className="stat-label">Доход (месяц)</div>
+            <div className="stat-value" style={{ fontSize: 32, marginTop: 4 }}>
+              {fmt(report?.revenue ?? 0)}
+            </div>
           </div>
 
           <div className="card">
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-              <span>Налог 1%</span>
-              <span style={{ fontWeight: 700, color: "var(--danger)" }}>
-                {formatSum(report?.tax_1pct ?? 0)}
+            <div className="row">
+              <span className="row-label">Налог 1%</span>
+              <span className="row-value" style={{ color: "var(--danger)" }}>
+                {fmt(report?.tax_1pct ?? 0)}
               </span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-              <span>Расходы</span>
-              <span style={{ fontWeight: 700 }}>{formatSum(report?.expenses ?? 0)}</span>
+            <div className="row">
+              <span className="row-label">Расходы</span>
+              <span className="row-value">{fmt(report?.expenses ?? 0)}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid var(--border)", paddingTop: 12 }}>
-              <span>Чистый доход</span>
-              <span style={{ fontWeight: 700 }}>{formatSum(report?.net ?? 0)}</span>
+            <div className="divider" />
+            <div className="row">
+              <span className="row-label" style={{ fontWeight: 600, color: "var(--text)" }}>Чистый доход</span>
+              <span className="row-value" style={{ color: "var(--success)", fontSize: 16 }}>
+                {fmt(report?.net ?? 0)}
+              </span>
             </div>
           </div>
 
           <div className="card">
-            <label className="label">Платежей за месяц</label>
-            <p style={{ fontSize: 24, fontWeight: 700 }}>{report?.payment_count ?? 0}</p>
+            <div className="row">
+              <span className="row-label">Платежей за месяц</span>
+              <span className="badge badge-success">{report?.payment_count ?? 0}</span>
+            </div>
           </div>
         </>
       )}

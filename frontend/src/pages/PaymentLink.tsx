@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../utils/api";
-import { copyToClipboard, formatSum } from "../utils/telegram";
+import { copyToClipboard } from "../utils/telegram";
 
 const METHODS = [
   { id: "payme", label: "Payme", icon: "💚" },
@@ -15,6 +15,8 @@ export default function PaymentLink() {
   const [method, setMethod] = useState("payme");
   const [link, setLink] = useState<{ url: string } | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const fmt = (n: number) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
   const handleGenerate = async () => {
     const amt = parseInt(amount.replace(/\s/g, ""), 10);
@@ -31,40 +33,30 @@ export default function PaymentLink() {
   };
 
   if (link) {
+    const amt = parseInt(amount.replace(/\s/g, ""), 10);
     return (
       <div>
-        <div className="topbar">
-          <button className="back" onClick={() => setLink(null)}>←</button>
-          <h1>Ссылка создана</h1>
+        <div className="header">
+          <button className="header-back" onClick={() => setLink(null)}>←</button>
+          <h1 className="header-title">Ссылка создана</h1>
         </div>
-        <div className="card" style={{ textAlign: "center" }}>
-          <p style={{ fontSize: 32, fontWeight: 700 }}>
-            {formatSum(parseInt(amount.replace(/\s/g, ""), 10))}
-          </p>
-          <p style={{ color: "var(--hint)", margin: "8px 0 16px" }}>
+
+        <div className="card card-primary stat" style={{ padding: 24 }}>
+          <div style={{ fontSize: 40, marginBottom: 8 }}>
+            {METHODS.find((m) => m.id === method)?.icon}
+          </div>
+          <div className="stat-value" style={{ fontSize: 32 }}>{fmt(amt)} so'm</div>
+          <div className="stat-label" style={{ color: "rgba(255,255,255,0.7)", marginTop: 8 }}>
             {METHODS.find((m) => m.id === method)?.label}
-          </p>
-          <div
-            style={{
-              background: "var(--section)",
-              borderRadius: 8,
-              padding: 12,
-              wordBreak: "break-all",
-              fontSize: 12,
-              marginBottom: 16,
-              textAlign: "left",
-            }}
-          >
+          </div>
+        </div>
+
+        <div className="card">
+          <div style={{ background: "var(--bg)", borderRadius: 8, padding: 12, fontSize: 12, wordBreak: "break-all", marginBottom: 12 }}>
             {link.url}
           </div>
-          <button className="btn" onClick={() => copyToClipboard(link.url)}>
-            📋 Скопировать
-          </button>
-          <button
-            className="btn"
-            style={{ marginTop: 8, background: "var(--section)", color: "var(--text)" }}
-            onClick={() => setLink(null)}
-          >
+          <button className="btn" onClick={() => copyToClipboard(link.url)}>📋 Скопировать ссылку</button>
+          <button className="btn btn-secondary" style={{ marginTop: 8 }} onClick={() => setLink(null)}>
             Создать ещё
           </button>
         </div>
@@ -74,41 +66,37 @@ export default function PaymentLink() {
 
   return (
     <div>
-      <div className="topbar">
-        <button className="back" onClick={() => navigate("/")}>←</button>
-        <h1>Ссылка на оплату</h1>
+      <div className="header">
+        <button className="header-back" onClick={() => navigate("/")}>←</button>
+        <h1 className="header-title">Ссылка на оплату</h1>
       </div>
 
       <div className="card">
-        <label className="label">Сумма (сум)</label>
-        <input
-          className="input"
-          type="number"
-          placeholder="Например: 100000"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
+        <div className="input-group">
+          <label>Сумма (сум)</label>
+          <input
+            className="input input-lg"
+            type="number"
+            placeholder="0"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="card">
-        <label className="label">Платёжная система</label>
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+        <div className="input-group">
+          <label>Платёжная система</label>
+        </div>
+        <div className="method-grid">
           {METHODS.map((m) => (
             <button
               key={m.id}
+              className={`method-btn${method === m.id ? " active" : ""}`}
               onClick={() => setMethod(m.id)}
-              style={{
-                flex: 1,
-                padding: "12px 8px",
-                border: `2px solid ${method === m.id ? "var(--btn)" : "var(--border)"}`,
-                borderRadius: 10,
-                background: method === m.id ? "var(--btn)" : "var(--card)",
-                color: method === m.id ? "var(--btn-text)" : "var(--text)",
-                fontSize: 14,
-                cursor: "pointer",
-              }}
             >
-              {m.icon} {m.label}
+              <div style={{ fontSize: 24, marginBottom: 4 }}>{m.icon}</div>
+              {m.label}
             </button>
           ))}
         </div>
