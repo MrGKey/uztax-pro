@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Header, Depends
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from services.database import fetch, fetchrow, execute
@@ -196,6 +197,65 @@ def list_payments(user: dict = Depends(get_current_user)):
         "SELECT * FROM payments WHERE user_tg_id = %s ORDER BY created_at DESC LIMIT 20",
         tg_id,
     )
+
+
+@router.get("/report/html")
+def get_report_html(user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    month_start = datetime.now(timezone.utc).replace(day=1).isoformat()
+    payments = fetch(
+        "SELECT * FROM payments WHERE user_tg_id = %s AND created_at >= %s",
+        tg_id, month_start,
+    )
+    expenses = fetch(
+        "SELECT * FROM expenses WHERE user_tg_id = %s AND created_at >= %s",
+        tg_id, month_start,
+    )
+    revenue = sum(p["amount"] for p in payments)
+    exp_sum = sum(e["amount"] for e in expenses)
+    tax_1pct = int(revenue * 0.01)
+    net = revenue - tax_1pct - exp_sum
+    name = user.get("full_name", "IP")
+
+    html = f"""<!DOCTYPE html>
+<html lang="uz">
+<head><meta charset="UTF-8"><title>Hisobot - UzTax Pro</title>
+<style>
+body{{font-family:sans-serif;max-width:600px;margin:40px auto;padding:20px;color:#222}}
+h1{{font-size:20px;margin-bottom:4px}}
+.date{{color:#666;font-size:13px;margin-bottom:20px}}
+table{{width:100%;border-collapse:collapse}}
+td{{padding:10px 0;border-bottom:1px solid #eee;font-size:14px}}
+td:last-child{{text-align:right;font-weight:600}}
+.total td{{border-top:2px solid #000;border-bottom:none;font-weight:700;font-size:16px}}
+.footer{{margin-top:24px;font-size:11px;color:#999;text-align:center}}
+</style></head>
+<body>
+<h1>UzTax Pro — Hisobot</h1>
+<div class="date">{datetime.now().strftime('%B %Y')}</div>
+<table>
+<tr><td>Daromad</td><td>{revenue:,} so'm</td></tr>
+<tr><td>1% soliq</td><td>{tax_1pct:,} so'm</td></tr>
+<tr><td>Xarajatlar</td><td>{exp_sum:,} so'm</td></tr>
+<tr class="total"><td>Sof daromad</td><td>{net:,} so'm</td></tr>
+</table>
+<div class="footer">UzTax Pro — 1% soliq avtomatik | {datetime.now().strftime('%d.%m.%Y')}</div>
+</body></html>"""
+    return HTMLResponse(content=html, media_type="text/html")
+
+
+@router.get("/admin/stats")
+def admin_stats():
+    users = fetch("SELECT COUNT(*) as count FROM users")
+    payments = fetch("SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as total FROM payments")
+    expenses = fetch("SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as total FROM expenses")
+    return {
+        "users": users[0]["count"] if users else 0,
+        "payments_count": payments[0]["count"] if payments else 0,
+        "payments_total": int(payments[0]["total"]) if payments else 0,
+        "expenses_count": expenses[0]["count"] if expenses else 0,
+        "expenses_total": int(expenses[0]["total"]) if expenses else 0,
+    }
 
 
 class FeedbackRequest(BaseModel):
