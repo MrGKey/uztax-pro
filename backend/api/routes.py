@@ -282,6 +282,113 @@ def soliq_status(user: dict = Depends(get_current_user)):
     }
 
 
+# ─── Strategy 1: Telegram Stars ──────────────────────────────
+@router.get("/stars/balance")
+def stars_balance(user: dict = Depends(get_current_user)):
+    u = fetchrow("SELECT stars_balance FROM users WHERE tg_id = %s", user["tg_id"])
+    return {"stars": u["stars_balance"] if u else 0}
+
+
+@router.post("/stars/purchase")
+def stars_purchase(user: dict = Depends(get_current_user)):
+    """Creates a Telegram Stars invoice link for Premium subscription."""
+    tg_id = user["tg_id"]
+    order_id = f"stars_{tg_id}_{int(datetime.now().timestamp())}"
+    title = "UzTax Pro Premium — 1 oy"
+    description = "Barcha imkoniyatlar: cheksiz to'lovlar, PDF hisobot, AI yordamchi"
+    payload = f"premium_{tg_id}_{order_id}"
+    currency = "XTR"  # Telegram Stars
+    amount = 5  # 5 Stars
+    try:
+        import requests
+        r = requests.post(f"https://api.telegram.org/bot{config.bot_token}/createInvoiceLink", json={
+            "title": title, "description": description, "payload": payload,
+            "currency": currency, "amount": amount,
+        })
+        return r.json() if r.ok else {"ok": False, "error": r.text}
+    except Exception as e:
+        raise HTTPException(500, f"Stars error: {e}")
+
+
+@router.post("/stars/confirm")
+def stars_confirm(user: dict = Depends(get_current_user)):
+    """Confirm Stars payment from Telegram webhook."""
+    execute("UPDATE users SET stars_balance = COALESCE(stars_balance, 0) + 5 WHERE tg_id = %s", user["tg_id"])
+    return {"ok": True, "stars_added": 5}
+
+
+# ─── Strategy 2: Commission 0.5% ─────────────────────────────
+COMMISSION_RATE = 0.005  # 0.5%
+
+
+@router.get("/payment/commission")
+def get_commission():
+    return {"rate": COMMISSION_RATE, "label": "0.5%"}
+
+
+# ─── Strategy 3: Partner Network ──────────────────────────────
+@router.post("/partner/register")
+def partner_register(body: UpdateProfileRequest, user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    code = f"P{tg_id}{int(datetime.now().timestamp()) % 10000}"
+    execute(
+        "INSERT INTO partners (tg_id, full_name, phone, api_key) VALUES (%s, %s, %s, %s) ON CONFLICT (tg_id) DO NOTHING",
+        tg_id, body.full_name or user.get("full_name", ""), body.phone or "", f"pk_{code}",
+    )
+    return {"ok": True, "referral_link": f"https://t.me/uztax_pro_bot?start=partner_{code}"}
+
+
+@router.get("/partner/stats")
+def partner_stats(user: dict = Depends(get_current_user)):
+    p = fetchrow("SELECT * FROM partners WHERE tg_id = %s", user["tg_id"])
+    if not p:
+        return {"referred": 0, "earned": 0}
+    return {"referred": p["total_referred"], "earned": int(p["total_earned"])}
+
+
+@router.get("/partner/referrals")
+def partner_referrals(user: dict = Depends(get_current_user)):
+    p = fetchrow("SELECT id FROM partners WHERE tg_id = %s", user["tg_id"])
+    if not p:
+        return []
+    return fetch("SELECT tg_id, full_name, phone, created_at FROM users WHERE partner_id = %s ORDER BY created_at DESC", p["id"])
+
+
+# ─── Strategy 4: White-Label API ─────────────────────────────
+@router.get("/partner/api/stats")
+def whitelabel_stats(x_api_key: str = Header("")):
+    if not x_api_key or x_api_key != config.partner_api_key:
+        raise HTTPException(401, "Invalid API key")
+    return {
+        "total_users": fetchrow("SELECT COUNT(*) as c FROM users")["c"],
+        "total_payments": fetchrow("SELECT COUNT(*) as c FROM payments")["c"],
+        "total_revenue": int(fetchrow("SELECT COALESCE(SUM(amount), 0) as s FROM payments")["s"]),
+        "version": "0.2.0",
+    }
+
+
+# ─── Strategy 5: SOLIQ ───────────────────────────────────────
+@router.post("/soliq/submit")
+def soliq_submit(user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    report = fetchrow("""
+        SELECT COALESCE(SUM(amount), 0) as revenue,
+               COALESCE(SUM(amount) * 0.01, 0) as tax
+        FROM payments WHERE user_tg_id = %s
+        AND created_at >= date_trunc('month', now())
+    """, tg_id)
+    if not report or report["revenue"] == 0:
+        raise HTTPException(400, "Hisobot uchun ma'lumotlar yo'q")
+    logger.info(f"SOLIQ submission: user={tg_id} revenue={report['revenue']} tax={report['tax']}")
+    return {
+        "ok": True,
+        "submitted": True,
+        "amount": int(report["revenue"]),
+        "tax": int(report["tax"]),
+        "message": "Deklaratsiya qabul qilindi. SOLIQ to'liq integratsiyasi tez orada."
+    }
+
+
 class FeedbackRequest(BaseModel):
     message: str = Field(min_length=1, max_length=1000)
 

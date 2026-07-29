@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { api, type User } from "../utils/api";
 import { Icons } from "../utils/icons";
 import { haptic, showConfirm, copyToClipboard } from "../utils/telegram";
@@ -20,6 +20,8 @@ export default function Profile() {
   const [refreshing, setRefreshing] = useState(false);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const [feedback, setFeedback] = useState("");
+  const [toast, setToast] = useState("");
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
   const [feedbackSent, setFeedbackSent] = useState(false);
 
   const load = async (force = false) => {
@@ -33,6 +35,12 @@ export default function Profile() {
     setRefreshing(true);
     await load(true);
     setRefreshing(false);
+  };
+
+  const showToast = (msg: string) => {
+    clearTimeout(toastTimer.current);
+    setToast(msg);
+    toastTimer.current = setTimeout(() => setToast(""), 2000);
   };
 
   const handleLogout = async () => {
@@ -134,18 +142,116 @@ export default function Profile() {
         </div>
       </div>
 
-      <div className="card fade-in-d4">
-        <div className="section-header" style={{ marginBottom: 4 }}>
-          <span className="section-title">Do'stlaringizni taklif eting</span>
+      {/* Strategy 1: Telegram Stars Premium */}
+      <div className="card card-primary fade-in-d3" style={{ padding: 20, textAlign: "center" }}>
+        <div style={{ fontSize: 32, marginBottom: 8 }}>⭐</div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "#0a0e1a", marginBottom: 4 }}>UzTax Premium</div>
+        <div style={{ fontSize: 13, color: "rgba(0,0,0,0.6)", marginBottom: 12 }}>
+          Cheksiz to'lovlar · PDF · 0.5% komissiya
         </div>
-        <div className="settings-item" onClick={() => { haptic("impact"); copyToClipboard(referralLink); }} style={{ cursor: "pointer" }}>
+        <div style={{ fontSize: 12, color: "rgba(0,0,0,0.5)", marginBottom: 8 }}>5 Telegram Stars / oy</div>
+        <button className="btn" style={{ background: "#f9d898", color: "#0a0e1a", boxShadow: "0 4px 24px rgba(249,216,152,0.3)", width: "auto", display: "inline-flex" }}
+          onClick={async () => {
+            haptic("impact");
+            try {
+              const res = await fetch(`${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/stars/purchase`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+              });
+              const data = await res.json();
+              if (data.ok && data.result) window.open(data.result);
+              else showToast("Stars xarid qilish imkoniyati hozircha ishga tushirilmoqda");
+            } catch { showToast("Xatolik yuz berdi"); }
+          }}
+        >
+          ⭐ Premium olish
+        </button>
+      </div>
+
+      {/* Strategy 2: Commission info */}
+      <div className="card fade-in-d4" style={{ padding: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Komissiya (to'lovlar bo'yicha)</span>
+          <span className="badge badge-primary">0.5%</span>
+        </div>
+        <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+          Har bir to'lov havolasidan 0.5% — eng past komissiya bozorda
+        </div>
+      </div>
+
+      {/* Strategy 3: Partner Program */}
+      <div className="card fade-in-d4">
+        <div className="section-header" style={{ marginBottom: 8 }}>
+          <span className="section-title">Partnerlik dasturi</span>
+        </div>
+        <div className="settings-item" onClick={async () => {
+          haptic("impact");
+          const url = `${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/partner/stats`;
+          try {
+            const res = await fetch(url);
+            const data = await res.json();
+            showToast(`Taklif qilingan: ${data.referred} | Daromad: ${(data.earned || 0).toLocaleString()} so'm`);
+          } catch { showToast("Ma'lumot olinmadi"); }
+        }} style={{ cursor: "pointer" }}>
+          <div className="settings-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+          </div>
+          <span className="settings-label">Mening partnerlik ma'lumotlarim</span>
+          <span className="settings-arrow">{Icons.arrowRight}</span>
+        </div>
+        <div className="settings-item" onClick={async () => {
+          haptic("impact");
+          const url = `${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/partner/register`;
+          try {
+            const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+            const data = await res.json();
+            if (data.referral_link) {
+              copyToClipboard(data.referral_link);
+              showToast("Partnerlik havolasi nusxalandi!");
+            }
+          } catch { showToast("Xatolik"); }
+        }} style={{ cursor: "pointer" }}>
           <div className="settings-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
           </div>
-          <span className="settings-label" style={{ fontSize: 12, wordBreak: "break-all" }}>{referralLink}</span>
-          <span className="settings-arrow">{Icons.copy}</span>
+          <span className="settings-label">Partnerlik havolasini olish</span>
+          <span className="settings-arrow">{Icons.arrowRight}</span>
         </div>
       </div>
+
+      {/* Strategy 5: SOLIQ */}
+      <div className="card fade-in-d4" onClick={async () => {
+        haptic("impact");
+        try {
+          const res = await fetch(`${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/soliq/submit`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+          });
+          const data = await res.json();
+          if (data.ok) showToast(`Deklaratsiya topshirildi! Soliq: ${data.tax.toLocaleString()} so'm`);
+          else showToast(data.detail || "Xatolik");
+        } catch { showToast("SOLIQ hozircha ishga tushirilmoqda"); }
+      }} style={{ cursor: "pointer" }}>
+        <div className="row" style={{ border: "none" }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>📋 SOLIQ deklaratsiyasi</div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>1% soliqni avtomatik topshirish</div>
+          </div>
+          <span className="badge badge-primary">Sinov</span>
+        </div>
+      </div>
+
+      {/* Referral */}
+      <div className="card fade-in-d4">
+          <div className="section-header" style={{ marginBottom: 4 }}>
+            <span className="section-title">Do'stlaringizni taklif eting</span>
+          </div>
+          <div className="settings-item" onClick={() => { haptic("impact"); copyToClipboard(referralLink); }} style={{ cursor: "pointer" }}>
+            <div className="settings-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
+            </div>
+            <span className="settings-label" style={{ fontSize: 12, wordBreak: "break-all" }}>{referralLink}</span>
+            <span className="settings-arrow">{Icons.copy}</span>
+          </div>
+        </div>
 
       <div className="card fade-in-d4">
         <div className="section-header" style={{ marginBottom: 8 }}>
@@ -213,6 +319,7 @@ export default function Profile() {
       </div>
 
       {refreshing && <div className="toast toast-refresh">Yangilanmoqda...</div>}
+      {toast && <div className="toast">{toast}</div>}
     </PullToRefresh>
   );
 }

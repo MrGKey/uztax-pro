@@ -114,6 +114,36 @@ def run_bot_sync():
                 "Уведомления включены автоматически."
             )
 
+        @dp.message(Command("premium"))
+        async def cmd_premium(message: Message):
+            await message.answer(
+                "⭐ <b>UzTax Pro Premium</b>\n\n"
+                "• Cheksiz to'lov havolalari\n"
+                "• PDF hisobotlar\n"
+                "• 0.5% komissiya (5,000 so'm = 25 so'm)\n"
+                "• Telegram Stars bilan to'lang: 5 Stars/oy\n\n"
+                "Premium sotib olish: открыть приложение → Профиль → Premium"
+            )
+
+        @dp.message(Command("partner"))
+        async def cmd_partner(message: Message):
+            await message.answer(
+                "🤝 <b>Partnerlik dasturi</b>\n\n"
+                "Taklif qilingan har bir ИП uchun 20% komissiya.\n\n"
+                "Batafsil: открыть приложение → Профиль → Partner"
+            )
+
+        @dp.message(lambda msg: msg.text and msg.text.startswith("/start partner_"))
+        async def start_with_partner(message: Message):
+            code = message.text.split("_", 1)[1] if "_" in message.text else ""
+            await message.answer(
+                f"🤝 Sizni partner taklif qildi!\n\n"
+                "Подключите UzTax Pro и начните экономить на налогах.",
+                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(text="Открыть UzTax Pro", web_app=WebAppInfo(url=f"{config.app_url}?partner={code}"))]
+                ])
+            )
+
         @dp.inline_query()
         async def inline_pay(inline_query: InlineQuery):
             text = inline_query.query.strip()
@@ -145,14 +175,15 @@ def run_bot_sync():
                     url = generate_payme_link(amount, order_id)
                 else:
                     url = f"https://pay/{method}?amount={amount}&order_id={order_id}"
+                fee = int(amount * 0.005)
                 label = f"{amount:,} so'm — {method}"
                 results = [
                     InlineQueryResultArticle(
                         id="1",
                         title=label,
-                        description="Нажмите, чтобы отправить ссылку",
+                        description=f"Komissiya: {fee:,} so'm (0.5%)",
                         input_message_content=InputTextMessageContent(
-                            message_text=f"💳 <b>Ссылка на оплату:</b>\n{label}\n\n{url}"
+                            message_text=f"💳 <b>Ссылка на оплату:</b>\n{label}\n\n{url}\n\n<i>Komissiya: {fee:,} so'm</i>"
                         ),
                     )
                 ]
@@ -160,6 +191,8 @@ def run_bot_sync():
 
         await bot.set_my_commands([
             BotCommand(command="start", description="Открыть приложение"),
+            BotCommand(command="premium", description="Premium podpiska"),
+            BotCommand(command="partner", description="Partnerlik dasturi"),
             BotCommand(command="report", description="Отчёт за сегодня"),
             BotCommand(command="help", description="Помощь"),
             BotCommand(command="notify", description="Уведомления о налоге"),

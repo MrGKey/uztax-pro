@@ -17,6 +17,8 @@ class Config:
     uzcard_merchant_id: str = field(default_factory=lambda: os.environ.get("UZCARD_MERCHANT_ID", ""))
     openai_api_key: str = field(default_factory=lambda: os.environ.get("OPENAI_API_KEY", ""))
     app_url: str = field(default_factory=lambda: os.environ.get("APP_URL", "http://localhost:5173"))
+    admin_chat_id: str = field(default_factory=lambda: os.environ.get("ADMIN_CHAT_ID", ""))
+    partner_api_key: str = field(default_factory=lambda: os.environ.get("PARTNER_API_KEY", ""))
 
 
 config = Config()
