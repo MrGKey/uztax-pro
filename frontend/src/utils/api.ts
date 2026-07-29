@@ -3,10 +3,6 @@ const API_BASE = import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com
 const cache = new Map<string, { data: unknown; ts: number }>();
 const CACHE_TTL = 30_000;
 
-function offlineUser() {
-  return { tg_id: 0, full_name: "Test IP", phone: "+998901234567", inn: "123456789", balance: 0 };
-}
-
 async function initData(): Promise<string> {
   try { return (window as any).Telegram?.WebApp?.initData || ""; }
   catch { return ""; }
@@ -87,66 +83,51 @@ export interface Expense {
   created_at: string;
 }
 
-const MOCK_USER = { tg_id: 0, full_name: "Damien Light", phone: "+998901234567", inn: "123456789", balance: 2068000 };
-const MOCK_PAYMENTS: Payment[] = [
-  { id: 1, amount: 432290, method: "payme", status: "completed", created_at: new Date(Date.now() - 1800000).toISOString(), description: "Zara" },
-  { id: 2, amount: 128000, method: "click", status: "completed", created_at: new Date(Date.now() - 3600000).toISOString(), description: "Ben Wayne" },
-  { id: 3, amount: 18000, method: "uzum", status: "completed", created_at: new Date(Date.now() - 86400000).toISOString(), description: "Subscription" },
-];
-const MOCK_EXPENSES: Expense[] = [
-  { id: 1, amount: 350000, category: "other", created_at: new Date(Date.now() - 86400000).toISOString() },
-  { id: 2, amount: 238000, category: "goods", created_at: new Date(Date.now() - 172800000).toISOString() },
-  { id: 3, amount: 58000, category: "rent", created_at: new Date(Date.now() - 259200000).toISOString() },
-];
-
-const mockUser = () => MOCK_USER;
-const mockPayments = () => MOCK_PAYMENTS;
-const mockExpenses = () => MOCK_EXPENSES;
-const mockReport = () => ({ revenue: 2068000, tax_1pct: 20680, expenses: 664000, net: 1387320, payment_count: 12 });
+const emptyUser: User = { tg_id: 0, full_name: "", phone: "", inn: "", balance: 0 };
 
 export const api = {
   auth: (force = false) =>
     force
-      ? request<User>("/api/auth").catch(() => mockUser())
-      : withCache<User>("auth", () => request<User>("/api/auth").catch(() => mockUser())),
+      ? request<User>("/api/auth")
+      : withCache<User>("auth", () => request<User>("/api/auth")),
 
-  profile: () => request<User>("/api/user").catch(() => mockUser()),
+  profile: () => request<User>("/api/user"),
 
   updateProfile: (data: Partial<User>) =>
-    request<User>("/api/user", { method: "PUT", body: JSON.stringify(data) }).catch(() => {
+    request<User>("/api/user", { method: "PUT", body: JSON.stringify(data) }).then((u) => {
       bustCache("auth");
-      return { tg_id: 0, full_name: data.full_name || "", phone: data.phone || "", inn: data.inn || "", balance: 0 };
+      return u;
     }),
 
   generatePaymentLink: (amount: number, method: string) =>
-    request<PaymentLink>("/api/payment/generate", { method: "POST", body: JSON.stringify({ amount, method }) }).catch(() => {
+    request<PaymentLink>("/api/payment/generate", { method: "POST", body: JSON.stringify({ amount, method }) }).then((res) => {
       bustCache("payments");
-      return { url: "https://payme.uz/12345", amount, method };
+      return res;
     }),
 
   report: (force = false) =>
     force
-      ? request<Report>("/api/report").catch(() => mockReport())
-      : withCache<Report>("report", () => request<Report>("/api/report").catch(() => mockReport())),
+      ? request<Report>("/api/report")
+      : withCache<Report>("report", () => request<Report>("/api/report")),
 
   expenses: (force = false) =>
     force
-      ? request<Expense[]>("/api/expenses").catch(() => mockExpenses())
-      : withCache<Expense[]>("expenses", () => request<Expense[]>("/api/expenses").catch(() => mockExpenses())),
+      ? request<Expense[]>("/api/expenses")
+      : withCache<Expense[]>("expenses", () => request<Expense[]>("/api/expenses")),
 
   addExpense: (amount: number, category: string) =>
-    request<Expense>("/api/expenses", { method: "POST", body: JSON.stringify({ amount, category }) }).catch(() => {
+    request<Expense>("/api/expenses", { method: "POST", body: JSON.stringify({ amount, category }) }).then((e) => {
       bustCache("expenses");
-      return { id: Date.now(), amount, category, created_at: new Date().toISOString() };
+      return e;
     }),
 
   deleteExpense: (id: number) => {
     bustCache("expenses");
-    return request(`/api/expenses/${id}`, { method: "DELETE" }).catch(() => ({ ok: true }));
+    return request(`/api/expenses/${id}`, { method: "DELETE" });
   },
 
   payments: (force = false) =>
     force
-      ? request<Payment[]>("/api/payments").catch(() => mockPayments())
-      : withCache<Payment[]>("payments", () => request<Payment[]>("/api/payments").catch(() => mockPayments())),
+      ? request<Payment[]>("/api/payments")
+      : withCache<Payment[]>("payments", () => request<Payment[]>("/api/payments")),
 };
