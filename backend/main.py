@@ -167,10 +167,12 @@ def run_bot_sync():
                 except:
                     pass
 
+        webhook_ok = False
         try:
             webhook_url = f"{config.app_url.rstrip('/')}/webhook"
             await bot.set_webhook(webhook_url, allowed_updates=["message", "inline_query", "callback_query"])
             logger.info(f"Webhook set to {webhook_url}")
+            webhook_ok = True
         except Exception as e:
             logger.warning(f"Webhook failed, falling back to polling: {e}")
 
@@ -259,8 +261,9 @@ def run_bot_sync():
             BotCommand(command="help", description="Помощь"),
             BotCommand(command="notify", description="Уведомления о налоге"),
         ])
-        logger.info("Bot started")
-        await dp.start_polling(bot)
+        logger.info("Bot started" + (" (webhook)" if webhook_ok else " (polling)"))
+        if not webhook_ok:
+            await dp.start_polling(bot)
 
     asyncio.run(_run())
 
