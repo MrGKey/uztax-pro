@@ -2,7 +2,8 @@ import hashlib
 import hmac
 import json
 import logging
-from datetime import datetime, timezone
+import httpx
+from datetime import datetime, timezone, date, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Header, Depends
@@ -61,6 +62,8 @@ class UpdateProfileRequest(BaseModel):
     full_name: Optional[str] = Field(None, min_length=1, max_length=100)
     phone: Optional[str] = Field(None, pattern=r"^\+998\d{9}$")
     inn: Optional[str] = Field(None, pattern=r"^\d{9}$")
+    tax_regime: Optional[str] = Field(None, pattern=r"^(service|trade|manufacturing|it)$")
+    currency: Optional[str] = Field(None, pattern=r"^(UZS|USD|EUR)$")
 
 
 class PaymentRequest(BaseModel):
@@ -100,6 +103,12 @@ def update_profile(
     if body.inn is not None:
         sets.append("inn = %s")
         vals.append(body.inn)
+    if body.tax_regime is not None:
+        sets.append("tax_regime = %s")
+        vals.append(body.tax_regime)
+    if body.currency is not None:
+        sets.append("currency = %s")
+        vals.append(body.currency)
     if sets:
         execute(
             f"UPDATE users SET {', '.join(sets)} WHERE tg_id = %s",
@@ -367,25 +376,158 @@ def whitelabel_stats(x_api_key: str = Header("")):
     }
 
 
+# ─── Tax System — Uzbekistan IP ──────────────────────────────
+TAX_REGIMES = {
+    "service": {"rate": 1, "label": "Xizmatlar — 1%", "desc": "Marketing, dizayn, konsalting"},
+    "trade": {"rate": 4, "label": "Savdo — 4%", "desc": "Chakana va ulgurji savdo"},
+    "manufacturing": {"rate": 4, "label": "Ishlab chiqarish — 4%", "desc": "Mahsulot ishlab chiqarish"},
+    "it": {"rate": 0, "label": "IT-park — 0%", "desc": "Rezidentlari IT parki"},
+}
+
+BHM_MONTHLY = 340_000  # базовый размер минимальной зарплаты (2025)
+PENALTY_RATE = 0.005   # 0.5% за каждый день просрочки
+
+SOCIAL_CONTRIB_YEARLY = BHM_MONTHLY * 12  # примерно 4,080,000 сум/год
+
+
+@router.get("/tax/regimes")
+def get_tax_regimes():
+    return TAX_REGIMES
+
+
+@router.get("/tax/calculate")
+def calculate_tax(user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    regime = user.get("tax_regime", "service")
+    rate = TAX_REGIMES.get(regime, {}).get("rate", 1)
+
+    month_start = datetime.now(timezone.utc).replace(day=1).isoformat()
+    payments = fetch("SELECT amount FROM payments WHERE user_tg_id = %s AND created_at >= %s", tg_id, month_start)
+    revenue = sum(p["amount"] for p in payments)
+    tax_amount = int(revenue * rate / 100)
+
+    today = date.today()
+    deadline = date(today.year, today.month, 25)
+    days_overdue = (today - deadline).days if today > deadline else 0
+    penalty = int(tax_amount * PENALTY_RATE * days_overdue) if days_overdue > 0 else 0
+
+    social_due = None
+    if today.month == 12 and today.day >= 1:
+        social_due = SOCIAL_CONTRIB_YEARLY
+        if not user.get("social_contrib_paid"):
+            social_due = SOCIAL_CONTRIB_YEARLY
+
+    return {
+        "regime": regime,
+        "rate": rate,
+        "revenue": revenue,
+        "tax": tax_amount,
+        "penalty": penalty,
+        "total": tax_amount + penalty,
+        "days_overdue": days_overdue,
+        "deadline": deadline.isoformat(),
+        "social_due": social_due,
+        "bhm_monthly": BHM_MONTHLY,
+    }
+
+
+@router.get("/tax/calendar")
+def tax_calendar(user: dict = Depends(get_current_user)):
+    today = date.today()
+    regime = user.get("tax_regime", "service")
+    events = []
+
+    # Ежемесячный налог (до 25-го)
+    for m in range(today.month, today.month + 3):
+        m = ((m - 1) % 12) + 1
+        y = today.year + (1 if m < today.month else 0)
+        d = date(y, m, 25)
+        days_left = (d - today).days
+        events.append({
+            "title": "1% soliq to'lovi" if regime == "service" else f"{TAX_REGIMES.get(regime,{}).get('rate',1)}% soliq",
+            "date": d.isoformat(),
+            "days_left": days_left,
+            "type": "monthly",
+            "penalty_rate": "0.5%/kun" if days_left < 0 else None,
+        })
+
+    # Годовая декларация - 1 марта
+    decl = date(today.year + (1 if today.month > 2 else 0), 3, 1)
+    events.append({
+        "title": "Yillik deklaratsiya topshirish",
+        "date": decl.isoformat(),
+        "days_left": (decl - today).days,
+        "type": "yearly",
+    })
+
+    # Соц. отчисления - до 15 декабря
+    soc = date(today.year if today.month <= 12 else today.year + 1, 12, 15)
+    if today <= soc:
+        events.append({
+            "title": "Ijtimoiy to'lovlar (BHM × 12)",
+            "date": soc.isoformat(),
+            "days_left": (soc - today).days,
+            "type": "yearly",
+            "amount": SOCIAL_CONTRIB_YEARLY,
+        })
+
+    return events
+
+
+@router.get("/tax/currency-rates")
+async def get_currency_rates():
+    try:
+        async with httpx.AsyncClient(timeout=5) as client:
+            r = await client.get("https://cbu.uz/uz/arkhiv-kursov-valyut/json/")
+            if r.status_code == 200:
+                rates_data = r.json()
+                rates = {"UZS": 1, "USD": 0, "EUR": 0}
+                for item in rates_data:
+                    if item.get("Ccy") in ("USD", "EUR"):
+                        rates[item["Ccy"]] = float(item.get("Rate", 0))
+                from datetime import date as dt_date
+                return {"date": dt_date.today().isoformat(), "rates": rates}
+    except:
+        pass
+    return {"date": datetime.now().strftime("%Y-%m-%d"), "rates": {"UZS": 1, "USD": 12700, "EUR": 13800}}
+
+
 # ─── Strategy 5: SOLIQ ───────────────────────────────────────
 @router.post("/soliq/submit")
 def soliq_submit(user: dict = Depends(get_current_user)):
     tg_id = user["tg_id"]
+    regime = user.get("tax_regime", "service")
+    rate = TAX_REGIMES.get(regime, {}).get("rate", 1)
+
     report = fetchrow("""
-        SELECT COALESCE(SUM(amount), 0) as revenue,
-               COALESCE(SUM(amount) * 0.01, 0) as tax
-        FROM payments WHERE user_tg_id = %s
-        AND created_at >= date_trunc('month', now())
+        SELECT COALESCE(SUM(amount), 0) as revenue FROM payments
+        WHERE user_tg_id = %s AND created_at >= date_trunc('month', now())
     """, tg_id)
-    if not report or report["revenue"] == 0:
+    revenue = report["revenue"] if report else 0
+    tax_amount = int(revenue * rate / 100)
+
+    if revenue == 0:
         raise HTTPException(400, "Hisobot uchun ma'lumotlar yo'q")
-    logger.info(f"SOLIQ submission: user={tg_id} revenue={report['revenue']} tax={report['tax']}")
+
+    today = date.today()
+    deadline = date(today.year, today.month, 25)
+    days_overdue = (today - deadline).days if today > deadline else 0
+    penalty = int(tax_amount * PENALTY_RATE * days_overdue) if days_overdue > 0 else 0
+
+    execute("UPDATE users SET last_tax_paid_at = now() WHERE tg_id = %s", tg_id)
+
+    logger.info(f"SOLIQ: user={tg_id} regime={regime} revenue={revenue} tax={tax_amount} penalty={penalty}")
     return {
         "ok": True,
         "submitted": True,
-        "amount": int(report["revenue"]),
-        "tax": int(report["tax"]),
-        "message": "Deklaratsiya qabul qilindi. SOLIQ to'liq integratsiyasi tez orada."
+        "revenue": revenue,
+        "tax": tax_amount,
+        "penalty": penalty,
+        "total": tax_amount + penalty,
+        "deadline": deadline.isoformat(),
+        "regime": regime,
+        "rate": rate,
+        "message": f"Deklaratsiya qabul qilindi. To'lanadigan: {tax_amount:,} so'm"
     }
 
 

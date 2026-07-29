@@ -5,6 +5,19 @@ import { Icons } from "../utils/icons";
 import { haptic, showConfirm, copyToClipboard } from "../utils/telegram";
 import PullToRefresh from "../components/PullToRefresh";
 
+const TAX_REGIMES = [
+  { id: "service", label: "Xizmatlar — 1%", desc: "Marketing, dizayn, konsalting" },
+  { id: "trade", label: "Savdo — 4%", desc: "Chakana va ulgurji savdo" },
+  { id: "manufacturing", label: "Ishlab chiqarish — 4%", desc: "Mahsulot ishlab chiqarish" },
+  { id: "it", label: "IT-park — 0%", desc: "Rezidentlari IT parki" },
+];
+
+const CURRENCIES = [
+  { code: "UZS", symbol: "so'm", rate: 1 },
+  { code: "USD", symbol: "$", rate: 12700 },
+  { code: "EUR", symbol: "€", rate: 13800 },
+];
+
 const FAQs = [
   { q: "1% soliq qanday hisoblanadi?", a: "Barcha daromadlaringizning 1% miqdorida. Avtomatik hisoblanadi." },
   { q: "Qaysi to'lov tizimlari qo'llab-quvvatlanadi?", a: "Payme, Click, Uzum, Humo va Uzcard." },
@@ -120,6 +133,36 @@ export default function Profile() {
           <span className="row-label">Balans</span>
           <span className="row-value" style={{ color: "var(--success)" }}>{user.balance.toLocaleString()} so'm</span>
         </div>
+        <div className="row">
+          <span className="row-label">Soliq rejimi</span>
+          <select className="select" value={(user as any).tax_regime || "service"}
+            onChange={async (e) => {
+              haptic("impact");
+              try {
+                const u = await api.updateProfile({ ...user, tax_regime: e.target.value } as any);
+                if (u) setUser(u);
+              } catch {}
+            }}
+            style={{ fontSize: 13, padding: "6px 10px", width: "auto" }}
+          >
+            {TAX_REGIMES.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+          </select>
+        </div>
+        <div className="row">
+          <span className="row-label">Valyuta</span>
+          <select className="select" value={(user as any).currency || "UZS"}
+            onChange={async (e) => {
+              haptic("impact");
+              try {
+                const u = await api.updateProfile({ ...user, currency: e.target.value } as any);
+                if (u) setUser(u);
+              } catch {}
+            }}
+            style={{ fontSize: 13, padding: "6px 10px", width: "auto" }}
+          >
+            {CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.code} ({c.symbol})</option>)}
+          </select>
+        </div>
       </div>
 
       <div className="card sub-card fade-in-d3">
@@ -141,6 +184,9 @@ export default function Profile() {
           <span className="badge badge-primary">Kelmoqda</span>
         </div>
       </div>
+
+      {/* Tax Calendar */}
+      <TaxCalendarCard />
 
       {/* Strategy 1: Telegram Stars Premium */}
       <div className="card card-primary fade-in-d3" style={{ padding: 20, textAlign: "center" }}>
@@ -328,6 +374,8 @@ function RegisterForm({ onDone }: { onDone: (u: User) => void }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [inn, setInn] = useState("");
+  const [taxRegime, setTaxRegime] = useState("service");
+  const [currency, setCurrency] = useState("UZS");
   const [saving, setSaving] = useState(false);
 
   const nameValid = name.length >= 3;
@@ -340,7 +388,7 @@ function RegisterForm({ onDone }: { onDone: (u: User) => void }) {
     setSaving(true);
     haptic("impact");
     try {
-      const user = await api.updateProfile({ full_name: name, phone, inn } as User);
+      const user = await api.updateProfile({ full_name: name, phone, inn, tax_regime: taxRegime, currency } as any);
       haptic("success");
       onDone(user);
     } catch { haptic("error"); }
@@ -363,30 +411,83 @@ function RegisterForm({ onDone }: { onDone: (u: User) => void }) {
         <p style={{ color: "var(--text-secondary)", marginTop: 8, fontSize: 14 }}>IP ma'lumotlarini kiriting</p>
       </div>
 
-      <div className="card fade-in-d1">
-        <div className="input-group">
-          <label>FIO</label>
-          <input className={`input${name && !nameValid ? " input-error" : ""}`}
-            placeholder="Aliyev Aliy" value={name} onChange={(e) => setName(e.target.value)} />
-          {name && !nameValid && <div className="input-error-text">Kamida 3 belgi</div>}
+        <div className="card fade-in-d1">
+          <div className="input-group">
+            <label>FIO</label>
+            <input className={`input${name && !nameValid ? " input-error" : ""}`}
+              placeholder="Aliyev Aliy" value={name} onChange={(e) => setName(e.target.value)} />
+            {name && !nameValid && <div className="input-error-text">Kamida 3 belgi</div>}
+          </div>
+          <div className="input-group">
+            <label>Telefon</label>
+            <input className={`input${phone && !phoneValid ? " input-error" : ""}`}
+              placeholder="+998901234567" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            {phone && !phoneValid && <div className="input-error-text">Format: +998901234567</div>}
+          </div>
+          <div className="input-group">
+            <label>STIR (INN)</label>
+            <input className={`input${inn && !innValid ? " input-error" : ""}`}
+              placeholder="123456789" value={inn} onChange={(e) => setInn(e.target.value)} />
+            {inn && !innValid && <div className="input-error-text">9 ta raqam</div>}
+          </div>
+          <div className="input-group">
+            <label>Soliq rejimi</label>
+            <select className="select" value={taxRegime} onChange={(e) => setTaxRegime(e.target.value)}>
+              {TAX_REGIMES.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+            </select>
+          </div>
+          <div className="input-group">
+            <label>Valyuta</label>
+            <select className="select" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+              {CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.code} ({c.symbol})</option>)}
+            </select>
+          </div>
         </div>
-        <div className="input-group">
-          <label>Telefon</label>
-          <input className={`input${phone && !phoneValid ? " input-error" : ""}`}
-            placeholder="+998901234567" value={phone} onChange={(e) => setPhone(e.target.value)} />
-          {phone && !phoneValid && <div className="input-error-text">Format: +998901234567</div>}
-        </div>
-        <div className="input-group">
-          <label>STIR (INN)</label>
-          <input className={`input${inn && !innValid ? " input-error" : ""}`}
-            placeholder="123456789" value={inn} onChange={(e) => setInn(e.target.value)} />
-          {inn && !innValid && <div className="input-error-text">9 ta raqam</div>}
-        </div>
-      </div>
 
       <button className="btn fade-in-d2" onClick={handleSubmit} disabled={saving || !canSubmit}>
         {saving ? "Saqlanmoqda..." : "Ro'yxatdan o'tish"}
       </button>
+    </div>
+  );
+}
+
+function TaxCalendarCard() {
+  const today = new Date();
+  const day = today.getDate();
+  const month = today.getMonth() + 1;
+  const deadline = 25;
+  const daysLeft = deadline - day;
+
+  return (
+    <div className="card fade-in-d3">
+      <div className="section-header" style={{ marginBottom: 8 }}>
+        <span className="section-title">Soliq kalendari</span>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+          Oylik soliq to'lovi: {month}-oy
+        </span>
+        <span className={`badge ${daysLeft > 3 ? "badge-success" : daysLeft > 0 ? "badge-gold" : "badge-danger"}`}
+          style={{ fontSize: 12 }}>
+          {daysLeft > 0 ? `${daysLeft} kun qoldi` : daysLeft === 0 ? "Bugun" : `${-daysLeft} kun o'tgan`}
+        </span>
+      </div>
+      <div style={{ height: 4, background: "var(--surface-alt)", borderRadius: 2, overflow: "hidden", marginBottom: 8 }}>
+        <div style={{
+          height: "100%", width: `${Math.min(100, (day / deadline) * 100)}%`,
+          background: daysLeft > 3 ? "var(--success)" : daysLeft > 0 ? "var(--warning)" : "var(--danger)",
+          borderRadius: 2, transition: "width 0.6s"
+        }} />
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-muted)" }}>
+        <span>1-{month}-{today.getFullYear()}</span>
+        <span>{deadline}-{month}-{today.getFullYear()}</span>
+      </div>
+      <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 8 }}>
+        {daysLeft > 0
+          ? "To'lov muddati: 25-kungacha"
+          : `Peni: 0.5% kuniga. ${-daysLeft} kun × 0.5% = ${(-daysLeft * 0.5).toFixed(1)}% qo'shimcha`}
+      </div>
     </div>
   );
 }

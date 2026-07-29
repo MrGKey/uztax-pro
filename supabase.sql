@@ -6,6 +6,10 @@ create table users (
   phone text not null default '',
   inn text not null default '',
   balance bigint default 0,
+  tax_regime text default 'service',
+  currency text default 'UZS',
+  social_contrib_paid boolean default false,
+  last_tax_paid_at timestamptz,
   created_at timestamptz default now()
 );
 

@@ -23,7 +23,7 @@ from slowapi.errors import RateLimitExceeded
 import uvicorn
 
 from config import config
-from services.database import connect as db_connect, disconnect as db_disconnect
+from services.database import connect as db_connect, disconnect as db_disconnect, fetch
 from api.routes import router as api_router
 
 logging.basicConfig(level=logging.INFO)
@@ -113,6 +113,42 @@ def run_bot_sync():
                 "об оплате 1% налога.\n\n"
                 "Уведомления включены автоматически."
             )
+
+        import asyncio as _asyncio
+
+        async def reminder_job():
+            while True:
+                try:
+                    await _asyncio.sleep(3600)
+                    now = datetime.now()
+                    if now.day == 22 and now.hour == 10:
+                        users = fetch("SELECT tg_id, full_name FROM users")
+                        for u in users:
+                            try:
+                                await bot.send_message(
+                                    u["tg_id"],
+                                    f"🔔 <b>Eslatma!</b>\n\n"
+                                    f"{u['full_name']}, 25-kungacha {3 - (now.day - 22)} kun qoldi.\n"
+                                    f"1% soliqni to'lashni unutmang.\n\n"
+                                    f"Открыть приложение: {config.app_url}"
+                                )
+                            except:
+                                pass
+                    if now.day == 25 and now.hour == 9:
+                        users = fetch("SELECT tg_id FROM users")
+                        for u in users:
+                            try:
+                                await bot.send_message(
+                                    u["tg_id"],
+                                    f"⚠️ <b>Bugun — soliq to'lovi kuni!</b>\n\n"
+                                    f"Iltimos, 1% soliqni to'lang. Kechikish uchun peni 0.5%/kun."
+                                )
+                            except:
+                                pass
+                except:
+                    pass
+
+        _asyncio.create_task(reminder_job())
 
         @dp.message(Command("premium"))
         async def cmd_premium(message: Message):
