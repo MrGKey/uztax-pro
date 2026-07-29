@@ -1,22 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api, type Report } from "../utils/api";
-import { Icons, BarChart } from "../utils/icons";
+import { Icons } from "../utils/icons";
 import { AnimatedNumber } from "../utils/useCountUp";
 import { haptic } from "../utils/telegram";
 import PullToRefresh from "../components/PullToRefresh";
-
-const MONTHS = ["Yan", "Fev", "Mar", "Apr", "May", "Iyun", "Iyul", "Avg", "Sen", "Okt", "Noy", "Dek"];
 
 export default function TaxReport() {
   const navigate = useNavigate();
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
-  const now = new Date();
-  const [monthOffset, setMonthOffset] = useState(0);
-  const currentMonth = new Date(now.getFullYear(), now.getMonth() - monthOffset);
 
   const load = async (force = false) => {
     if (!force) setLoading(true);
@@ -31,15 +25,6 @@ export default function TaxReport() {
     setRefreshing(false);
   };
 
-  const monthLabel = monthOffset === 0
-    ? "Joriy oy"
-    : currentMonth.toLocaleDateString("uz-UZ", { month: "long", year: "numeric" });
-
-  const barData = [80, 95, 70, 120, 110, 90, 130, 100, 115, 140];
-  const barMonths = monthOffset === 0
-    ? MONTHS.slice(0, 10)
-    : ["1", "5", "10", "15", "20", "25", "30"];
-
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="header fade-in">
@@ -48,16 +33,6 @@ export default function TaxReport() {
         <button className="btn btn-sm btn-ghost" onClick={() => { haptic("impact"); window.open(`${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/report/html`); }} style={{ width: "auto", padding: "8px 12px" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
           PDF
-        </button>
-      </div>
-
-      <div className="month-selector fade-in-d1">
-        <button className="month-nav" onClick={() => { haptic("impact"); setMonthOffset(Math.min(monthOffset + 1, 11)); }} disabled={monthOffset >= 11}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6" /></svg>
-        </button>
-        <span className="month-current">{monthLabel}</span>
-        <button className="month-nav" onClick={() => { haptic("impact"); setMonthOffset(Math.max(monthOffset - 1, 0)); }} disabled={monthOffset <= 0}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6" /></svg>
         </button>
       </div>
 
@@ -106,11 +81,13 @@ export default function TaxReport() {
           </div>
 
           {report && report.payment_count > 0 && (
-            <div className="card fade-in-d4">
-              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 10, fontWeight: 500 }}>
-                {monthOffset === 0 ? "Oylik daromadlar" : "Kunlik daromadlar"}
+            <div className="card fade-in-d4" style={{ textAlign: "center", padding: 20 }}>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 6, fontWeight: 500 }}>
+                Oylik daromadlar
               </div>
-              <BarChart months={barMonths} data={barData} color="var(--primary)" />
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                Tahlil uchun yana {Math.max(0, 3 - Math.min(report.payment_count, 3))} oy ma'lumot kerak
+              </div>
             </div>
           )}
         </>
