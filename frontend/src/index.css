@@ -402,6 +402,10 @@ body {
 .month-nav:active { transform: scale(0.9); }
 .month-current { font-size: 14px; font-weight: 600; min-width: 120px; text-align: center; }
 
+/* Toggle switch */
+.toggle-wrap input:checked + span { background: var(--primary) !important; border-color: var(--primary) !important; }
+.toggle-wrap input:checked ~ .toggle-thumb { transform: translateX(20px); background: var(--primary) !important; }
+
 /* Shimmer card */
 .shimmer-card {
   position: relative; overflow: hidden;
@@ -410,4 +414,32 @@ body {
   content: ""; position: absolute; inset: 0;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
   animation: shimmer 2s infinite; background-size: 200% 100%;
+}
+
+/* Light theme */
+.app[data-theme="light"] {
+  --navy: #f8f9fa;
+  --navy-light: #e9ecef;
+  --navy-mid: #dee2e6;
+  --surface: #ffffff;
+  --surface-alt: #f0f2f5;
+  --surface-glass: rgba(255, 255, 255, 0.85);
+  --bg: #ffffff;
+  --text: #1a1a2e;
+  --text-secondary: #6c757d;
+  --text-muted: #adb5bd;
+  --border: rgba(0, 0, 0, 0.06);
+  --border-light: rgba(119, 179, 155, 0.2);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 48px rgba(0, 0, 0, 0.1);
+  --shadow-primary: 0 4px 24px rgba(119, 179, 155, 0.3);
+  --shadow-gold: 0 4px 24px rgba(249, 216, 152, 0.25);
+}
+.app[data-theme="light"] .card-primary { color: #0a0e1a; }
+.app[data-theme="light"] .card-gold { color: #0a0e1a; }
+.app[data-theme="light"] body {
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(119, 179, 155, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(249, 216, 152, 0.04) 0%, transparent 50%);
 }

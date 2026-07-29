@@ -551,6 +551,24 @@ def data_delete(user: dict = Depends(get_current_user)):
     return {"ok": True, "message": "Barcha ma'lumotlar o'chirildi"}
 
 
+# ─── Push notifications ───────────────────────────────────────
+@router.post("/notify/payment")
+def notify_payment(user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    try:
+        import requests
+        requests.post(f"https://api.telegram.org/bot{config.bot_token}/sendMessage", json={
+            "chat_id": tg_id,
+            "text": f"✅ <b>To'lov qabul qilindi!</b>\n\n"
+                    f"Kimdir sizning to'lov havolangiz orqali to'lov qildi.\n"
+                    f"Batafsil: {config.app_url}",
+            "parse_mode": "HTML",
+        }, timeout=5)
+    except:
+        pass
+    return {"ok": True}
+
+
 # ─── Analytics ────────────────────────────────────────────────
 @router.post("/analytics/track")
 def track_event(user: dict = Depends(get_current_user)):

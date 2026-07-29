@@ -11,26 +11,35 @@ import Onboarding, { useOnboarding } from "./components/Onboarding";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 function useTheme() {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    try { return localStorage.getItem("uztax_theme") === "dark"; }
+    catch { return true; }
+  });
   useEffect(() => {
     try {
       const WebApp = (window as any).Telegram?.WebApp;
-      if (WebApp?.colorScheme) {
+      if (WebApp?.colorScheme && !localStorage.getItem("uztax_theme")) {
         setIsDark(WebApp.colorScheme === "dark");
-        WebApp.ready();
-        WebApp.expand();
-        WebApp.enableClosingConfirmation?.();
-        return;
       }
+      WebApp?.ready();
+      WebApp?.expand();
+      WebApp?.enableClosingConfirmation?.();
     } catch {}
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDark(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    const handler = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem("uztax_theme")) setIsDark(e.matches);
+    };
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
-  return isDark ? "dark" : "light";
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    try { localStorage.setItem("uztax_theme", next ? "dark" : "light"); } catch {}
+  };
+  return { colorScheme: isDark ? "dark" : "light", isDark, toggleTheme };
 }
+
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -52,7 +61,7 @@ function AnimatedRoutes() {
 }
 
 export default function App() {
-  const colorScheme = useTheme();
+  const { colorScheme, isDark, toggleTheme } = useTheme();
   const { seen, dismiss } = useOnboarding();
 
   return (
@@ -64,3 +73,5 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+
+export { useTheme };

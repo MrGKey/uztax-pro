@@ -239,6 +239,34 @@ export default function Profile() {
         </button>
       </div>
 
+      {/* Push notifications */}
+      <div className="card fade-in-d4" style={{ padding: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Bildirishnomalar</span>
+          <label className="toggle-wrap" style={{ position: "relative", width: 44, height: 24, cursor: "pointer" }}>
+            <input type="checkbox" defaultChecked onChange={async (e) => {
+              const on = e.target.checked;
+              haptic("impact");
+              try { localStorage.setItem("uztax_notify", on ? "1" : "0"); } catch {}
+            }} style={{ opacity: 0, width: 0, height: 0 }} />
+            <span style={{
+              position: "absolute", inset: 0, borderRadius: 12, transition: "0.3s",
+              background: "var(--surface-alt)", border: "1px solid var(--border)",
+            }} />
+            <span className="toggle-thumb" style={{
+              position: "absolute", width: 18, height: 18, borderRadius: "50%", top: 3, left: 3,
+              transition: "0.3s", background: "var(--text-muted)",
+            }} />
+          </label>
+        </div>
+        <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+          Напоминания о налоге и уведомления о платежах
+        </div>
+      </div>
+
+      {/* Language selector */}
+      <LangSelector />
+
       {/* Strategy 2: Commission info */}
       <div className="card fade-in-d4" style={{ padding: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -362,11 +390,27 @@ export default function Profile() {
         )}
       </div>
 
-        <div className="card fade-in-d4">
-          <div className="section-header" style={{ marginBottom: 4 }}>
-            <span className="section-title">Sozlamalar</span>
+      <div className="card fade-in-d4">
+        <div className="section-header" style={{ marginBottom: 4 }}>
+          <span className="section-title">Sozlamalar</span>
+        </div>
+        <div className="settings-item" onClick={() => {
+          haptic("impact");
+          const root = document.querySelector(".app");
+          if (root) {
+            const cur = root.getAttribute("data-theme");
+            const next = cur === "dark" ? "light" : "dark";
+            root.setAttribute("data-theme", next);
+            try { localStorage.setItem("uztax_theme", next); } catch {}
+          }
+        }}>
+          <div className="settings-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>
           </div>
-          <div className="settings-item" onClick={() => { haptic("impact"); navigate("/legal"); }}>
+          <span className="settings-label">Tema (dark / light)</span>
+          <span className="settings-arrow">{Icons.arrowRight}</span>
+        </div>
+        <div className="settings-item" onClick={() => { haptic("impact"); navigate("/legal"); }}>
             <div className="settings-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
             </div>
@@ -550,6 +594,29 @@ function TaxCalendarCard() {
         {daysLeft > 0
           ? "To'lov muddati: 25-kungacha"
           : `Peni: 0.5% kuniga. ${-daysLeft} kun × 0.5% = ${(-daysLeft * 0.5).toFixed(1)}% qo'shimcha`}
+      </div>
+    </div>
+  );
+}
+
+function LangSelector() {
+  const [lang, setLang] = useState(() => {
+    try { return localStorage.getItem("uztax_lang") || "uz"; } catch { return "uz"; }
+  });
+  return (
+    <div className="card fade-in-d4" style={{ padding: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Til / Язык</span>
+        <select className="select" style={{ width: "auto", fontSize: 12, padding: "4px 8px" }}
+          value={lang}
+          onChange={(e) => {
+            setLang(e.target.value);
+            try { localStorage.setItem("uztax_lang", e.target.value); } catch {}
+            window.location.reload();
+          }}>
+          <option value="uz">O'zbekcha</option>
+          <option value="ru">Русский</option>
+        </select>
       </div>
     </div>
   );
