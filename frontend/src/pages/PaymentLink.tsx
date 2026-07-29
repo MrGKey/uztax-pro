@@ -90,6 +90,17 @@ export default function PaymentLink() {
           }}>
             {link.url}
           </div>
+          <div className="card" style={{ background: "var(--surface-alt)", marginBottom: 16, padding: 16, textAlign: "center" }}>
+            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.8px" }}>Чек</div>
+            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.03em" }}>{parsedAmount.toLocaleString()} so'm</div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+              {METHODS.find((m) => m.id === method)?.label} · {new Date().toLocaleDateString("uz-UZ")}
+            </div>
+            <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, fontFamily: "monospace" }}>
+              {link.url.slice(0, 40)}...
+            </div>
+          </div>
+
           <button className="btn btn-gold" onClick={handleCopy}>
             {Icons.check} Nusxalandi
           </button>

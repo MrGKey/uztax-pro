@@ -1,7 +1,23 @@
 const API_BASE = import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com";
 
-const cache = new Map<string, { data: unknown; ts: number }>();
+const memCache = new Map<string, { data: unknown; ts: number }>();
 const CACHE_TTL = 30_000;
+const STORAGE_PREFIX = "uztax_cache_";
+
+function saveToStorage(key: string, data: unknown) {
+  try { localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(data)); } catch {}
+}
+
+function loadFromStorage<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_PREFIX + key);
+    return raw ? JSON.parse(raw) as T : null;
+  } catch { return null; }
+}
+
+function removeFromStorage(key: string) {
+  try { localStorage.removeItem(STORAGE_PREFIX + key); } catch {}
+}
 
 async function initData(): Promise<string> {
   try { return (window as any).Telegram?.WebApp?.initData || ""; }
@@ -35,15 +51,21 @@ async function request<T>(path: string, options: RequestInit = {}, retries = 2):
 
 function withCache<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
   const now = Date.now();
-  const cached = cache.get(key);
+  const cached = memCache.get(key);
   if (cached && now - cached.ts < CACHE_TTL) return Promise.resolve(cached.data as T);
+  const stored = loadFromStorage<T>(key);
+  if (stored !== null) {
+    memCache.set(key, { data: stored, ts: now });
+    return Promise.resolve(stored);
+  }
   return fetcher().then((data) => {
-    cache.set(key, { data, ts: now });
+    memCache.set(key, { data, ts: now });
+    saveToStorage(key, data);
     return data;
   });
 }
 
-function bustCache(key: string) { cache.delete(key); }
+function bustCache(key: string) { memCache.delete(key); removeFromStorage(key); }
 
 export interface User {
   tg_id: number;
@@ -83,8 +105,6 @@ export interface Expense {
   created_at: string;
 }
 
-const emptyUser: User = { tg_id: 0, full_name: "", phone: "", inn: "", balance: 0 };
-
 export const api = {
   auth: (force = false) =>
     force
@@ -96,6 +116,7 @@ export const api = {
   updateProfile: (data: Partial<User>) =>
     request<User>("/api/user", { method: "PUT", body: JSON.stringify(data) }).then((u) => {
       bustCache("auth");
+      saveToStorage("auth", u);
       return u;
     }),
 
