@@ -2,7 +2,7 @@ import asyncio
 import logging
 import os
 import threading
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from contextlib import asynccontextmanager
 
 from aiogram import Bot, Dispatcher
@@ -136,10 +136,11 @@ def run_bot_sync():
         import asyncio as _asyncio
 
         async def reminder_job():
+            tz = timezone(timedelta(hours=5))  # Tashkent UTC+5
             while True:
                 try:
                     await _asyncio.sleep(3600)
-                    now = datetime.now()
+                    now = datetime.now(tz)
                     if now.day == 22 and now.hour == 10:
                         users = fetch("SELECT tg_id, full_name FROM users")
                         for u in users:
@@ -160,7 +161,7 @@ def run_bot_sync():
                                 await bot.send_message(
                                     u["tg_id"],
                                     f"⚠️ <b>Bugun — soliq to'lovi kuni!</b>\n\n"
-                                    f"Iltimos, 1% soliqni to'lang. Kechikish uchun peni 0.5%/kun."
+                                    f"Bugun 1% soliqni to'lash kuni. Kechikish uchun peni 0.5%/kun."
                                 )
                             except:
                                 pass

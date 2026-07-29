@@ -207,8 +207,8 @@ export default function PaymentLink() {
 function handleShare(url: string, amount: number, method: string) {
   const text = `To'lov: ${amount.toLocaleString()} so'm (${method})\n${url}`;
   if (navigator.share) {
-    navigator.share({ title: "To'lov havolasi", text, url });
+    navigator.share({ title: "To'lov havolasi", text, url }).catch(() => {});
   } else {
-    navigator.clipboard.writeText(text).then(() => {});
+    navigator.clipboard.writeText(text).catch(() => {});
   }
 }

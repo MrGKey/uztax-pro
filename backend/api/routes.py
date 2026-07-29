@@ -384,10 +384,10 @@ TAX_REGIMES = {
     "it": {"rate": 0, "label": "IT-park — 0%", "desc": "Rezidentlari IT parki"},
 }
 
-BHM_MONTHLY = 340_000  # базовый размер минимальной зарплаты (2025)
 PENALTY_RATE = 0.005   # 0.5% за каждый день просрочки
 
-SOCIAL_CONTRIB_YEARLY = BHM_MONTHLY * 12  # примерно 4,080,000 сум/год
+BHM_MONTHLY = 340_000
+SOCIAL_CONTRIB_YEARLY = BHM_MONTHLY * 12
 
 
 @router.get("/tax/regimes")

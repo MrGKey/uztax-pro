@@ -87,7 +87,7 @@ export default function Home() {
       <div className="hero-section fade-in-d1">
         <div className="hero-text">
           <h2>Assalomu alaykum,<br />{user ? user.full_name.split(" ")[0] : "tadbirkor"}!</h2>
-          <p>Bugun {todayPayments.length} ta to'lov</p>
+          <p>{todayPayments.length > 0 ? `Bugun ${todayPayments.length} ta to'lov` : "Hali to'lovlar yo'q"}</p>
         </div>
         <PremiumHero />
       </div>

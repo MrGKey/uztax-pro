@@ -114,11 +114,7 @@ export const api = {
   profile: () => request<User>("/api/user"),
 
   updateProfile: (data: Partial<User>) =>
-    request<User>("/api/user", { method: "PUT", body: JSON.stringify(data) }).then((u) => {
-      bustCache("auth");
-      saveToStorage("auth", u);
-      return u;
-    }),
+    request<User>("/api/user", { method: "PUT", body: JSON.stringify(data) }),
 
   generatePaymentLink: (amount: number, method: string) =>
     request<PaymentLink>("/api/payment/generate", { method: "POST", body: JSON.stringify({ amount, method }) }).then((res) => {
