@@ -1,0 +1,29 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "codebase-memory": {
+      "type": "local",
+      "command": ["/Users/macbook/.local/bin/codebase-memory-mcp"],
+      "enabled": true
+    },
+    "agent-browser": {
+      "type": "local",
+      "command": ["npx", "-y", "agent-browser", "mcp", "--tools", "all"],
+      "enabled": true
+    }
+  },
+  "references": {
+    "llm-council": {
+      "repository": "karpathy/llm-council",
+      "description": "LLM Council — multiple LLMs answer questions, review each other, chairman produces final response. Use for inspiration on multi-LLM architectures, OpenRouter integration, and vibe-coded project patterns."
+    },
+    "skills": {
+      "path": ".agents/skills",
+      "description": "Installed skills from mattpocock/skills. Use for QA, code review, TDD, prototyping, research, codebase design and other development workflows."
+    },
+    "agent-browser": {
+      "repository": "vercel-labs/agent-browser",
+      "description": "Vercel Agent Browser — browser automation tool for AI agents. Use for web scraping, form automation, E2E testing, screenshot capture, and visual diffing."
+    }
+  }
+}

@@ -6,6 +6,7 @@ import PaymentLink from "./pages/PaymentLink";
 import TaxReport from "./pages/TaxReport";
 import Expenses from "./pages/Expenses";
 import Profile from "./pages/Profile";
+import Legal from "./pages/Legal";
 import Onboarding, { useOnboarding } from "./components/Onboarding";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -42,6 +43,7 @@ function AnimatedRoutes() {
           <Route path="/tax" element={<TaxReport />} />
           <Route path="/expenses" element={<Expenses />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/legal" element={<Legal />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

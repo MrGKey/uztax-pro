@@ -93,6 +93,7 @@ export default function Expenses() {
   };
 
   const handleDelete = async (id: number) => {
+    if (!window.confirm("Xarajatni o'chirishni tasdiqlaysizmi?")) return;
     setDeleting(id);
     haptic("warning");
     try {

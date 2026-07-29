@@ -45,9 +45,10 @@ async def app_lifespan(app: FastAPI):
 app = FastAPI(title="UzTax Pro API", lifespan=app_lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+FRONTEND_URL = config.app_url.rstrip("/")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[FRONTEND_URL],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -173,6 +174,16 @@ def run_bot_sync():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
-    t = threading.Thread(target=run_bot_sync, daemon=True)
+
+    def bot_runner():
+        while True:
+            try:
+                run_bot_sync()
+            except Exception as e:
+                logger.error(f"Bot crashed: {e}, restarting in 5s...", exc_info=True)
+                import time
+                time.sleep(5)
+
+    t = threading.Thread(target=bot_runner, daemon=True)
     t.start()
     uvicorn.run(app, host="0.0.0.0", port=port)
