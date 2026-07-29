@@ -258,6 +258,27 @@ def admin_stats():
     }
 
 
+@router.get("/backup")
+def backup_db():
+    import subprocess, tempfile, os
+    from fastapi.responses import FileResponse
+    url = config.database_url
+    tmp = tempfile.NamedTemporaryFile(suffix=".sql", delete=False)
+    try:
+        subprocess.run(["pg_dump", url, "-f", tmp.name], capture_output=True, timeout=30)
+        return FileResponse(tmp.name, media_type="application/sql", filename=f"uztax_backup_{datetime.now().strftime('%Y%m%d')}.sql")
+    except:
+        return {"error": "Backup failed"}
+
+
+@router.get("/soliq/status")
+def soliq_status(user: dict = Depends(get_current_user)):
+    return {
+        "connected": False,
+        "message": "SOLIQ integratsiyasi tez orada. Agar xohlasangiz, feedback qoldiring."
+    }
+
+
 class FeedbackRequest(BaseModel):
     message: str = Field(min_length=1, max_length=1000)
 

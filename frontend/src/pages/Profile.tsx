@@ -124,6 +124,16 @@ export default function Profile() {
         </div>
       </div>
 
+      <div className="card fade-in-d3" onClick={() => { haptic("impact"); window.open("https://soliq.uz"); }} style={{ cursor: "pointer" }}>
+        <div className="row" style={{ border: "none" }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>SOLIQ integratsiyasi</div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>Tez orada</div>
+          </div>
+          <span className="badge badge-primary">Kelmoqda</span>
+        </div>
+      </div>
+
       <div className="card fade-in-d4">
         <div className="section-header" style={{ marginBottom: 4 }}>
           <span className="section-title">Do'stlaringizni taklif eting</span>
