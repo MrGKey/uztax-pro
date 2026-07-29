@@ -109,7 +109,7 @@ export const api = {
   auth: (force = false) =>
     force
       ? request<User>("/api/auth")
-      : withCache<User>("auth", () => request<User>("/api/auth")),
+      : request<User>("/api/auth"),
 
   profile: () => request<User>("/api/user"),
 
