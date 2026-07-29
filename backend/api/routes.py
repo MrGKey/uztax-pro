@@ -198,6 +198,20 @@ def list_payments(user: dict = Depends(get_current_user)):
     )
 
 
+class FeedbackRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=1000)
+
+
+@router.post("/feedback")
+def send_feedback(
+    body: FeedbackRequest,
+    user: dict = Depends(get_current_user),
+):
+    tg_id = user["tg_id"]
+    logger.info(f"Feedback from user={tg_id}: {body.message}")
+    return {"ok": True}
+
+
 @router.delete("/expenses/{expense_id}")
 def delete_expense(expense_id: int, user: dict = Depends(get_current_user)):
     tg_id = user["tg_id"]

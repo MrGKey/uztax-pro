@@ -2,14 +2,25 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api, type User } from "../utils/api";
 import { Icons } from "../utils/icons";
-import { haptic, showConfirm } from "../utils/telegram";
+import { haptic, showConfirm, copyToClipboard } from "../utils/telegram";
 import PullToRefresh from "../components/PullToRefresh";
+
+const FAQs = [
+  { q: "1% soliq qanday hisoblanadi?", a: "Barcha daromadlaringizning 1% miqdorida. Avtomatik hisoblanadi." },
+  { q: "Qaysi to'lov tizimlari qo'llab-quvvatlanadi?", a: "Payme, Click, Uzum, Humo va Uzcard." },
+  { q: "Xarajatlarni qanday qo'shish mumkin?", a: "Xarajatlar sahifasida '+' tugmasini bosing va summani kiriting." },
+  { q: "Ma'lumotlarim xavfsizmi?", a: "Barcha ma'lumotlar Telegram orqali himoyalangan va shifrlangan." },
+  { q: "Qanday qilib qo'llab-quvvatlash olish mumkin?", a: "@uztax_bot orqali yoki profil sahifasidagi feedback formasi." },
+];
 
 export default function Profile() {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const [feedback, setFeedback] = useState("");
+  const [feedbackSent, setFeedbackSent] = useState(false);
 
   const load = async (force = false) => {
     if (!force) setLoading(true);
@@ -32,6 +43,24 @@ export default function Profile() {
       window.location.reload();
     }
   };
+
+  const handleFeedback = async () => {
+    if (!feedback.trim()) return;
+    haptic("impact");
+    try {
+      const url = `${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/feedback`;
+      await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: feedback }),
+      }).catch(() => {});
+      setFeedbackSent(true);
+      setFeedback("");
+      setTimeout(() => setFeedbackSent(false), 3000);
+    } catch {}
+  };
+
+  const referralLink = user ? `https://t.me/uztax_pro_bot?start=ref_${user.tg_id}` : "";
 
   if (loading) {
     return (
@@ -93,6 +122,56 @@ export default function Profile() {
           </div>
           <span className="badge badge-gold">Bepul</span>
         </div>
+      </div>
+
+      <div className="card fade-in-d4">
+        <div className="section-header" style={{ marginBottom: 4 }}>
+          <span className="section-title">Do'stlaringizni taklif eting</span>
+        </div>
+        <div className="settings-item" onClick={() => { haptic("impact"); copyToClipboard(referralLink); }} style={{ cursor: "pointer" }}>
+          <div className="settings-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
+          </div>
+          <span className="settings-label" style={{ fontSize: 12, wordBreak: "break-all" }}>{referralLink}</span>
+          <span className="settings-arrow">{Icons.copy}</span>
+        </div>
+      </div>
+
+      <div className="card fade-in-d4">
+        <div className="section-header" style={{ marginBottom: 8 }}>
+          <span className="section-title">Ko'p so'raladigan savollar</span>
+        </div>
+        {FAQs.map((faq, i) => (
+          <div key={i}>
+            <div className="settings-item" onClick={() => { haptic("impact"); setFaqOpen(faqOpen === i ? null : i); }} style={{ cursor: "pointer" }}>
+              <span className="settings-label">{faq.q}</span>
+              <span className={`settings-arrow`} style={{ transform: faqOpen === i ? "rotate(180deg)" : "", transition: "transform 0.2s" }}>{Icons.chevronDown}</span>
+            </div>
+            {faqOpen === i && (
+              <div style={{ padding: "0 0 12px 0", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>
+                {faq.a}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="card fade-in-d5">
+        <div className="section-header" style={{ marginBottom: 8 }}>
+          <span className="section-title">Feedback / Yordam</span>
+        </div>
+        {feedbackSent ? (
+          <div style={{ textAlign: "center", padding: 16, color: "var(--success)", fontSize: 14, fontWeight: 600 }}>
+            Raxmat! Xabaringiz yuborildi.
+          </div>
+        ) : (
+          <>
+            <textarea className="input" style={{ height: 80, resize: "none", fontSize: 14 }} placeholder="Savol yoki taklifingizni yozing..." value={feedback} onChange={(e) => setFeedback(e.target.value)} />
+            <button className="btn btn-sm" style={{ marginTop: 8 }} onClick={handleFeedback} disabled={!feedback.trim()}>
+              Yuborish
+            </button>
+          </>
+        )}
       </div>
 
       <div className="card fade-in-d4">
