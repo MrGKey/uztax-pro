@@ -23,7 +23,7 @@ const FAQs = [
   { q: "Qaysi to'lov tizimlari qo'llab-quvvatlanadi?", a: "Payme, Click, Uzum, Humo va Uzcard." },
   { q: "Xarajatlarni qanday qo'shish mumkin?", a: "Xarajatlar sahifasida '+' tugmasini bosing va summani kiriting." },
   { q: "Ma'lumotlarim xavfsizmi?", a: "Barcha ma'lumotlar Telegram orqali himoyalangan va shifrlangan." },
-  { q: "Qanday qilib qo'llab-quvvatlash olish mumkin?", a: "@uztax_bot orqali yoki profil sahifasidagi feedback formasi." },
+  { q: "Qanday qilib qo'llab-quvvatlash olish mumkin?", a: "@uzbtax_bot orqali yoki profil sahifasidagi feedback formasi." },
 ];
 
 export default function Profile() {
@@ -81,7 +81,7 @@ export default function Profile() {
     } catch {}
   };
 
-  const referralLink = user ? `https://t.me/uztax_pro_bot?start=ref_${user.tg_id}` : "";
+  const referralLink = user ? `https://t.me/uzbtax_bot?start=ref_${user.tg_id}` : "";
 
   if (loading) {
     return (

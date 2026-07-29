@@ -21,7 +21,7 @@ export default function Legal() {
         <p style={{ marginBottom: 12 }}>Ilova soliq hisob-kitoblarida yordam beradi, ammo yakuniy javobgarlik foydalanuvchiga tegishli.</p>
 
         <h3 style={{ color: "var(--text)", marginBottom: 8 }}>4. Aloqa</h3>
-        <p>Savollar bo'yicha: @uztax_pro_bot orqali feedback qoldiring.</p>
+        <p>Savollar bo'yicha: @uzbtax_bot orqali feedback qoldiring.</p>
       </div>
       <div style={{ textAlign: "center", padding: "16px 0", fontSize: 11, color: "var(--text-muted)" }}>
         UzTax Pro v0.2.0
