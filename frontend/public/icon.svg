@@ -1,54 +1,82 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0e1a"/>
+      <stop offset="50%" stop-color="#131d33"/>
+      <stop offset="100%" stop-color="#1a2a4a"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#77b39b"/>
-      <stop offset="50%" stop-color="#6aaa90"/>
-      <stop offset="100%" stop-color="#4d8a72"/>
+      <stop offset="100%" stop-color="#5a9a82"/>
     </linearGradient>
     <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#f9d898"/>
-      <stop offset="100%" stop-color="#f0c470"/>
+      <stop offset="100%" stop-color="#e8b84a"/>
     </linearGradient>
-    <linearGradient id="chart" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0%" stop-color="#f9d898" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#f9d898" stop-opacity="0.4"/>
+    <linearGradient id="cardGlow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#77b39b" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#77b39b" stop-opacity="0"/>
     </linearGradient>
   </defs>
 
-  <!-- Background -->
+  <!-- Dark fintech background -->
   <rect width="512" height="512" rx="110" fill="url(#bg)"/>
 
-  <!-- Subtle glow -->
-  <circle cx="256" cy="256" r="180" fill="#77b39b" opacity="0.08"/>
+  <!-- Geometric pattern subtle -->
+  <path d="M0 0 L512 0 L512 512 L0 512 Z" fill="none"/>
+  <g opacity="0.03">
+    <line x1="0" y1="0" x2="512" y2="512" stroke="#f9d898" stroke-width="2"/>
+    <line x1="100" y1="0" x2="512" y2="412" stroke="#f9d898" stroke-width="1"/>
+    <line x1="0" y1="100" x2="412" y2="512" stroke="#f9d898" stroke-width="1"/>
+    <line x1="200" y1="0" x2="512" y2="312" stroke="#77b39b" stroke-width="1"/>
+    <line x1="0" y1="200" x2="312" y2="512" stroke="#77b39b" stroke-width="1"/>
+  </g>
 
-  <!-- Card outline -->
-  <rect x="120" y="130" width="272" height="180" rx="24" fill="#0a0e1a" opacity="0.15"/>
-  <rect x="116" y="126" width="272" height="180" rx="24" fill="#131d33" opacity="0.3"/>
-  <rect x="112" y="122" width="272" height="180" rx="24" fill="none" stroke="#f9d898" stroke-width="1.5" opacity="0.4"/>
+  <!-- Glow orbs -->
+  <circle cx="140" cy="140" r="100" fill="url(#teal)" opacity="0.06"/>
+  <circle cx="370" cy="370" r="80" fill="url(#gold)" opacity="0.04"/>
+
+  <!-- Main card -->
+  <rect x="140" y="100" width="232" height="200" rx="20" fill="#1a2a4a" stroke="#77b39b" stroke-width="1.5" stroke-opacity="0.3"/>
+  <rect x="144" y="104" width="224" height="192" rx="18" fill="url(#cardGlow)"/>
+
+  <!-- Card chip -->
+  <rect x="164" y="126" width="40" height="28" rx="6" fill="url(#gold)" opacity="0.8"/>
+  <text x="184" y="146" text-anchor="middle" fill="#0a0e1a" font-size="14" font-weight="700" font-family="monospace">$$</text>
 
   <!-- Card lines -->
-  <rect x="136" y="148" width="100" height="8" rx="4" fill="#77b39b" opacity="0.5"/>
-  <rect x="136" y="164" width="140" height="6" rx="3" fill="#77b39b" opacity="0.3"/>
-  <rect x="136" y="178" width="80" height="6" rx="3" fill="#77b39b" opacity="0.3"/>
+  <rect x="216" y="134" width="100" height="6" rx="3" fill="#77b39b" opacity="0.4"/>
+  <rect x="164" y="148" width="140" height="5" rx="2.5" fill="#77b39b" opacity="0.2"/>
+  <rect x="164" y="160" width="80" height="5" rx="2.5" fill="#77b39b" opacity="0.15"/>
 
-  <!-- Chart line -->
-  <path d="M136 220 L180 200 L220 215 L260 185 L300 205 L340 190" stroke="url(#gold)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M136 220 L180 200 L220 215 L260 185 L300 205 L340 190 L340 260 L136 260 Z" fill="url(#chart)"/>
+  <!-- Chart -->
+  <g transform="translate(164, 180)">
+    <rect x="0" y="40" width="16" height="18" rx="3" fill="#77b39b" opacity="0.6"/>
+    <rect x="22" y="24" width="16" height="34" rx="3" fill="#77b39b" opacity="0.7"/>
+    <rect x="44" y="30" width="16" height="28" rx="3" fill="#77b39b" opacity="0.5"/>
+    <rect x="66" y="14" width="16" height="44" rx="3" fill="url(#gold)" opacity="0.8"/>
+    <rect x="88" y="22" width="16" height="36" rx="3" fill="#77b39b" opacity="0.6"/>
+    <rect x="110" y="10" width="16" height="48" rx="3" fill="url(#teal)" opacity="0.9"/>
+    <rect x="132" y="32" width="16" height="26" rx="3" fill="#77b39b" opacity="0.5"/>
+  </g>
 
-  <!-- Gold accent dot -->
-  <circle cx="340" cy="190" r="5" fill="url(#gold)"/>
-  <circle cx="340" cy="190" r="9" fill="url(#gold)" opacity="0.2"/>
+  <!-- Sparkline -->
+  <path d="M164 260 L190 240 L216 252 L242 222 L268 238 L294 215 L320 228 L346 205 L372 218" stroke="url(#gold)" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <circle cx="372" cy="218" r="3" fill="url(#gold)" opacity="0.8"/>
 
-  <!-- Letter U -->
-  <text x="256" y="370" text-anchor="middle" fill="white" font-size="140" font-weight="800" font-family="system-ui, sans-serif" letter-spacing="-2">U</text>
+  <!-- UZTAX text -->
+  <text x="256" y="384" text-anchor="middle" fill="white" font-size="120" font-weight="800" font-family="system-ui, sans-serif" letter-spacing="6">UZ</text>
+  <text x="256" y="384" text-anchor="middle" fill="url(#gold)" font-size="120" font-weight="800" font-family="system-ui, sans-serif" letter-spacing="6" opacity="0.15">UZ</text>
 
-  <!-- Text below -->
-  <text x="256" y="400" text-anchor="middle" fill="white" font-size="22" font-weight="500" font-family="system-ui, sans-serif" opacity="0.6" letter-spacing="4">ТАХ</text>
+  <text x="256" y="400" text-anchor="middle" fill="white" font-size="52" font-weight="600" font-family="system-ui, sans-serif" letter-spacing="10" opacity="0.5">TAX</text>
 
   <!-- Decorative dots -->
-  <circle cx="116" cy="116" r="4" fill="#f9d898" opacity="0.2"/>
-  <circle cx="400" cy="140" r="3" fill="#f9d898" opacity="0.15"/>
-  <circle cx="360" cy="400" r="5" fill="#f9d898" opacity="0.1"/>
-  <circle cx="130" cy="380" r="3" fill="#f9d898" opacity="0.12"/>
-  <circle cx="380" cy="100" r="2" fill="#77b39b" opacity="0.15"/>
+  <circle cx="100" cy="400" r="3" fill="#f9d898" opacity="0.15"/>
+  <circle cx="412" cy="120" r="2.5" fill="#77b39b" opacity="0.12"/>
+  <circle cx="380" cy="440" r="4" fill="#f9d898" opacity="0.08"/>
+  <circle cx="80" cy="160" r="2" fill="#77b39b" opacity="0.1"/>
+  <circle cx="440" cy="300" r="3" fill="#f9d898" opacity="0.1"/>
+
+  <!-- Small sum symbol -->
+  <text x="256" y="440" text-anchor="middle" fill="#77b39b" font-size="24" font-weight="500" font-family="system-ui, sans-serif" opacity="0.4">so'm</text>
 </svg>
