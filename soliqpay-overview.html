@@ -2,99 +2,76 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<title>SoliqPay — Overview</title>
+<title>SoliqPay — ИП учун</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Inter',sans-serif;background:#0a0e1a;color:#f0f2f5;width:210mm;min-height:297mm;padding:20mm 25mm;display:flex;flex-direction:column;justify-content:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-
-h1{font-size:46px;font-weight:900;letter-spacing:-2px;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0e1a;color:#f0f2f5;width:210mm;min-height:297mm;padding:20mm 25mm;display:flex;flex-direction:column;justify-content:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+h1{font-size:48px;font-weight:900;letter-spacing:-2px;margin-bottom:4px;}
 h1 span{background:linear-gradient(135deg,#f9d898,#e8b84a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.tagline{font-size:14px;color:#8896a8;letter-spacing:4px;margin-top:4px;}
-
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
-.card{background:rgba(19,29,51,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:18px;}
-.card .v{font-size:24px;font-weight:800;color:#f9d898;}
-.card .l{font-size:11px;color:#8896a8;margin-top:2px;}
-
-.tbl{width:100%;border-collapse:collapse;margin:12px 0;}
-.tbl td{padding:8px 12px;font-size:12px;color:#8896a8;border-bottom:1px solid rgba(255,255,255,0.04);}
-.tbl td:last-child{color:#f0f2f5;font-weight:600;text-align:right;}
-.tbl tr:last-child td{border-bottom:none;}
-
-.sec{margin:16px 0;}
-.sec h3{font-size:13px;font-weight:700;color:#77b39b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
-.tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(249,216,152,0.12);color:#f9d898;margin:2px;}
-
-.footer{font-size:10px;color:#475569;margin-top:20px;}
-
-.logo{font-size:40px;font-weight:900;background:linear-gradient(135deg,#f9d898,#e8b84a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-3px;}
+.sub{font-size:15px;color:#8896a8;letter-spacing:3px;margin-bottom:24px;}
+.p{font-size:14px;color:#8896a8;line-height:1.6;margin-bottom:12px;}
+.gold{color:#f9d898;}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+.c{background:rgba(19,29,51,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:18px;}
+.c .n{font-size:28px;font-weight:800;color:#f9d898;}
+.c .m{font-size:11px;color:#8896a8;margin-top:2px;}
+.c .d{font-size:11px;color:#566478;margin-top:4px;}
+.f{font-size:11px;color:#475569;margin-top:24px;}
+.tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(119,179,155,0.12);color:#77b39b;margin:2px;}
+.l{list-style:none;}
+.l li{padding:6px 0;font-size:14px;color:#8896a8;}
+.l li::before{content:'✅ ';color:#77b39b;}
 </style>
 </head>
 <body>
 
-<div style="display:flex;justify-content:space-between;align-items:flex-start;">
-  <div>
-    <div class="logo">SoliqPay</div>
-    <div class="tagline">1% Tax · Automated · Payments</div>
-  </div>
-  <div style="display:flex;gap:6px;flex-wrap:wrap;">
-    <span class="tag">Fintech</span>
-    <span class="tag">Telegram</span>
-    <span class="tag">Uzbekistan</span>
-  </div>
+<h1><span>SoliqPay</span></h1>
+<div class="sub">ИП учун рақамли офис</div>
+<div class="p">
+<b>SoliqPay</b> — Telegram Mini App, которая помогает 
+индивидуальным предпринимателям (ИП) Узбекистана 
+автоматически рассчитывать <b>1% налог</b>, создавать 
+<b>платёжные ссылки</b> и вести учёт доходов и расходов 
+в одном месте.
 </div>
 
-<p style="color:#8896a8;font-size:14px;line-height:1.5;margin:16px 0 0;">
-Telegram Mini App для ИП Узбекистана: авторасчёт 1% налога, 
-платёжные ссылки (Payme/Click/Uzum/Humo/Uzcard), учёт расходов, 
-PDF отчёты и напоминания.
-</p>
-
-<div class="grid">
-  <div class="card"><div class="v">3M</div><div class="l">Индивидуальных ИП</div></div>
-  <div class="card"><div class="v">20M+</div><div class="l">Пользователей Telegram</div></div>
-  <div class="card"><div class="v">$5</div><div class="l">Premium / мес (25 Stars)</div></div>
-  <div class="card"><div class="v">1.5%</div><div class="l">Комиссия с платежей</div></div>
+<div class="g">
+  <div class="c"><div class="n">3 млн+</div><div class="m">ИП в Узбекистане</div><div class="d">Считают налог вручную</div></div>
+  <div class="c"><div class="n">20 млн+</div><div class="m">Пользователей Telegram</div><div class="d">Уже в телефоне</div></div>
 </div>
 
-<div class="sec">
-  <h3>Что внутри</h3>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-    <div><div style="font-size:12px;color:#f0f2f5;">✅ 1% налог</div><div style="font-size:10px;color:#8896a8;">Авто-расчёт</div></div>
-    <div><div style="font-size:12px;color:#f0f2f5;">✅ 5 платежей</div><div style="font-size:10px;color:#8896a8;">Payme · Click · Uzum · Humo · Uzcard</div></div>
-    <div><div style="font-size:12px;color:#f0f2f5;">✅ Голосовой ввод</div><div style="font-size:10px;color:#8896a8;">Расходов</div></div>
-    <div><div style="font-size:12px;color:#f0f2f5;">✅ PDF отчёты</div><div style="font-size:10px;color:#8896a8;">Для налоговой</div></div>
-    <div><div style="font-size:12px;color:#f0f2f5;">✅ Telegram Stars</div><div style="font-size:10px;color:#8896a8;">Premium $5/мес</div></div>
-    <div><div style="font-size:12px;color:#f0f2f5;">✅ API бухгалтерам</div><div style="font-size:10px;color:#8896a8;">B2B $50/мес</div></div>
-  </div>
+<div style="margin:20px 0;">
+  <div style="font-size:13px;font-weight:700;color:#77b39b;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Проблема</div>
+  <ul class="l">
+    <li>ИП тратят часы на ручной расчёт 1% налога</li>
+    <li>Платежные ссылки создают вручную — теряют клиентов</li>
+    <li>Расходы не учитывают — переплачивают налог</li>
+    <li>Пропускают сроки — платят пени 0.5% в день</li>
+  </ul>
 </div>
 
-<div class="sec">
-  <h3>Финансы (прогноз)</h3>
-  <table class="tbl">
-    <tr><td>1,000 users</td><td>$2,268/мес</td></tr>
-    <tr><td>5,000 users</td><td>$15,777/мес</td></tr>
-    <tr><td>30,000 users</td><td>$110,250/мес</td></tr>
-    <tr><td>Year 1 total</td><td style="color:#f9d898;">~$384,000</td></tr>
-  </table>
+<div style="margin:20px 0;">
+  <div style="font-size:13px;font-weight:700;color:#77b39b;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Решение</div>
+  <ul class="l">
+    <li>Авторасчёт налога — 1%, 4% или 0% для IT</li>
+    <li>Платежи через Payme, Click, Uzum, Humo, Uzcard</li>
+    <li>Голосовой ввод расходов с авто-категоризацией</li>
+    <li>PDF отчёты для налоговой</li>
+    <li>Напоминания о налогах (22-е и 25-е числа)</li>
+    <li>Работает внутри Telegram — не нужно ставить приложение</li>
+  </ul>
 </div>
 
-<div class="sec">
-  <h3>Сейчас</h3>
-  <div style="font-size:12px;color:#8896a8;line-height:1.6;">
-    ✅ MVP работает · ✅ Безопасность enterprise · ✅ Монетизация настроена
-  </div>
+<div style="margin:16px 0;display:flex;gap:8px;flex-wrap:wrap;">
+  <span class="tag">1% солиқ</span>
+  <span class="tag">Payme</span>
+  <span class="tag">Click</span>
+  <span class="tag">Uzum</span>
+  <span class="tag">Humo</span>
+  <span class="tag">Uzcard</span>
 </div>
 
-<div style="background:rgba(249,216,152,0.06);border:1px solid rgba(249,216,152,0.12);border-radius:12px;padding:14px;margin:16px 0;">
-  <div style="font-size:13px;font-weight:600;color:#f9d898;">Запуск сегодня</div>
-  <div style="font-size:11px;color:#8896a8;margin-top:6px;">t.me/SoliqPay_bot · Прибыль с первого пользователя</div>
-</div>
-
-<div class="footer">
-  SoliqPay · 2026 · t.me/SoliqPay_bot · t.me/SoliqPay_News
-</div>
+<div class="f">SoliqPay — t.me/SoliqPay_bot · @SoliqPay_News</div>
 
 </body>
 </html>
