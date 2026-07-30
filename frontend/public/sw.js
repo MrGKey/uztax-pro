@@ -1,4 +1,4 @@
-const CACHE = "uztax-v2";
+const CACHE = "soliqpay-v3";
 
 self.addEventListener("install", () => self.skipWaiting());
 
