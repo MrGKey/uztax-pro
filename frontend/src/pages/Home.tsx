@@ -88,8 +88,8 @@ export default function Home() {
 
       <div className="hero-section fade-in-d1">
         <div className="hero-text">
-          <h2>Assalomu alaykum,<br />{user ? user.full_name.split(" ")[0] : "tadbirkor"}!</h2>
-          <p>{todayPayments.length > 0 ? `Bugun ${todayPayments.length} ta to'lov` : t("home_no_payments")}</p>
+          <h2>{t("greets")},<br />{user ? user.full_name.split(" ")[0] : "IP"}!</h2>
+          <p>{todayPayments.length > 0 ? t("bugun", { n: todayPayments.length }) : t("home_no_payments")}</p>
         </div>
         <PremiumHero />
       </div>
@@ -165,7 +165,7 @@ export default function Home() {
 
       {/* Tax Calculator */}
       <div className="card fade-in-d5" style={{ padding: 14 }}>
-        <div style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 500, marginBottom: 8 }}>💰 {t("soliq")} калькулятори</div>
+        <div style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 500, marginBottom: 8 }}>💰 {t("soliq_txt")} калькулятори</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <input className="input" type="number" placeholder="1 000 000"
             style={{ flex: 1, fontSize: 14, padding: "10px 12px" }}

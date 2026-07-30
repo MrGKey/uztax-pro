@@ -4,6 +4,7 @@ import { api, type Expense } from "../utils/api";
 import { Icons, CatIcons } from "../utils/icons";
 import BottomSheet from "../components/BottomSheet";
 import PullToRefresh from "../components/PullToRefresh";
+import { useT } from "../utils/i18n";
 import { formatSum, haptic } from "../utils/telegram";
 import { AnimatedNumber } from "../utils/useCountUp";
 
@@ -18,6 +19,7 @@ const categories: Record<string, string> = {
 const CATEGORY_LIST = Object.entries(categories);
 
 export default function Expenses() {
+  const { t } = useT();
   const navigate = useNavigate();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,7 +121,7 @@ export default function Expenses() {
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="header fade-in">
         <button className="header-back" onClick={() => { haptic("impact"); navigate("/"); }}>{Icons.chevronLeft}</button>
-        <h1 className="header-title">Xarajatlar</h1>
+        <h1 className="header-title">{t("exp_title")}</h1>
         <button className="btn btn-sm btn-ghost" onClick={() => { haptic("impact"); setShowSheet(true); }} style={{ width: "auto", padding: "8px 12px" }}>
           {Icons.plus}
         </button>
@@ -163,9 +165,9 @@ export default function Expenses() {
       ) : expenses.length === 0 ? (
         <div className="empty fade-in-d3">
           <div className="empty-icon" style={{ opacity: 0.3 }}>{Icons.expense}</div>
-          <div className="empty-text">Xarajatlar yo'q</div>
+          <div className="empty-text">{t("exp_empty")}</div>
           <button className="btn btn-secondary" style={{ marginTop: 20, width: "auto" }} onClick={() => { haptic("impact"); setShowSheet(true); }}>
-            {Icons.plus} Birinchi xarajat
+            {Icons.plus} {t("birinchi")}
           </button>
         </div>
       ) : (
@@ -234,10 +236,10 @@ export default function Expenses() {
           </select>
         </div>
         <button className="btn" onClick={() => { haptic("impact"); handleAdd(); }} disabled={!amount || parseInt(amount) < 100}>
-          {Icons.check} Saqlash
+          {Icons.check} {t("saqlash")}
         </button>
         <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={() => { haptic("impact"); setShowSheet(false); }}>
-          Bekor qilish
+          {t("bekor")}
         </button>
       </BottomSheet>
 

@@ -4,6 +4,7 @@ import { api, type Payment } from "../utils/api";
 import { Icons, MethodIcons } from "../utils/icons";
 import BottomSheet from "../components/BottomSheet";
 import { copyToClipboard, haptic, formatSum, formatDateTime } from "../utils/telegram";
+import { useT } from "../utils/i18n";
 import { AnimatedNumber } from "../utils/useCountUp";
 
 const METHODS = [
@@ -20,6 +21,7 @@ const METHOD_COLORS: Record<string, string> = {
 };
 
 export default function PaymentLink() {
+  const { t } = useT();
   const navigate = useNavigate();
   const [showSheet, setShowSheet] = useState(false);
   const [amount, setAmount] = useState("");
@@ -105,7 +107,7 @@ export default function PaymentLink() {
             {link.url}
           </div>
           <div className="card" style={{ background: "var(--surface-alt)", marginBottom: 16, padding: 16, textAlign: "center" }}>
-            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.8px" }}>Чек</div>
+            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.8px" }}>{t("chek")}</div>
             <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.03em" }}>{parsedAmount.toLocaleString()} so'm</div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
               {METHODS.find((m) => m.id === method)?.label} · {new Date().toLocaleDateString("uz-UZ")}
@@ -120,10 +122,10 @@ export default function PaymentLink() {
           </button>
           <button className="btn btn-secondary" style={{ marginTop: 10 }} onClick={() => { haptic("impact"); handleShare(link.url, parsedAmount, method); }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
-            Ulashish
+            {t("ulashish")}
           </button>
           <button className="btn btn-ghost" style={{ marginTop: 10 }} onClick={() => { haptic("impact"); setLink(null); setAmount(""); }}>
-            Yangi havola
+            {t("yangi")}
           </button>
         </div>
         {toast && <div className="toast">{toast}</div>}
@@ -174,7 +176,7 @@ export default function PaymentLink() {
           <div className="section-header">
             <span className="section-title">To'lovlar tarixi ({payments.length})</span>
             {payments.length > paymentsLimit && (
-              <span className="section-link" onClick={() => { haptic("impact"); setPaymentsLimit(paymentsLimit + 10); }}>Yana ko'rsatish</span>
+              <span className="section-link" onClick={() => { haptic("impact"); setPaymentsLimit(paymentsLimit + 10); }}>{t("yana")}</span>
             )}
           </div>
           <div className="card" style={{ padding: "4px 16px" }}>
@@ -190,7 +192,7 @@ export default function PaymentLink() {
                   <div className="payment-meta">{formatDateTime(p.created_at)}</div>
                 </div>
                 <span className={`badge ${p.status === "completed" ? "badge-success" : "badge-primary"}`}>
-                  {p.status === "completed" ? "Bajarildi" : "Kutilmoqda"}
+                  {p.status === "completed" ? t("bajarildi") : t("kutilmoqda")}
                 </span>
               </div>
             ))}
@@ -200,7 +202,7 @@ export default function PaymentLink() {
 
       {/* Saved templates */}
       <div className="card fade-in-d3" style={{ padding: 12 }}>
-        <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.6px" }}>Шаблонлар</div>
+        <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.6px" }}>{t("template")}</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {[500000, 1000000, 2500000, 5000000].map((v) => (
             <button key={v} className="btn btn-sm btn-ghost" style={{ width: "auto", padding: "6px 14px", fontSize: 12 }}
@@ -225,7 +227,7 @@ export default function PaymentLink() {
           {loading ? "Yaratilmoqda..." : "Havolani yaratish"}
         </button>
         <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={() => { haptic("impact"); setShowSheet(false); }}>
-          Bekor qilish
+          {t("bekor")}
         </button>
       </BottomSheet>
 
