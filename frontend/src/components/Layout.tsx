@@ -1,18 +1,19 @@
 import { Outlet, NavLink } from "react-router-dom";
 import { haptic } from "../utils/telegram";
 import { useOnlineStatus } from "../utils/useOnlineStatus";
+import { useT } from "../utils/i18n";
 import { Icons } from "../utils/icons";
 
-const links = [
-  { to: "/", icon: Icons.home, label: "Bosh sahifa" },
-  { to: "/payment", icon: Icons.payment, label: "To'lov" },
-  { to: "/tax", icon: Icons.tax, label: "Soliq" },
-  { to: "/expenses", icon: Icons.expense, label: "Xarajat" },
-  { to: "/profile", icon: Icons.profile, label: "Profil" },
-];
-
 export default function Layout() {
+  const { t } = useT();
   const online = useOnlineStatus();
+  const links = [
+    { to: "/", icon: Icons.home, label: t("nav_home") },
+    { to: "/payment", icon: Icons.payment, label: t("nav_pay") },
+    { to: "/tax", icon: Icons.tax, label: t("nav_tax") },
+    { to: "/expenses", icon: Icons.expense, label: t("nav_exp") },
+    { to: "/profile", icon: Icons.profile, label: t("nav_prof") },
+  ];
 
   return (
     <div>

@@ -119,7 +119,7 @@ export default function Home() {
           <div className="stat-value" style={{ color: "var(--warning)" }}>
             {user ? <AnimatedNumber value={monthlyTax} /> : "—"}
           </div>
-          <div className="stat-label">Soliq 1%</div>
+          <div className="stat-label">{t("soliq")} 1%</div>
         </div>
       </div>
 
