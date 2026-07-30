@@ -13,50 +13,57 @@
       <stop offset="0%" stop-color="#77b39b"/>
       <stop offset="100%" stop-color="#3d7a62"/>
     </linearGradient>
-    <filter id="depth">
-      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#f9d898" flood-opacity="0.06"/>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
   <rect width="512" height="512" rx="512" fill="url(#bg)"/>
 
-  <!-- Outer rings -->
-  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#gold)" stroke-width="0.5" opacity="0.05"/>
-  <circle cx="256" cy="256" r="195" fill="none" stroke="url(#teal)" stroke-width="0.5" opacity="0.04"/>
+  <!-- Outer decorative rings -->
+  <circle cx="256" cy="260" r="220" fill="none" stroke="url(#gold)" stroke-width="0.5" opacity="0.06"/>
+  <circle cx="256" cy="260" r="200" fill="none" stroke="url(#teal)" stroke-width="0.5" opacity="0.04"/>
 
-  <!-- Radiating signal rings (broadcast metaphor) -->
+  <!-- Sound waves behind text -->
   <g stroke="url(#teal)" fill="none" stroke-linecap="round" opacity="0.12">
-    <circle cx="256" cy="246" r="140" stroke-width="1.5"/>
-    <circle cx="256" cy="246" r="110" stroke-width="2"/>
-    <circle cx="256" cy="246" r="80" stroke-width="2.5"/>
+    <circle cx="256" cy="240" r="130" stroke-width="1.5"/>
+    <circle cx="256" cy="240" r="105" stroke-width="2"/>
+    <circle cx="256" cy="240" r="80" stroke-width="2.5"/>
   </g>
 
-  <!-- Central broadcast icon -->
-  <g transform="translate(256, 246)" filter="url(#depth)">
-    <!-- Outer shield/circle -->
-    <circle cx="0" cy="0" r="58" fill="none" stroke="url(#gold)" stroke-width="3.5" opacity="0.9"/>
-    <circle cx="0" cy="0" r="48" fill="url(#gold)" opacity="0.06"/>
-
-    <!-- Play/Signal triangle -->
-    <polygon points="-16,-28 20,0 -16,28" fill="url(#gold)" opacity="0.9"/>
-    <polygon points="-12,-22 16,0 -12,22" fill="url(#bg)"/>
-    
-    <!-- Right side bars (signal strength) -->
-    <rect x="28" y="-24" width="5" height="20" rx="2.5" fill="url(#teal)" opacity="0.5"/>
-    <rect x="36" y="-16" width="5" height="12" rx="2.5" fill="url(#teal)" opacity="0.35"/>
-    <rect x="44" y="-8" width="5" height="4" rx="2.5" fill="url(#teal)" opacity="0.2"/>
-
-    <!-- Small gold accent dot -->
-    <circle cx="0" cy="-58" r="3" fill="url(#gold)" opacity="0.5"/>
+  <!-- Small broadcast icon at top -->
+  <g transform="translate(256, 225)" filter="url(#glow)">
+    <!-- Megaphone body -->
+    <path d="M-10 -12 L40 -18 L44 -5 L44 5 L40 18 L-10 12 Z" 
+          fill="url(#gold)" opacity="0.9" stroke="url(#gold)" stroke-width="1.5" stroke-linejoin="round"/>
+    <!-- Speaker lines -->
+    <line x1="-4" y1="-8" x2="28" y2="-12" stroke="url(#bg)" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-4" y1="0" x2="28" y2="-4" stroke="url(#bg)" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-4" y1="8" x2="28" y2="4" stroke="url(#bg)" stroke-width="2" stroke-linecap="round"/>
+    <!-- Handle -->
+    <path d="M-10 -12 Q-18 -5 -18 2 Q-18 8 -12 12" fill="none" stroke="url(#gold)" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Red dot -->
+    <circle cx="38" cy="-16" r="5" fill="#f87171"/>
   </g>
 
-  <!-- Sound waves right side -->
-  <g stroke="url(#gold)" fill="none" stroke-linecap="round" opacity="0.15">
-    <path d="M320 210 Q340 246 320 282" stroke-width="2.5"/>
-    <path d="M340 190 Q365 246 340 302" stroke-width="2"/>
-    <path d="M360 170 Q390 246 360 322" stroke-width="1.5"/>
+  <!-- Sound wave arcs -->
+  <g stroke="url(#gold)" fill="none" stroke-linecap="round" opacity="0.2">
+    <path d="M52 218 Q62 240 52 262" stroke-width="2"/>
+    <path d="M62 210 Q75 240 62 270" stroke-width="1.5"/>
   </g>
 
-  <!-- Brand text at bottom -->
-  <text x="256" y="430" text-anchor="middle" fill="white" font-size="13" font-weight="600" font-family="system-ui, sans-serif" letter-spacing="4" opacity="0.3">SOLIQPAY</text>
+  <!-- Main text - large and bold -->
+  <text x="256" y="320" text-anchor="middle" fill="url(#gold)" font-size="48" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="8" filter="url(#glow)">SOLIQ</text>
+  <text x="256" y="320" text-anchor="middle" fill="url(#gold)" font-size="48" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="8">SOLIQ</text>
+
+  <text x="256" y="370" text-anchor="middle" fill="white" font-size="30" font-weight="600" font-family="system-ui, sans-serif" letter-spacing="6">PAY</text>
+
+  <!-- Gold divider line -->
+  <rect x="170" y="388" width="172" height="2" rx="1" fill="url(#gold)" opacity="0.4"/>
+
+  <text x="256" y="415" text-anchor="middle" fill="#8896a8" font-size="20" font-weight="500" font-family="system-ui, sans-serif" letter-spacing="5">НОВОСТИ</text>
+
+  <!-- Small teal dot -->
+  <circle cx="256" cy="435" r="2" fill="url(#teal)" opacity="0.3"/>
 </svg>

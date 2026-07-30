@@ -9,55 +9,21 @@
       <stop offset="40%" stop-color="#fbe8b8"/>
       <stop offset="100%" stop-color="#d4a843"/>
     </linearGradient>
-    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#77b39b"/>
-      <stop offset="100%" stop-color="#3d7a62"/>
-    </linearGradient>
-    <linearGradient id="sGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f9d898"/>
-      <stop offset="50%" stop-color="#fbe8b8"/>
-      <stop offset="100%" stop-color="#d4a843"/>
-    </linearGradient>
-    <filter id="depth">
-      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#f9d898" flood-opacity="0.08"/>
-    </filter>
     <filter id="glow">
-      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feGaussianBlur stdDeviation="5" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
   <rect width="512" height="512" rx="512" fill="url(#bg)"/>
 
-  <!-- Decorative outer ring -->
-  <circle cx="256" cy="256" r="230" fill="none" stroke="url(#gold)" stroke-width="0.5" opacity="0.06"/>
-  <circle cx="256" cy="256" r="215" fill="none" stroke="url(#teal)" stroke-width="0.5" opacity="0.04"/>
+  <!-- Subtle ring -->
+  <circle cx="256" cy="256" r="240" fill="none" stroke="url(#gold)" stroke-width="0.5" opacity="0.06"/>
 
-  <!-- Background glow beneath S -->
-  <circle cx="256" cy="280" r="100" fill="url(#gold)" opacity="0.04" filter="url(#glow)"/>
+  <!-- Giant S filling the circle -->
+  <text x="256" y="350" text-anchor="middle" fill="url(#gold)" font-size="380" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="-10" filter="url(#glow)">S</text>
+  <text x="256" y="350" text-anchor="middle" fill="url(#gold)" font-size="380" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="-10">S</text>
 
-  <!-- Premium layered letter S -->
-  <g filter="url(#depth)">
-    <!-- Shadow layer -->
-    <text x="258" y="322" text-anchor="middle" fill="none" stroke="#d4a843" stroke-width="3" font-size="260" font-weight="900" font-family="system-ui, sans-serif" opacity="0.3">S</text>
-    
-    <!-- Main S -->
-    <text x="256" y="320" text-anchor="middle" fill="url(#sGrad)" font-size="260" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="-6">S</text>
-
-    <!-- Highlight shine on top half of S -->
-    <text x="256" y="320" text-anchor="middle" fill="url(#gold)" font-size="260" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="-6" opacity="0.15" clip-path="url(#shine)">S</text>
-  </g>
-
-  <!-- Clip path for shine effect -->
-  <clipPath id="shine">
-    <rect x="0" y="0" width="512" height="130"/>
-  </clipPath>
-
-  <!-- Premium card outline beneath -->
-  <rect x="155" y="370" width="202" height="36" rx="8" fill="none" stroke="url(#gold)" stroke-width="1.5" opacity="0.15"/>
-  <text x="256" y="393" text-anchor="middle" fill="white" font-size="14" font-weight="600" font-family="system-ui, sans-serif" letter-spacing="3" opacity="0.5">SOLIQ</text>
-  <text x="360" y="393" text-anchor="middle" fill="url(#gold)" font-size="14" font-weight="700" font-family="system-ui, sans-serif" letter-spacing="3" opacity="0.7">PAY</text>
-
-  <!-- Small teal accent dot -->
-  <circle cx="256" cy="420" r="2" fill="url(#teal)" opacity="0.4"/>
+  <!-- Gold accent line at bottom -->
+  <rect x="160" y="390" width="192" height="3" rx="1.5" fill="url(#gold)" opacity="0.3"/>
 </svg>
