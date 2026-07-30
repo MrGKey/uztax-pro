@@ -1,33 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0F172A"/>
-      <stop offset="100%" stop-color="#1E293B"/>
+      <stop offset="0%" stop-color="#0a0e1a"/>
+      <stop offset="100%" stop-color="#1a2a4a"/>
     </linearGradient>
     <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#F59E0B"/>
-      <stop offset="50%" stop-color="#FBBF24"/>
-      <stop offset="100%" stop-color="#F59E0B"/>
+      <stop offset="0%" stop-color="#f9d898"/>
+      <stop offset="40%" stop-color="#fbe8b8"/>
+      <stop offset="100%" stop-color="#d4a843"/>
     </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#77b39b"/>
+      <stop offset="100%" stop-color="#3d7a62"/>
+    </linearGradient>
+    <filter id="depth">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#f9d898" flood-opacity="0.06"/>
+    </filter>
   </defs>
 
   <rect width="512" height="512" rx="512" fill="url(#bg)"/>
 
-  <!-- Broadcast ring - outer -->
-  <circle cx="256" cy="256" r="170" fill="none" stroke="url(#gold)" stroke-width="1" opacity="0.15"/>
+  <!-- Outer rings -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#gold)" stroke-width="0.5" opacity="0.05"/>
+  <circle cx="256" cy="256" r="195" fill="none" stroke="url(#teal)" stroke-width="0.5" opacity="0.04"/>
 
-  <!-- Abstract broadcast symbol - three arcs -->
-  <g transform="translate(256, 246)" fill="none" stroke="url(#gold)" stroke-linecap="round">
-    <path d="M-30 -40 L110 -55 L120 -10 L120 10 L110 55 L-30 40" stroke-width="4.5" stroke-linejoin="round" opacity="0.9"/>
-    <line x1="-10" y1="-28" x2="75" y2="-42" stroke-width="5"/>
-    <line x1="-10" y1="-3" x2="75" y2="-17" stroke-width="5"/>
-    <line x1="-10" y1="22" x2="75" y2="8" stroke-width="5"/>
-    <path d="M-30 -40 Q-55 -20 -55 8 Q-55 30 -35 40" stroke-width="4.5"/>
+  <!-- Radiating signal rings (broadcast metaphor) -->
+  <g stroke="url(#teal)" fill="none" stroke-linecap="round" opacity="0.12">
+    <circle cx="256" cy="246" r="140" stroke-width="1.5"/>
+    <circle cx="256" cy="246" r="110" stroke-width="2"/>
+    <circle cx="256" cy="246" r="80" stroke-width="2.5"/>
   </g>
 
-  <!-- Radiating waves -->
-  <g stroke="url(#gold)" fill="none" stroke-linecap="round" opacity="0.25">
-    <path d="M140 -50 Q165 0 140 50" stroke-width="2.5"/>
-    <path d="M160 -70 Q190 0 160 70" stroke-width="1.5"/>
+  <!-- Central broadcast icon -->
+  <g transform="translate(256, 246)" filter="url(#depth)">
+    <!-- Outer shield/circle -->
+    <circle cx="0" cy="0" r="58" fill="none" stroke="url(#gold)" stroke-width="3.5" opacity="0.9"/>
+    <circle cx="0" cy="0" r="48" fill="url(#gold)" opacity="0.06"/>
+
+    <!-- Play/Signal triangle -->
+    <polygon points="-16,-28 20,0 -16,28" fill="url(#gold)" opacity="0.9"/>
+    <polygon points="-12,-22 16,0 -12,22" fill="url(#bg)"/>
+    
+    <!-- Right side bars (signal strength) -->
+    <rect x="28" y="-24" width="5" height="20" rx="2.5" fill="url(#teal)" opacity="0.5"/>
+    <rect x="36" y="-16" width="5" height="12" rx="2.5" fill="url(#teal)" opacity="0.35"/>
+    <rect x="44" y="-8" width="5" height="4" rx="2.5" fill="url(#teal)" opacity="0.2"/>
+
+    <!-- Small gold accent dot -->
+    <circle cx="0" cy="-58" r="3" fill="url(#gold)" opacity="0.5"/>
   </g>
+
+  <!-- Sound waves right side -->
+  <g stroke="url(#gold)" fill="none" stroke-linecap="round" opacity="0.15">
+    <path d="M320 210 Q340 246 320 282" stroke-width="2.5"/>
+    <path d="M340 190 Q365 246 340 302" stroke-width="2"/>
+    <path d="M360 170 Q390 246 360 322" stroke-width="1.5"/>
+  </g>
+
+  <!-- Brand text at bottom -->
+  <text x="256" y="430" text-anchor="middle" fill="white" font-size="13" font-weight="600" font-family="system-ui, sans-serif" letter-spacing="4" opacity="0.3">SOLIQPAY</text>
 </svg>
