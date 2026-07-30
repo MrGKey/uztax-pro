@@ -70,8 +70,12 @@ export function T({ children }: { children: ReactNode }) {
   const [lang, set] = useState<Lang>("uz");
   useEffect(() => {
     try {
-      const s = localStorage.getItem("soliqpay_lang");
-      if (s === "uz" || s === "ru") set(s);
+      const saved = localStorage.getItem("soliqpay_lang");
+      if (saved === "uz" || saved === "ru") { set(saved); return; }
+      const tgLang = (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
+      if (tgLang === "uz" || tgLang === "ru") { set(tgLang); return; }
+      if (tgLang?.startsWith("uz")) { set("uz"); return; }
+      if (tgLang?.startsWith("ru")) { set("ru"); return; }
     } catch {}
   }, []);
   const t = (k: string, p?: Record<string,string|number>) => {

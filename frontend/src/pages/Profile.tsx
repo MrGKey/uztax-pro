@@ -417,6 +417,17 @@ export default function Profile() {
         )}
       </div>
 
+      {/* Install App */}
+      <div className="card fade-in-d4">
+        <div className="settings-item" onClick={() => { haptic("impact"); window.open("https://uztax-frontend.onrender.com", "_blank"); }} style={{ cursor: "pointer" }}>
+          <div className="settings-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+          </div>
+          <span className="settings-label">Рабочий столга чиқариш</span>
+          <span className="settings-arrow">{Icons.arrowRight}</span>
+        </div>
+      </div>
+
       <div className="card fade-in-d4">
         <div className="section-header" style={{ marginBottom: 4 }}>
           <span className="section-title">Sozlamalar</span>
