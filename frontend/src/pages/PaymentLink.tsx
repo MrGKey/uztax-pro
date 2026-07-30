@@ -185,6 +185,19 @@ export default function PaymentLink() {
         </div>
       )}
 
+      {/* Saved templates */}
+      <div className="card fade-in-d3" style={{ padding: 12 }}>
+        <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.6px" }}>Шаблонлар</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {[500000, 1000000, 2500000, 5000000].map((v) => (
+            <button key={v} className="btn btn-sm btn-ghost" style={{ width: "auto", padding: "6px 14px", fontSize: 12 }}
+              onClick={() => { haptic("impact"); setShowSheet(true); setAmount(String(v)); }}>
+              {(v / 1000).toFixed(0)}k
+            </button>
+          ))}
+        </div>
+      </div>
+
       <BottomSheet open={showSheet} onClose={() => setShowSheet(false)}>
         <div className="input-group" style={{ marginBottom: 20 }}>
           <label style={{ textAlign: "center", display: "block" }}>Summa (so'm)</label>

@@ -298,7 +298,7 @@ def backup_db(user: dict = Depends(get_current_user)):
     tmp = tempfile.NamedTemporaryFile(suffix=".sql", delete=False)
     try:
         subprocess.run(["pg_dump", url, "-f", tmp.name], capture_output=True, timeout=30)
-        return FileResponse(tmp.name, media_type="application/sql", filename=f"uztax_backup_{datetime.now().strftime('%Y%m%d')}.sql")
+        return FileResponse(tmp.name, media_type="application/sql", filename=f"soliqpay_backup_{datetime.now().strftime('%Y%m%d')}.sql")
     except:
         logger.error("Backup failed", exc_info=True)
         raise HTTPException(500, "Backup failed")
@@ -606,7 +606,7 @@ def data_export(user: dict = Depends(get_current_user)):
     expenses = fetch("SELECT * FROM expenses WHERE user_tg_id = %s ORDER BY created_at DESC", tg_id)
     data = {"user": user, "payments": payments, "expenses": expenses, "exported_at": datetime.now().isoformat()}
     from fastapi.responses import JSONResponse
-    return JSONResponse(content=data, headers={"Content-Disposition": f'attachment; filename="uztax-data-{tg_id}.json"'})
+    return JSONResponse(content=data, headers={"Content-Disposition": f'attachment; filename="soliqpay-data-{tg_id}.json"'})
 
 @router.delete("/user/data-delete")
 def data_delete(user: dict = Depends(get_current_user)):
@@ -634,6 +634,68 @@ def notify_payment(user: dict = Depends(get_current_user)):
     except:
         pass
     return {"ok": True}
+
+
+# ─── 1C Export ────────────────────────────────────────────────
+@router.get("/report/csv")
+def export_csv(user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    payments = fetch("SELECT * FROM payments WHERE user_tg_id = %s ORDER BY created_at DESC", tg_id)
+    expenses = fetch("SELECT * FROM expenses WHERE user_tg_id = %s ORDER BY created_at DESC", tg_id)
+    import csv, io
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(["Тип", "Сумма", "Метод/Категория", "Дата"])
+    for p in payments:
+        w.writerow(["Платёж", p["amount"], p["method"], p["created_at"]])
+    for e in expenses:
+        w.writerow(["Расход", e["amount"], e["category"], e["created_at"]])
+    from fastapi.responses import StreamingResponse
+    return StreamingResponse(iter([buf.getvalue()]), media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=soliqpay-1c-{datetime.now().strftime('%Y%m')}.csv"})
+
+
+# ─── History ───────────────────────────────────────────────────
+@router.get("/history")
+def get_history(user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    payments = fetch("SELECT id, amount, method, 'payment' as type, created_at FROM payments WHERE user_tg_id = %s ORDER BY created_at DESC LIMIT 10", tg_id)
+    expenses = fetch("SELECT id, amount, category, 'expense' as type, created_at FROM expenses WHERE user_tg_id = %s ORDER BY created_at DESC LIMIT 10", tg_id)
+    all_items = sorted(payments + expenses, key=lambda x: x["created_at"], reverse=True)[:10]
+    return all_items
+
+
+# ─── Top Clients ──────────────────────────────────────────────
+@router.get("/analytics/top-clients")
+def top_clients(user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    data = fetch(
+        "SELECT method, COUNT(*) as count, SUM(amount) as total FROM payments WHERE user_tg_id = %s GROUP BY method ORDER BY total DESC",
+        tg_id,
+    )
+    return [{"name": d["method"], "count": d["count"], "total": int(d["total"])} for d in data]
+
+
+# ─── Partner Dashboard ────────────────────────────────────────
+@router.get("/partner/dashboard")
+def partner_dashboard(user: dict = Depends(get_current_user)):
+    p = fetchrow("SELECT * FROM partners WHERE tg_id = %s", user["tg_id"])
+    if not p:
+        return {"error": "Register as partner first"}
+    refs = fetch("SELECT tg_id, full_name, phone, created_at FROM users WHERE partner_id = %s ORDER BY created_at DESC", p["id"])
+    total_revenue = sum(
+        fetchrow("SELECT COALESCE(SUM(amount), 0) as s FROM payments WHERE user_tg_id = %s", r["tg_id"])["s"]
+        for r in refs
+    )
+    return {
+        "referred_count": len(refs),
+        "total_revenue": int(total_revenue),
+        "commission": int(total_revenue * 0.20),
+        "referrals": [
+            {"name": r["full_name"], "phone": r["phone"], "registered": r["created_at"]}
+            for r in refs
+        ],
+    }
 
 
 # ─── Analytics ────────────────────────────────────────────────

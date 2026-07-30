@@ -163,6 +163,27 @@ export default function Home() {
         </div>
       )}
 
+      {/* Tax Calculator */}
+      <div className="card fade-in-d5" style={{ padding: 14 }}>
+        <div style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 500, marginBottom: 8 }}>💰 {t("soliq")} калькулятори</div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <input className="input" type="number" placeholder="1 000 000"
+            style={{ flex: 1, fontSize: 14, padding: "10px 12px" }}
+            onChange={(e) => {
+              const amt = parseInt(e.target.value) || 0;
+              (e.target as any)._tax = Math.round(amt * (user ? 1 : 1) / 100);
+            }}
+            onInput={(e) => {
+              const v = parseInt((e.target as HTMLInputElement).value) || 0;
+              const taxEl = (e.target as HTMLElement).parentElement?.querySelector(".tax-result");
+              if (taxEl) taxEl.textContent = `${(v * 0.01).toLocaleString()} so'm (1%)`;
+            }}
+          />
+          <div style={{ fontSize: 16, fontWeight: 700, color: "var(--danger)", minWidth: 100, textAlign: "right" }} className="tax-result">0 so'm</div>
+        </div>
+        <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 6 }}>1% солиқ: автоматик ҳисоб</div>
+      </div>
+
       <div className="quick-actions fade-in-d5" style={{ marginTop: 4 }}>
         <div className="quick-action" onClick={() => { haptic("impact"); navigate("/payment"); }}>
           {Icons.payment}

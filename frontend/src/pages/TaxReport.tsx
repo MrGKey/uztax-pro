@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { api, type Report } from "../utils/api";
 import { Icons } from "../utils/icons";
 const MONTHS_UZ = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"];
@@ -12,6 +12,9 @@ export default function TaxReport() {
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [toast, setToast] = useState("");
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  const showToast = (msg: string) => { clearTimeout(toastTimer.current); setToast(msg); toastTimer.current = setTimeout(() => setToast(""), 2000); };
 
   const load = async (force = false) => {
     if (!force) setLoading(true);
@@ -91,10 +94,28 @@ export default function TaxReport() {
               </div>
             </div>
           )}
+
+          {/* 1C Export */}
+          {report && report.payment_count > 0 && (
+            <div className="card fade-in-d4" onClick={async () => {
+              haptic("impact");
+              try {
+                const res = await fetch(`${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/report/csv`);
+                const blob = await res.blob();
+                const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "soliqpay-1c.csv"; a.click();
+              } catch { showToast("Xatolik"); }
+            }} style={{ cursor: "pointer" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>📥 1С экспорт</span>
+                <span className="badge badge-primary">CSV</span>
+              </div>
+            </div>
+          )}
         </>
       )}
 
       {refreshing && <div className="toast toast-refresh">Yangilanmoqda...</div>}
+      {toast && <div className="toast">{toast}</div>}
     </PullToRefresh>
   );
 }
