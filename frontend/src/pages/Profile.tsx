@@ -231,22 +231,39 @@ export default function Profile() {
         <div style={{ fontSize: 13, color: "rgba(0,0,0,0.6)", marginBottom: 12 }}>
           Cheksiz to'lovlar · PDF · 0.5% komissiya
         </div>
-        <div style={{ fontSize: 12, color: "rgba(0,0,0,0.5)", marginBottom: 8 }}>5 Telegram Stars / oy</div>
-        <button className="btn" style={{ background: "#f9d898", color: "#0a0e1a", boxShadow: "0 4px 24px rgba(249,216,152,0.3)", width: "auto", display: "inline-flex" }}
-          onClick={async () => {
-            haptic("impact");
-            try {
-              const res = await fetch(`${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/stars/purchase`, {
-                method: "POST", headers: { "Content-Type": "application/json" },
-              });
-              const data = await res.json();
-              if (data.ok && data.result) window.open(data.result);
-              else showToast("Stars xarid qilish imkoniyati hozircha ishga tushirilmoqda");
-            } catch { showToast("Xatolik yuz berdi"); }
-          }}
-        >
-          ⭐ Premium olish
-        </button>
+        <div style={{ fontSize: 12, color: "rgba(0,0,0,0.5)", marginBottom: 8 }}>25 Telegram Stars / oy · 250 Stars / yil</div>
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+          <button className="btn" style={{ background: "#f9d898", color: "#0a0e1a", boxShadow: "0 4px 24px rgba(249,216,152,0.3)", width: "auto", display: "inline-flex", padding: "12px 20px", fontSize: 13 }}
+            onClick={async () => {
+              haptic("impact");
+              try {
+                const res = await fetch(`${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/stars/purchase`, {
+                  method: "POST", headers: { "Content-Type": "application/json" },
+                });
+                const data = await res.json();
+                if (data.ok && data.result) window.open(data.result);
+                else showToast("Xarid qilish imkoniyati ishga tushirilmoqda");
+              } catch { showToast("Xatolik"); }
+            }}
+          >
+            ⭐ Ойлик $5
+          </button>
+          <button className="btn" style={{ background: "linear-gradient(135deg, #f9d898, #e8b84a)", color: "#0a0e1a", width: "auto", display: "inline-flex", padding: "12px 20px", fontSize: 13 }}
+            onClick={async () => {
+              haptic("impact");
+              try {
+                const res = await fetch(`${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/stars/purchase-annual`, {
+                  method: "POST", headers: { "Content-Type": "application/json" },
+                });
+                const data = await res.json();
+                if (data.ok && data.result) window.open(data.result);
+                else showToast("Xarid qilish imkoniyati ishga tushirilmoqda");
+              } catch { showToast("Xatolik"); }
+            }}
+          >
+            🎯 Йиллик $50
+          </button>
+        </div>
       </div>
 
       {/* Push notifications */}
@@ -281,7 +298,7 @@ export default function Profile() {
       <div className="card fade-in-d4" style={{ padding: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Komissiya (to'lovlar bo'yicha)</span>
-          <span className="badge badge-primary">0.5%</span>
+          <span className="badge badge-primary">1.5%</span>
         </div>
         <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
           Har bir to'lov havolasidan 0.5% — eng past komissiya bozorda
