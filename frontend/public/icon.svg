@@ -5,59 +5,47 @@
       <stop offset="60%" stop-color="#111827"/>
       <stop offset="100%" stop-color="#0a0e1a"/>
     </linearGradient>
-    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="coin" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#77b39b"/>
       <stop offset="100%" stop-color="#4d8a72"/>
     </linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="coinInner" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#f9d898"/>
       <stop offset="100%" stop-color="#e8b84a"/>
     </linearGradient>
-    <linearGradient id="barTeal" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0%" stop-color="#77b39b" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="#77b39b" stop-opacity="0.85"/>
-    </linearGradient>
-    <linearGradient id="barGold" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0%" stop-color="#f9d898" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#f9d898" stop-opacity="1"/>
-    </linearGradient>
-    <filter id="peakGlow">
-      <feGaussianBlur stdDeviation="3" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#77b39b" flood-opacity="0.2"/>
     </filter>
   </defs>
 
+  <!-- Background -->
   <rect width="512" height="512" rx="110" fill="url(#bg)"/>
 
-  <!-- Glow behind -->
-  <circle cx="256" cy="230" r="170" fill="#77b39b" opacity="0.04"/>
+  <!-- Main shape: Stacked coins + chart arrow -->
+  <g transform="translate(256, 250)" filter="url(#shadow)">
+    <!-- Bottom coin (largest) -->
+    <ellipse cx="0" cy="30" rx="80" ry="20" fill="#1a2a4a"/>
+    <ellipse cx="0" cy="10" rx="80" ry="20" fill="url(#coin)" opacity="0.3"/>
+    <ellipse cx="0" cy="-10" rx="80" ry="20" fill="url(#coin)" opacity="0.6"/>
+    
+    <!-- Middle coin -->
+    <ellipse cx="0" cy="-10" rx="60" ry="16" fill="url(#coin)" opacity="0.8"/>
+    <ellipse cx="0" cy="-26" rx="60" ry="16" fill="#1a2a4a"/>
+    <ellipse cx="0" cy="-26" rx="60" ry="16" fill="url(#coin)" opacity="0.5"/>
+    
+    <!-- Top coin (gold) -->
+    <ellipse cx="0" cy="-26" rx="42" ry="12" fill="url(#coinInner)"/>
+    <ellipse cx="0" cy="-38" rx="42" ry="12" fill="#1a2a4a"/>
+    <ellipse cx="0" cy="-38" rx="42" ry="12" fill="url(#coinInner)" opacity="0.7"/>
 
-  <!-- Letter S watermark -->
-  <text x="256" y="340" text-anchor="middle" fill="#77b39b" font-size="320" font-weight="900" font-family="system-ui, sans-serif" opacity="0.04">S</text>
-
-  <!-- Bar chart -->
-  <g transform="translate(66, 340)">
-    <line x1="0" y1="0" x2="380" y2="0" stroke="#77b39b" stroke-width="1" opacity="0.1"/>
-    <rect x="14" y="-100" width="36" height="100" rx="5" fill="url(#barTeal)"/>
-    <rect x="60" y="-140" width="36" height="140" rx="5" fill="url(#barTeal)"/>
-    <rect x="106" y="-115" width="36" height="115" rx="5" fill="url(#barTeal)"/>
-    <rect x="152" y="-180" width="36" height="180" rx="5" fill="url(#barGold)" filter="url(#peakGlow)"/>
-    <rect x="152" y="-180" width="36" height="180" rx="5" fill="url(#gold)" opacity="0.2"/>
-    <rect x="198" y="-155" width="36" height="155" rx="5" fill="url(#barTeal)"/>
-    <rect x="244" y="-195" width="36" height="195" rx="5" fill="url(#barGold)" filter="url(#peakGlow)"/>
-    <rect x="244" y="-195" width="36" height="195" rx="5" fill="white" opacity="0.05"/>
-    <rect x="290" y="-130" width="36" height="130" rx="5" fill="url(#barTeal)"/>
-    <rect x="336" y="-105" width="36" height="105" rx="5" fill="url(#barTeal)"/>
+    <!-- Chart arrow going up -->
+    <path d="M-25 -38 L-10 -70 L5 -55 L20 -85 L35 -65" stroke="#f9d898" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <polygon points="35,-65 28,-75 40,-72" fill="#f9d898"/>
   </g>
 
-  <!-- Sparkline -->
-  <path d="M85 262 L112 232 L139 248 L166 205 L193 225 L220 188 L247 205 L274 178 L301 198 L328 220 L355 204 L382 222" stroke="url(#gold)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.9" filter="url(#peakGlow)"/>
-  <circle cx="274" cy="178" r="5" fill="url(#gold)"/>
-  <circle cx="274" cy="178" r="11" fill="url(#gold)" opacity="0.12"/>
-
   <!-- Brand name -->
-  <text x="256" y="460" text-anchor="middle" fill="white" font-size="42" font-weight="800" font-family="system-ui, sans-serif" letter-spacing="8">SOLIQ</text>
-  <text x="256" y="460" text-anchor="middle" fill="url(#gold)" font-size="42" font-weight="800" font-family="system-ui, sans-serif" letter-spacing="8" opacity="0.15">SOLIQ</text>
+  <text x="256" y="380" text-anchor="middle" fill="white" font-size="40" font-weight="800" font-family="system-ui, sans-serif" letter-spacing="8">SOLIQ</text>
+  <text x="256" y="380" text-anchor="middle" fill="#77b39b" font-size="40" font-weight="800" font-family="system-ui, sans-serif" letter-spacing="8" opacity="0.2">SOLIQ</text>
 
-  <text x="256" y="485" text-anchor="middle" fill="url(#teal)" font-size="28" font-weight="700" font-family="system-ui, sans-serif" letter-spacing="6" opacity="0.8">PAY</text>
+  <text x="256" y="415" text-anchor="middle" fill="url(#coinInner)" font-size="28" font-weight="700" font-family="system-ui, sans-serif" letter-spacing="6">PAY</text>
 </svg>
