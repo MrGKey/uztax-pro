@@ -25,6 +25,12 @@ function useTheme() {
       WebApp?.ready();
       WebApp?.expand();
       WebApp?.enableClosingConfirmation?.();
+      WebApp?.onEvent?.("themeChanged", () => {
+        if (!localStorage.getItem("soliqpay_theme")) {
+          setIsDark(WebApp.colorScheme === "dark");
+          document.querySelector(".app")?.setAttribute("data-theme", WebApp.colorScheme);
+        }
+      });
     } catch {}
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = (e: MediaQueryListEvent) => {

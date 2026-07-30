@@ -23,8 +23,21 @@ export default function PaymentLink() {
   const navigate = useNavigate();
   const [showSheet, setShowSheet] = useState(false);
   const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState("payme");
+  const [method, setMethod] = useState(() => { try { return localStorage.getItem("soliqpay_method") || "payme"; } catch { return "payme"; } });
   const [link, setLink] = useState<{ url: string } | null>(null);
+
+  useEffect(() => {
+    try { localStorage.setItem("soliqpay_amount", amount); } catch {}
+  }, [amount]);
+  useEffect(() => {
+    try { localStorage.setItem("soliqpay_method", method); } catch {}
+  }, [method]);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("soliqpay_amount");
+      if (saved && !amount) setAmount(saved);
+    } catch {}
+  }, []);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState("");
   const toastTimer = useRef<ReturnType<typeof setTimeout>>();
