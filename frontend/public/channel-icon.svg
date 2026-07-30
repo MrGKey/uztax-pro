@@ -8,37 +8,66 @@
       <stop offset="0%" stop-color="#f9d898"/>
       <stop offset="100%" stop-color="#e8b84a"/>
     </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#77b39b"/>
+      <stop offset="100%" stop-color="#4d8a72"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#77b39b" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#f9d898" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#77b39b" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
 
+  <!-- Dark fintech bg -->
   <rect width="512" height="512" rx="110" fill="url(#bg)"/>
 
-  <!-- Broadcast icon -->
-  <g transform="translate(256, 220)" stroke="url(#gold)" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Megaphone body -->
-    <path d="M-30 -40 L120 -60 L120 40 L-30 20 Z" stroke-width="6" fill="url(#gold)" opacity="0.15"/>
-    <path d="M-30 -40 L120 -60 L120 40 L-30 20 Z" stroke-width="3"/>
+  <!-- Decorative ring -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#ring)" stroke-width="1"/>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="url(#ring)" stroke-width="0.5"/>
+
+  <!-- Glow behind icon -->
+  <circle cx="256" cy="230" r="120" fill="url(#ring)"/>
+
+  <!-- Notification bell icon -->
+  <g transform="translate(256, 215)" filter="url(#glow)">
+    <!-- Bell body -->
+    <path d="M-30 -15 Q-30 -50 0 -55 Q30 -50 30 -15 L35 10 Q38 20 30 25 L-30 25 Q-38 20 -35 10 Z" 
+          fill="none" stroke="url(#gold)" stroke-width="4" stroke-linejoin="round"/>
     
-    <!-- Speaker grill -->
-    <line x1="-10" y1="-25" x2="80" y2="-38" stroke-width="2.5"/>
-    <line x1="-10" y1="-10" x2="80" y2="-23" stroke-width="2.5"/>
-    <line x1="-10" y1="5" x2="80" y2="-8" stroke-width="2.5"/>
+    <!-- Bell top -->
+    <circle cx="0" cy="-55" r="6" fill="url(#gold)"/>
     
-    <!-- Handle -->
-    <path d="M-30 -40 Q-60 -30 -50 0 Q-55 5 -50 10 L-30 20" stroke-width="4"/>
-    
-    <!-- Sound waves -->
-    <path d="M130 -35 Q145 -20 130 0" stroke-width="2" opacity="0.6"/>
-    <path d="M140 -45 Q160 -20 140 10" stroke-width="2" opacity="0.4"/>
-    <path d="M150 -55 Q175 -20 150 20" stroke-width="1.5" opacity="0.25"/>
+    <!-- Bell bottom line -->
+    <line x1="-18" y1="35" x2="18" y2="35" stroke="url(#gold)" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- Notification dot -->
+    <circle cx="22" cy="-48" r="8" fill="#f87171"/>
+    <circle cx="22" cy="-48" r="4" fill="white" opacity="0.6"/>
   </g>
 
-  <!-- Text -->
-  <text x="256" y="340" text-anchor="middle" fill="white" font-size="36" font-weight="800" font-family="system-ui, sans-serif" letter-spacing="6">SOLIQPAY</text>
-  <text x="256" y="370" text-anchor="middle" fill="#8896a8" font-size="22" font-weight="500" font-family="system-ui, sans-serif" letter-spacing="4">НОВОСТИ</text>
+  <!-- Sound waves -->
+  <g transform="translate(256, 215)" stroke="url(#teal)" fill="none" stroke-linecap="round">
+    <path d="M45 -30 Q60 -20 45 0" stroke-width="2.5" opacity="0.6"/>
+    <path d="M55 -40 Q75 -20 55 10" stroke-width="2" opacity="0.4"/>
+    <path d="M65 -50 Q90 -20 65 20" stroke-width="1.5" opacity="0.25"/>
+  </g>
 
-  <!-- Decorative dots -->
-  <circle cx="120" cy="120" r="3" fill="#f9d898" opacity="0.1"/>
-  <circle cx="400" cy="140" r="4" fill="#77b39b" opacity="0.08"/>
-  <circle cx="380" cy="400" r="2.5" fill="#f9d898" opacity="0.08"/>
-  <circle cx="100" cy="380" r="2" fill="#77b39b" opacity="0.06"/>
+  <!-- Brand name -->
+  <text x="256" y="365" text-anchor="middle" fill="white" font-size="32" font-weight="800" font-family="system-ui, sans-serif" letter-spacing="6">SOLIQPAY</text>
+
+  <!-- Gold accent line -->
+  <rect x="170" y="380" width="172" height="2" rx="1" fill="url(#gold)" opacity="0.5"/>
+
+  <text x="256" y="405" text-anchor="middle" fill="#8896a8" font-size="20" font-weight="500" font-family="system-ui, sans-serif" letter-spacing="5">НОВОСТИ</text>
+
+  <!-- Small decorative dots -->
+  <circle cx="100" cy="120" r="3" fill="#f9d898" opacity="0.1"/>
+  <circle cx="420" cy="140" r="2.5" fill="#77b39b" opacity="0.08"/>
+  <circle cx="400" cy="420" r="4" fill="#f9d898" opacity="0.06"/>
+  <circle cx="110" cy="400" r="2" fill="#77b39b" opacity="0.06"/>
 </svg>
