@@ -56,7 +56,7 @@ async def security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    response.headers["Content-Security-Policy"] = f"default-src 'self'; frame-ancestors https://telegram.org; script-src 'self'"
+    response.headers["Content-Security-Policy"] = f"default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; frame-ancestors https://telegram.org https://*.telegram.org; script-src 'self' https://telegram.org"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
     return response
@@ -113,6 +113,7 @@ def run_bot_sync():
         @dp.message(Command("start"))
         async def cmd_start(message: Message):
             mini = f"{config.app_url}?start={message.from_user.id}"
+            ref = f"https://t.me/SoliqPay_bot?start=ref_{message.from_user.id}"
             await send(message.from_user.id, f"""
 👋 <b>Assalomu alaykum!</b>
 
@@ -125,8 +126,9 @@ def run_bot_sync():
 ├ 🎤 Овозли харажат киритиш
 └ 🔄 Telegram Stars орқали тўлов
 
-<b>Бошлаш учун пастдаги тугмани босинг</b>
+<b>Дўстларингизни таклиф қилинг ва бонус олинг! 🎁</b>
 """, buttons=[[InlineKeyboardButton(text="🚀 Иловани очиш", web_app=WebAppInfo(url=mini))],
+             [InlineKeyboardButton(text="👥 Дўстга юбориш", url=f"https://t.me/share/url?url={ref}&text=1%25+солиқни+авто-ҳисоблаш")],
              [InlineKeyboardButton(text="📢 Янгиликлар", url="https://t.me/SoliqPay_News")]])
 
         @dp.message(Command("report"))
@@ -183,7 +185,7 @@ Payme · Click · Uzum · Humo · Uzcard
             await send(message.from_user.id, f"""
 📢 <b>Сўнгги янгиликлар</b>
 
-• <b>SoliqPay Premium:</b> Telegram Stars (5 Stars/ой)
+• <b>SoliqPay Premium:</b> 25 Stars/ой · 250 Stars/йил
 • <b>Humo ва Uzcard:</b> Қўшиб бўлди ✅
 • <b>Овозли киритиш:</b> Харажатларни овоз билан қўшинг
 • <b>PDF ҳисобот:</b> Нашриётлар учун
@@ -291,17 +293,54 @@ SoliqPay — ИП учун 1% солиқни авто-ҳисоблаш
                 order_id = f"inline_{inline_query.from_user.id}_{int(datetime.now().timestamp())}"
                 if method == "payme": url = generate_payme_link(amount, order_id)
                 else: url = f"https://pay/{method}?amount={amount}&order_id={order_id}"
-                fee = int(amount * 0.005)
+                fee = int(amount * 0.015)
                 results = [InlineQueryResultArticle(id="1",
                     title=f"{amount:,} so'm",
-                    description=f"{method.upper()} · Комиссия: {fee:,} so'm",
+                    description=f"{method.upper()} · Комиссия 1.5%: {fee:,} so'm",
                     input_message_content=InputTextMessageContent(
-                        message_text=f"<b>▎SoliqPay</b>\n\n💳 <b>Тўлов ҳаволаси</b>\n\nСумма: <b>{amount:,}</b> so'm\nТизим: {method}\n\n{url}\n\nКомиссия: {fee:,} so'm (0.5%)"))]
+                        message_text=f"<b>▎SoliqPay</b>\n\n💳 <b>Тўлов ҳаволаси</b>\n\nСумма: <b>{amount:,}</b> so'm\nТизим: {method}\n\n{url}\n\nКомиссия: {fee:,} so'm (1.5%)"))]
             await inline_query.answer(results, cache_time=5)
+
+        @dp.message(Command("share"))
+        async def cmd_share(message: Message):
+            ref = f"https://t.me/SoliqPay_bot?start=ref_{message.from_user.id}"
+            await send(message.from_user.id, f"""
+👥 <b>Дўстларингизни таклиф қилинг</b>
+
+Ҳар бир таклиф қилинган дўстингиз учун:
+├ 🎁 <b>1 ой Premium</b> (агар дўстингиз рўйхатдан ўтса)
+├ 🤝 Шунингдек, у ҳам олади
+
+<b>Сизнинг таклиф ҳаволагиз:</b>
+<code>{ref}</code>
+
+Тугмани босиб дўстингизга юборинг!
+""", buttons=[[InlineKeyboardButton(text="👥 Дўстга юбориш", url=f"https://t.me/share/url?url={ref}")]])
+
+        @dp.message(Command("broadcast"))
+        async def cmd_broadcast(message: Message):
+            admin_id = config.admin_chat_id
+            if not admin_id or str(message.from_user.id) != admin_id:
+                await send(message.from_user.id, "❌ Бу команда фақат админ учун")
+                return
+            text = message.text.replace("/broadcast", "").strip()
+            if not text:
+                await send(message.from_user.id, "Ишлатиш: /broadcast Хабар матни")
+                return
+            users = fetch("SELECT tg_id FROM users")
+            sent = 0
+            for u in users:
+                try:
+                    await bot.send_message(u["tg_id"], f"📢 <b>SoliqPay</b>\n\n{text}")
+                    sent += 1
+                    await _asyncio.sleep(0.05)
+                except: pass
+            await send(message.from_user.id, f"✅ Хабар {sent} та фойдаланувчига юборилди")
 
         await bot.set_my_commands([
             BotCommand(command="start", description="🚀 Открыть приложение"),
             BotCommand(command="premium", description="⭐ Premium"),
+            BotCommand(command="share", description="👥 Друзьям"),
             BotCommand(command="partner", description="🤝 Партнёрлар"),
             BotCommand(command="report", description="📊 Отчёт"),
             BotCommand(command="news", description="📢 Янгиликлар"),

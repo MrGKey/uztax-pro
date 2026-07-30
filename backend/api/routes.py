@@ -121,6 +121,10 @@ def update_profile(
     return fetchrow("SELECT * FROM users WHERE tg_id = %s", tg_id)
 
 
+FREE_MONTHLY_LIMIT = 3
+PREMIUM_STARS = 25
+
+
 @router.post("/payment/generate")
 @limiter.limit("10/minute")
 def generate_payment(request: Request,
@@ -128,6 +132,17 @@ def generate_payment(request: Request,
     user: dict = Depends(get_current_user),
 ):
     tg_id = user["tg_id"]
+    is_premium = user.get("stars_balance", 0) >= PREMIUM_STARS
+
+    # Free tier limit check
+    if not is_premium:
+        monthly_count = fetchrow(
+            "SELECT COUNT(*) as c FROM payments WHERE user_tg_id = %s AND created_at >= date_trunc('month', now())",
+            tg_id,
+        )
+        if monthly_count and monthly_count["c"] >= FREE_MONTHLY_LIMIT:
+            raise HTTPException(402, f"Free limit: {FREE_MONTHLY_LIMIT} payments/month. Upgrade to Premium (25 Stars)")
+
     order_id = f"{tg_id}_{int(datetime.now().timestamp())}"
 
     if body.method == "payme":
@@ -310,10 +325,10 @@ def stars_purchase(user: dict = Depends(get_current_user)):
     tg_id = user["tg_id"]
     order_id = f"stars_{tg_id}_{int(datetime.now().timestamp())}"
     title = "SoliqPay Premium — 1 oy"
-    description = "Barcha imkoniyatlar: cheksiz to'lovlar, PDF hisobot, AI yordamchi"
+    description = "Cheksiz to'lovlar, PDF hisobot, 1.5% komissiya"
     payload = f"premium_{tg_id}_{order_id}"
-    currency = "XTR"  # Telegram Stars
-    amount = 5  # 5 Stars
+    currency = "XTR"
+    amount = PREMIUM_STARS
     try:
         import requests
         r = requests.post(f"https://api.telegram.org/bot{config.bot_token}/createInvoiceLink", json={
@@ -325,15 +340,61 @@ def stars_purchase(user: dict = Depends(get_current_user)):
         raise HTTPException(500, f"Stars error: {e}")
 
 
+@router.post("/stars/purchase-annual")
+def stars_purchase_annual(user: dict = Depends(get_current_user)):
+    """Annual Premium at discount."""
+    tg_id = user["tg_id"]
+    order_id = f"stars_yr_{tg_id}_{int(datetime.now().timestamp())}"
+    payload = f"premium_annual_{tg_id}_{order_id}"
+    amount = PREMIUM_STARS * 10  # 250 Stars = $50 (2 months free)
+    try:
+        import requests
+        r = requests.post(f"https://api.telegram.org/bot{config.bot_token}/createInvoiceLink", json={
+            "title": "SoliqPay Premium — 1 yil",
+            "description": "12 oy uchun 10 oy narxi. 2 oy sovg'a!",
+            "payload": payload, "currency": "XTR", "amount": amount,
+        })
+        return r.json() if r.ok else {"ok": False, "error": r.text}
+    except Exception as e:
+        raise HTTPException(500, f"Stars error: {e}")
+
+
 @router.post("/stars/confirm")
 def stars_confirm(user: dict = Depends(get_current_user)):
     """Confirm Stars payment from Telegram webhook."""
-    execute("UPDATE users SET stars_balance = COALESCE(stars_balance, 0) + 5 WHERE tg_id = %s", user["tg_id"])
-    return {"ok": True, "stars_added": 5}
+    execute("UPDATE users SET stars_balance = COALESCE(stars_balance, 0) + %s WHERE tg_id = %s", PREMIUM_STARS, user["tg_id"])
+    return {"ok": True, "stars_added": PREMIUM_STARS}
+
+
+@router.post("/stars/confirm-annual")
+def stars_confirm_annual(user: dict = Depends(get_current_user)):
+    execute("UPDATE users SET stars_balance = COALESCE(stars_balance, 0) + %s WHERE tg_id = %s", PREMIUM_STARS * 12, user["tg_id"])
+    return {"ok": True, "stars_added": PREMIUM_STARS * 12}
+
+
+# ─── Accountant API ─────────────────────────────────────────
+@router.post("/accountant/register")
+def register_accountant(user: dict = Depends(get_current_user)):
+    tg_id = user["tg_id"]
+    api_key = f"api_{tg_id}_{int(datetime.now().timestamp())}"
+    execute(
+        "INSERT INTO partners (tg_id, full_name, phone, api_key) VALUES (%s, %s, %s, %s) ON CONFLICT (tg_id) DO UPDATE SET api_key = %s",
+        tg_id, user.get("full_name", ""), user.get("phone", ""), api_key, api_key,
+    )
+    return {"ok": True, "api_key": api_key, "plan": "business", "price": "$20/month"}
+
+
+@router.get("/accountant/clients")
+def accountant_clients(user: dict = Depends(get_current_user)):
+    p = fetchrow("SELECT id FROM partners WHERE tg_id = %s", user["tg_id"])
+    if not p:
+        raise HTTPException(400, "Register as accountant first")
+    clients = fetch("SELECT tg_id, full_name, phone, inn, created_at FROM users WHERE partner_id = %s", p["id"])
+    return clients
 
 
 # ─── Strategy 2: Commission 0.5% ─────────────────────────────
-COMMISSION_RATE = 0.005  # 0.5%
+COMMISSION_RATE = 0.015  # 1.5%
 
 
 @router.get("/payment/commission")
