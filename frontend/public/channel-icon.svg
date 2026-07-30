@@ -63,8 +63,6 @@
   <!-- Gold accent line -->
   <rect x="170" y="380" width="172" height="2" rx="1" fill="url(#gold)" opacity="0.5"/>
 
-  <text x="256" y="405" text-anchor="middle" fill="#8896a8" font-size="20" font-weight="500" font-family="system-ui, sans-serif" letter-spacing="5">НОВОСТИ</text>
-
   <!-- Small decorative dots -->
   <circle cx="100" cy="120" r="3" fill="#f9d898" opacity="0.1"/>
   <circle cx="420" cy="140" r="2.5" fill="#77b39b" opacity="0.08"/>
