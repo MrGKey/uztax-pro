@@ -1,7 +1,7 @@
 {
   "name": "SoliqPay",
   "short_name": "SoliqPay",
-  "description": "1% soliq avtomatik hisoblash va to'lov havolalari",
+  "description": "1% soliq avtomatik hisoblash va to'lov havolalari. Payme, Click, Uzum, Humo, Uzcard.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0e1a",

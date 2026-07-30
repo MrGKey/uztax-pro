@@ -1,69 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0a0e1a"/>
-      <stop offset="100%" stop-color="#1a2a4a"/>
-    </linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#f9d898"/>
-      <stop offset="40%" stop-color="#fbe8b8"/>
-      <stop offset="100%" stop-color="#d4a843"/>
-    </linearGradient>
-    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#77b39b"/>
-      <stop offset="100%" stop-color="#3d7a62"/>
-    </linearGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="3" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-
-  <rect width="512" height="512" rx="512" fill="url(#bg)"/>
-
-  <!-- Outer decorative rings -->
-  <circle cx="256" cy="260" r="220" fill="none" stroke="url(#gold)" stroke-width="0.5" opacity="0.06"/>
-  <circle cx="256" cy="260" r="200" fill="none" stroke="url(#teal)" stroke-width="0.5" opacity="0.04"/>
-
-  <!-- Sound waves behind text -->
-  <g stroke="url(#teal)" fill="none" stroke-linecap="round" opacity="0.12">
-    <circle cx="256" cy="240" r="130" stroke-width="1.5"/>
-    <circle cx="256" cy="240" r="105" stroke-width="2"/>
-    <circle cx="256" cy="240" r="80" stroke-width="2.5"/>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#f9d898"/>
+    <stop offset="50%" stop-color="#fbe8b8"/>
+    <stop offset="100%" stop-color="#d4a843"/>
+  </linearGradient>
+  <rect width="512" height="512" rx="512" fill="#0a0e1a"/>
+  <circle cx="256" cy="256" r="238" fill="none" stroke="url(#g)" stroke-width="0.5" opacity="0.08"/>
+  <!-- Giant S -->
+  <text x="256" y="370" text-anchor="middle" fill="url(#g)" font-size="420" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="-12">S</text>
+  <!-- Tiny notification bell top-right -->
+  <g transform="translate(360, 110)">
+    <path d="M0 -8 Q0 -18 10 -20 Q20 -18 20 -8 L22 2 Q24 8 18 10 L2 10 Q-4 8 -2 2 Z" fill="#f87171"/>
+    <line x1="2" y1="14" x2="18" y2="14" stroke="#f87171" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="15" cy="-18" r="5" fill="white" opacity="0.6"/>
   </g>
-
-  <!-- Small broadcast icon at top -->
-  <g transform="translate(256, 225)" filter="url(#glow)">
-    <!-- Megaphone body -->
-    <path d="M-10 -12 L40 -18 L44 -5 L44 5 L40 18 L-10 12 Z" 
-          fill="url(#gold)" opacity="0.9" stroke="url(#gold)" stroke-width="1.5" stroke-linejoin="round"/>
-    <!-- Speaker lines -->
-    <line x1="-4" y1="-8" x2="28" y2="-12" stroke="url(#bg)" stroke-width="2" stroke-linecap="round"/>
-    <line x1="-4" y1="0" x2="28" y2="-4" stroke="url(#bg)" stroke-width="2" stroke-linecap="round"/>
-    <line x1="-4" y1="8" x2="28" y2="4" stroke="url(#bg)" stroke-width="2" stroke-linecap="round"/>
-    <!-- Handle -->
-    <path d="M-10 -12 Q-18 -5 -18 2 Q-18 8 -12 12" fill="none" stroke="url(#gold)" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- Red dot -->
-    <circle cx="38" cy="-16" r="5" fill="#f87171"/>
-  </g>
-
-  <!-- Sound wave arcs -->
-  <g stroke="url(#gold)" fill="none" stroke-linecap="round" opacity="0.2">
-    <path d="M52 218 Q62 240 52 262" stroke-width="2"/>
-    <path d="M62 210 Q75 240 62 270" stroke-width="1.5"/>
-  </g>
-
-  <!-- Main text - large and bold -->
-  <text x="256" y="320" text-anchor="middle" fill="url(#gold)" font-size="48" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="8" filter="url(#glow)">SOLIQ</text>
-  <text x="256" y="320" text-anchor="middle" fill="url(#gold)" font-size="48" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="8">SOLIQ</text>
-
-  <text x="256" y="370" text-anchor="middle" fill="white" font-size="30" font-weight="600" font-family="system-ui, sans-serif" letter-spacing="6">PAY</text>
-
-  <!-- Gold divider line -->
-  <rect x="170" y="388" width="172" height="2" rx="1" fill="url(#gold)" opacity="0.4"/>
-
-  <text x="256" y="415" text-anchor="middle" fill="#8896a8" font-size="20" font-weight="500" font-family="system-ui, sans-serif" letter-spacing="5">НОВОСТИ</text>
-
-  <!-- Small teal dot -->
-  <circle cx="256" cy="435" r="2" fill="url(#teal)" opacity="0.3"/>
 </svg>

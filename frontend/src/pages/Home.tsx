@@ -77,7 +77,7 @@ export default function Home() {
         }}>
           {user ? user.full_name[0] : "U"}
         </div>
-        <h1 className="header-title">SoliqPay</h1>
+        <h1 className="header-title" style={{ letterSpacing: "1px" }}>SoliqPay</h1>
       </div>
 
       {error && (
