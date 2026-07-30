@@ -117,8 +117,8 @@ export default function Profile() {
 
   // Track first visit
   try {
-    if (!localStorage.getItem("uztax_visited")) {
-      localStorage.setItem("uztax_visited", "1");
+    if (!localStorage.getItem("soliqpay_visited")) {
+      localStorage.setItem("soliqpay_visited", "1");
       fetch(`${import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com"}/api/analytics/track`, {
         method: "POST", headers: { "Content-Type": "application/json" },
       }).catch(() => {});
@@ -274,7 +274,7 @@ export default function Profile() {
             <input type="checkbox" defaultChecked onChange={async (e) => {
               const on = e.target.checked;
               haptic("impact");
-              try { localStorage.setItem("uztax_notify", on ? "1" : "0"); } catch {}
+              try { localStorage.setItem("soliqpay_notify", on ? "1" : "0"); } catch {}
             }} style={{ opacity: 0, width: 0, height: 0 }} />
             <span style={{
               position: "absolute", inset: 0, borderRadius: 12, transition: "0.3s",
@@ -439,7 +439,7 @@ export default function Profile() {
             const cur = root.getAttribute("data-theme");
             const next = cur === "dark" ? "light" : "dark";
             root.setAttribute("data-theme", next);
-            try { localStorage.setItem("uztax_theme", next); } catch {}
+            try { localStorage.setItem("soliqpay_theme", next); } catch {}
           }
         }}>
           <div className="settings-icon">
@@ -463,7 +463,7 @@ export default function Profile() {
               });
               const blob = await res.blob();
               const url = URL.createObjectURL(blob);
-              const a = document.createElement("a"); a.href = url; a.download = "uztax-data.json"; a.click();
+              const a = document.createElement("a"); a.href = url; a.download = "soliqpay-data.json"; a.click();
               showToast("Ma'lumotlar yuklandi");
             } catch { showToast("Xatolik"); }
           }}>
@@ -639,7 +639,7 @@ function TaxCalendarCard() {
 
 function LangSelector() {
   const [lang, setLang] = useState(() => {
-    try { return localStorage.getItem("uztax_lang") || "uz"; } catch { return "uz"; }
+    try { return localStorage.getItem("soliqpay_lang") || "uz"; } catch { return "uz"; }
   });
   return (
     <div className="card fade-in-d4" style={{ padding: 12 }}>
@@ -649,7 +649,7 @@ function LangSelector() {
           value={lang}
           onChange={(e) => {
             setLang(e.target.value);
-            try { localStorage.setItem("uztax_lang", e.target.value); } catch {}
+            try { localStorage.setItem("soliqpay_lang", e.target.value); } catch {}
             window.location.reload();
           }}>
           <option value="uz">O'zbekcha</option>

@@ -13,13 +13,13 @@ import { T } from "./utils/i18n";
 
 function useTheme() {
   const [isDark, setIsDark] = useState(() => {
-    try { return localStorage.getItem("uztax_theme") === "dark"; }
+    try { return localStorage.getItem("soliqpay_theme") === "dark"; }
     catch { return true; }
   });
   useEffect(() => {
     try {
       const WebApp = (window as any).Telegram?.WebApp;
-      if (WebApp?.colorScheme && !localStorage.getItem("uztax_theme")) {
+      if (WebApp?.colorScheme && !localStorage.getItem("soliqpay_theme")) {
         setIsDark(WebApp.colorScheme === "dark");
       }
       WebApp?.ready();
@@ -28,7 +28,7 @@ function useTheme() {
     } catch {}
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem("uztax_theme")) setIsDark(e.matches);
+      if (!localStorage.getItem("soliqpay_theme")) setIsDark(e.matches);
     };
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
@@ -36,7 +36,7 @@ function useTheme() {
   const toggleTheme = () => {
     const next = !isDark;
     setIsDark(next);
-    try { localStorage.setItem("uztax_theme", next ? "dark" : "light"); } catch {}
+    try { localStorage.setItem("soliqpay_theme", next ? "dark" : "light"); } catch {}
   };
   return { colorScheme: isDark ? "dark" : "light", isDark, toggleTheme };
 }

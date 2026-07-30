@@ -23,11 +23,11 @@ const slides = [
 
 export function useOnboarding() {
   const [seen, setSeen] = useState(() => {
-    try { return localStorage.getItem("uztax_onboarded") === "1"; }
+    try { return localStorage.getItem("soliqpay_onboarded") === "1"; }
     catch { return false; }
   });
   const dismiss = () => {
-    try { localStorage.setItem("uztax_onboarded", "1"); } catch {}
+    try { localStorage.setItem("soliqpay_onboarded", "1"); } catch {}
     setSeen(true);
   };
   return { seen, dismiss };

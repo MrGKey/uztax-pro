@@ -2,7 +2,7 @@ const API_BASE = import.meta.env.VITE_API_URL || "https://uztax-pro.onrender.com
 
 const memCache = new Map<string, { data: unknown; ts: number }>();
 const CACHE_TTL = 30_000;
-const STORAGE_PREFIX = "uztax_cache_";
+const STORAGE_PREFIX = "soliqpay_cache_";
 
 function saveToStorage(key: string, data: unknown) {
   try { localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(data)); } catch {}
