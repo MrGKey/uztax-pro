@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import Legal from "./pages/Legal";
 import Onboarding, { useOnboarding } from "./components/Onboarding";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { T } from "./utils/i18n";
 
 function useTheme() {
   const [isDark, setIsDark] = useState(() => {
@@ -66,10 +67,12 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <div className="app" data-theme={colorScheme}>
-        {!seen && <Onboarding onDone={dismiss} />}
-        <AnimatedRoutes />
-      </div>
+      <T>
+        <div className="app" data-theme={colorScheme}>
+          {!seen && <Onboarding onDone={dismiss} />}
+          <AnimatedRoutes />
+        </div>
+      </T>
     </ErrorBoundary>
   );
 }

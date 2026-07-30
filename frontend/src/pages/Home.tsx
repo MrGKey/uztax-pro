@@ -4,6 +4,7 @@ import { api, type User, type Payment } from "../utils/api";
 import { Icons, ChartSparkline, PremiumHero } from "../utils/icons";
 import PullToRefresh from "../components/PullToRefresh";
 import { AnimatedNumber } from "../utils/useCountUp";
+import { useT } from "../utils/i18n";
 import { haptic, formatSum, formatDate } from "../utils/telegram";
 
 const PAYMENT_METHODS: Record<string, { label: string; color: string }> = {
@@ -15,6 +16,7 @@ const PAYMENT_METHODS: Record<string, { label: string; color: string }> = {
 const todayStr = new Date().toDateString();
 
 export default function Home() {
+  const { t } = useT();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -30,7 +32,7 @@ export default function Home() {
       setUser(u);
       setPayments(p);
     } catch {
-      setError("Ma'lumotlarni yuklab bo'lmadi");
+      setError(t("error_loading"));
     } finally {
       setLoading(false);
     }
@@ -80,21 +82,21 @@ export default function Home() {
 
       {error && (
         <div className="error-banner fade-in" onClick={() => { setError(null); load(); }}>
-          {error} — bosing qayta yuklash
+          {error} — {t("error_retry")}
         </div>
       )}
 
       <div className="hero-section fade-in-d1">
         <div className="hero-text">
           <h2>Assalomu alaykum,<br />{user ? user.full_name.split(" ")[0] : "tadbirkor"}!</h2>
-          <p>{todayPayments.length > 0 ? `Bugun ${todayPayments.length} ta to'lov` : "Hali to'lovlar yo'q"}</p>
+          <p>{todayPayments.length > 0 ? `Bugun ${todayPayments.length} ta to'lov` : t("home_no_payments")}</p>
         </div>
         <PremiumHero />
       </div>
 
       <div className="card card-primary stat fade-in-d2" style={{ padding: 20, position: "relative" }}>
         <div className="stat-label" style={{ color: "rgba(0,0,0,0.55)", textTransform: "none", fontSize: 12 }}>
-          Bugungi daromad
+          {t("home_today_revenue")}
         </div>
         <div className="stat-value-lg" style={{ marginTop: 2 }}>
           <AnimatedNumber value={todayRevenue} />
@@ -111,7 +113,7 @@ export default function Home() {
           <div className="stat-value" style={{ color: "var(--success)" }}>
             <AnimatedNumber value={monthlyRevenue} />
           </div>
-          <div className="stat-label">Oylik</div>
+          <div className="stat-label">{t("home_monthly")}</div>
         </div>
         <div className="card stat" style={{ position: "relative" }}>
           <div className="stat-value" style={{ color: "var(--warning)" }}>
@@ -124,7 +126,7 @@ export default function Home() {
       {payments.length > 0 && (
         <div className="card fade-in-d4" style={{ padding: "12px 16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <span style={{ fontSize: 13, color: "var(--text-secondary)", fontWeight: 500 }}>Daromad dinamikasi</span>
+            <span style={{ fontSize: 13, color: "var(--text-secondary)", fontWeight: 500 }}>{t("home_chart")}</span>
             <span style={{ color: "var(--primary)", display: "flex" }}>{Icons.trendingUp}</span>
           </div>
           <ChartSparkline data={payments.map(p => p.amount)} />
@@ -134,8 +136,8 @@ export default function Home() {
       {payments.length > 0 && (
         <div className="fade-in-d5">
           <div className="section-header" style={{ padding: "0 4px" }}>
-            <span className="section-title">Oxirgi to'lovlar</span>
-            <span className="section-link" onClick={() => { haptic("impact"); navigate("/payment"); }}>Barchasi</span>
+            <span className="section-title">{t("home_recent")}</span>
+            <span className="section-link" onClick={() => { haptic("impact"); navigate("/payment"); }}>{t("home_all")}</span>
           </div>
           <div className="card" style={{ padding: "4px 16px" }}>
             {payments.slice(0, 3).map((p, i) => (
