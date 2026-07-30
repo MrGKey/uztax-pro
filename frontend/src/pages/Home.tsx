@@ -52,7 +52,7 @@ export default function Home() {
   if (loading) {
     return (
       <div>
-        <div className="header"><h1 className="header-title shimmer-card">UzTax Pro</h1></div>
+        <div className="header"><h1 className="header-title shimmer-card">SoliqPay</h1></div>
         <div><div className="skeleton skeleton-block" style={{ height: 120 }} /></div>
         <div className="grid-2" style={{ marginTop: 12 }}>
           <div className="skeleton skeleton-h60" />
@@ -75,7 +75,7 @@ export default function Home() {
         }}>
           {user ? user.full_name[0] : "U"}
         </div>
-        <h1 className="header-title">UzTax Pro</h1>
+        <h1 className="header-title">SoliqPay</h1>
       </div>
 
       {error && (

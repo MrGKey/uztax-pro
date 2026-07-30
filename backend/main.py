@@ -43,7 +43,7 @@ async def app_lifespan(app: FastAPI):
     logger.info("Database disconnected")
 
 
-app = FastAPI(title="UzTax Pro API", lifespan=app_lifespan)
+app = FastAPI(title="SoliqPay API", lifespan=app_lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 FRONTEND_URL = config.app_url.rstrip("/")
@@ -88,7 +88,7 @@ app.include_router(api_router, prefix="/api")
 
 @app.get("/")
 def health():
-    return JSONResponse({"status": "ok", "service": "UzTax Pro"})
+    return JSONResponse({"status": "ok", "service": "SoliqPay"})
 
 
 # --- Telegram Bot ---
@@ -107,7 +107,7 @@ def run_bot_sync():
             kb = InlineKeyboardMarkup(inline_keyboard=buttons) if buttons else None
             msg = fmt(text)
             if not big:
-                msg = f"<b>▎UzTax Pro</b>\n{msg}"
+                msg = f"<b>▎SoliqPay</b>\n{msg}"
             await bot.send_message(chat_id, msg, reply_markup=kb)
 
         @dp.message(Command("start"))
@@ -127,7 +127,7 @@ def run_bot_sync():
 
 <b>Бошлаш учун пастдаги тугмани босинг</b>
 """, buttons=[[InlineKeyboardButton(text="🚀 Иловани очиш", web_app=WebAppInfo(url=mini))],
-             [InlineKeyboardButton(text="📢 Янгиликлар", url="https://t.me/uztax_news")]])
+             [InlineKeyboardButton(text="📢 Янгиликлар", url="https://t.me/SoliqPay_News")]])
 
         @dp.message(Command("report"))
         async def cmd_report(message: Message):
@@ -155,7 +155,7 @@ def run_bot_sync():
 
 <b>💡 Inline режим:</b>
 Ҳар қандай чатда:
-<code>@uzbtax_bot 50000 payme</code>
+<code>@SoliqPay_bot 50000 payme</code>
 
 <b>Қўллаб-қувватланадиган тизимлар:</b>
 Payme · Click · Uzum · Humo · Uzcard
@@ -183,13 +183,13 @@ Payme · Click · Uzum · Humo · Uzcard
             await send(message.from_user.id, f"""
 📢 <b>Сўнгги янгиликлар</b>
 
-• <b>UzTax Premium:</b> Telegram Stars (5 Stars/ой)
+• <b>SoliqPay Premium:</b> Telegram Stars (5 Stars/ой)
 • <b>Humo ва Uzcard:</b> Қўшиб бўлди ✅
 • <b>Овозли киритиш:</b> Харажатларни овоз билан қўшинг
 • <b>PDF ҳисобот:</b> Нашриётлар учун
 
 <b>Янгиликларга обуна бўлинг:</b>
-""", buttons=[[InlineKeyboardButton(text="📢 UzTax News", url="https://t.me/uztax_news")]])
+""", buttons=[[InlineKeyboardButton(text="📢 SoliqPay News", url="https://t.me/SoliqPay_News")]])
 
         import asyncio as _asyncio
 
@@ -211,7 +211,7 @@ Payme · Click · Uzum · Humo · Uzcard
                     if now.day == 22 and now.hour == 10:
                         users = fetch("SELECT tg_id, full_name FROM users")
                         await broadcast(users, lambda u:
-                            f"<b>▎UzTax Pro</b>\n\n"
+                            f"<b>▎SoliqPay</b>\n\n"
                             f"🔔 <b>Эслатма!</b>\n\n"
                             f"<b>{u['full_name']}</b>, {25 - now.day} кун қолди.\n"
                             f"1% солиқни тўлаш муддати: <b>25-{now.month}</b>\n\n"
@@ -219,7 +219,7 @@ Payme · Click · Uzum · Humo · Uzcard
                     if now.day == 25 and now.hour == 9:
                         users = fetch("SELECT tg_id FROM users")
                         await broadcast(users, lambda u:
-                            f"<b>▎UzTax Pro</b>\n\n"
+                            f"<b>▎SoliqPay</b>\n\n"
                             f"⚠️ <b>Бугун солиқ тўлов куни!</b>\n\n"
                             f"Илтимос, 1% солиқни тўланг.\n"
                             f"Кечикиш учун пени: <b>0.5%/кун</b>\n\n"
@@ -232,7 +232,7 @@ Payme · Click · Uzum · Humo · Uzcard
         @dp.message(Command("premium"))
         async def cmd_premium(message: Message):
             await send(message.from_user.id, f"""
-⭐ <b>UzTax Premium</b>
+⭐ <b>SoliqPay Premium</b>
 
 <b>Имкониятлар:</b>
 ├ ✅ Чексиз тўлов ҳаволаси
@@ -263,7 +263,7 @@ Payme · Click · Uzum · Humo · Uzcard
             await send(message.from_user.id, f"""
 🤝 <b>Сизни партнёр таклиф қилди!</b>
 
-UzTax Pro — ИП учун 1% солиқни авто-ҳисоблаш
+SoliqPay — ИП учун 1% солиқни авто-ҳисоблаш
 ва тўлов ҳаволаси. Рўйхатдан ўтинг!
 """, buttons=[[InlineKeyboardButton(text="🚀 Иловани очиш", web_app=WebAppInfo(url=f"{config.app_url}?partner={code}"))]])
 
@@ -285,7 +285,7 @@ UzTax Pro — ИП учун 1% солиқни авто-ҳисоблаш
                     title="💳 Тўлов ҳаволасини яратиш",
                     description="Мисол: 50000 payme",
                     input_message_content=InputTextMessageContent(
-                        message_text=f"<b>▎UzTax Pro</b>\n\n💳 Тўлов ҳаволаси\n\n<code>@uzbtax_bot 50000 payme</code>\n\nМинимал сумма: 100 so'm"))]
+                        message_text=f"<b>▎SoliqPay</b>\n\n💳 Тўлов ҳаволаси\n\n<code>@SoliqPay_bot 50000 payme</code>\n\nМинимал сумма: 100 so'm"))]
             else:
                 from services.payme import generate_payme_link
                 order_id = f"inline_{inline_query.from_user.id}_{int(datetime.now().timestamp())}"
@@ -296,7 +296,7 @@ UzTax Pro — ИП учун 1% солиқни авто-ҳисоблаш
                     title=f"{amount:,} so'm",
                     description=f"{method.upper()} · Комиссия: {fee:,} so'm",
                     input_message_content=InputTextMessageContent(
-                        message_text=f"<b>▎UzTax Pro</b>\n\n💳 <b>Тўлов ҳаволаси</b>\n\nСумма: <b>{amount:,}</b> so'm\nТизим: {method}\n\n{url}\n\nКомиссия: {fee:,} so'm (0.5%)"))]
+                        message_text=f"<b>▎SoliqPay</b>\n\n💳 <b>Тўлов ҳаволаси</b>\n\nСумма: <b>{amount:,}</b> so'm\nТизим: {method}\n\n{url}\n\nКомиссия: {fee:,} so'm (0.5%)"))]
             await inline_query.answer(results, cache_time=5)
 
         await bot.set_my_commands([

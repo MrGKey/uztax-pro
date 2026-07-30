@@ -2,95 +2,62 @@
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#0a0e1a"/>
-      <stop offset="50%" stop-color="#111827"/>
+      <stop offset="60%" stop-color="#111827"/>
       <stop offset="100%" stop-color="#0a0e1a"/>
     </linearGradient>
     <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#77b39b"/>
-      <stop offset="100%" stop-color="#5a9a82"/>
+      <stop offset="100%" stop-color="#4d8a72"/>
     </linearGradient>
     <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#f9d898"/>
       <stop offset="100%" stop-color="#e8b84a"/>
     </linearGradient>
     <linearGradient id="barTeal" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0%" stop-color="#77b39b" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#77b39b" stop-opacity="0.8"/>
+      <stop offset="0%" stop-color="#77b39b" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#77b39b" stop-opacity="0.85"/>
     </linearGradient>
     <linearGradient id="barGold" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0%" stop-color="#f9d898" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#f9d898" stop-opacity="0.95"/>
+      <stop offset="0%" stop-color="#f9d898" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#f9d898" stop-opacity="1"/>
     </linearGradient>
-    <linearGradient id="uGlow" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#77b39b" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="#77b39b" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="peakGlow" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#f9d898" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#77b39b" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="softGlow">
-      <feGaussianBlur stdDeviation="2" result="blur"/>
+    <filter id="peakGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
       <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
-  <!-- Dark background -->
   <rect width="512" height="512" rx="110" fill="url(#bg)"/>
 
-  <!-- Background glow -->
-  <circle cx="256" cy="240" r="180" fill="url(#peakGlow)"/>
+  <!-- Glow behind -->
+  <circle cx="256" cy="230" r="170" fill="#77b39b" opacity="0.04"/>
 
-  <!-- Subtle grid -->
-  <g opacity="0.03" stroke="#f9d898" stroke-width="0.5">
-    <line x1="0" y1="100" x2="512" y2="100"/>
-    <line x1="0" y1="180" x2="512" y2="180"/>
-    <line x1="0" y1="260" x2="512" y2="260"/>
-    <line x1="0" y1="340" x2="512" y2="340"/>
-  </g>
-
-  <!-- Big letter U behind chart -->
-  <text x="256" y="380" text-anchor="middle" fill="url(#uGlow)" font-size="320" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="-10" opacity="0.08">U</text>
+  <!-- Letter S watermark -->
+  <text x="256" y="340" text-anchor="middle" fill="#77b39b" font-size="320" font-weight="900" font-family="system-ui, sans-serif" opacity="0.04">S</text>
 
   <!-- Bar chart -->
-  <g transform="translate(74, 340)">
-    <line x1="0" y1="0" x2="364" y2="0" stroke="#77b39b" stroke-width="1" opacity="0.12"/>
-
-    <rect x="12" y="-95" width="34" height="95" rx="5" fill="url(#barTeal)"/>
-    <rect x="56" y="-135" width="34" height="135" rx="5" fill="url(#barTeal)"/>
-    <rect x="100" y="-110" width="34" height="110" rx="5" fill="url(#barTeal)"/>
-    
-    <!-- Highest bar - gold (represents today) -->
-    <rect x="144" y="-175" width="34" height="175" rx="5" fill="url(#barGold)"/>
-    <rect x="144" y="-175" width="34" height="175" rx="5" fill="url(#gold)" opacity="0.15"/>
-    
-    <rect x="188" y="-150" width="34" height="150" rx="5" fill="url(#barTeal)"/>
-    
-    <!-- Second gold bar -->
-    <rect x="232" y="-190" width="34" height="190" rx="5" fill="url(#barGold)"/>
-    <rect x="232" y="-190" width="34" height="190" rx="5" fill="white" opacity="0.04"/>
-    
-    <rect x="276" y="-125" width="34" height="125" rx="5" fill="url(#barTeal)"/>
-    <rect x="320" y="-100" width="34" height="100" rx="5" fill="url(#barTeal)"/>
+  <g transform="translate(66, 340)">
+    <line x1="0" y1="0" x2="380" y2="0" stroke="#77b39b" stroke-width="1" opacity="0.1"/>
+    <rect x="14" y="-100" width="36" height="100" rx="5" fill="url(#barTeal)"/>
+    <rect x="60" y="-140" width="36" height="140" rx="5" fill="url(#barTeal)"/>
+    <rect x="106" y="-115" width="36" height="115" rx="5" fill="url(#barTeal)"/>
+    <rect x="152" y="-180" width="36" height="180" rx="5" fill="url(#barGold)" filter="url(#peakGlow)"/>
+    <rect x="152" y="-180" width="36" height="180" rx="5" fill="url(#gold)" opacity="0.2"/>
+    <rect x="198" y="-155" width="36" height="155" rx="5" fill="url(#barTeal)"/>
+    <rect x="244" y="-195" width="36" height="195" rx="5" fill="url(#barGold)" filter="url(#peakGlow)"/>
+    <rect x="244" y="-195" width="36" height="195" rx="5" fill="white" opacity="0.05"/>
+    <rect x="290" y="-130" width="36" height="130" rx="5" fill="url(#barTeal)"/>
+    <rect x="336" y="-105" width="36" height="105" rx="5" fill="url(#barTeal)"/>
   </g>
 
-  <!-- Sparkline over chart -->
-  <path d="M90 268 L114 238 L138 252 L162 208 L186 228 L210 190 L234 208 L258 178 L282 198 L306 222 L330 205 L354 225" 
-        stroke="url(#gold)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.8" filter="url(#softGlow)"/>
+  <!-- Sparkline -->
+  <path d="M85 262 L112 232 L139 248 L166 205 L193 225 L220 188 L247 205 L274 178 L301 198 L328 220 L355 204 L382 222" stroke="url(#gold)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.9" filter="url(#peakGlow)"/>
+  <circle cx="274" cy="178" r="5" fill="url(#gold)"/>
+  <circle cx="274" cy="178" r="11" fill="url(#gold)" opacity="0.12"/>
 
-  <!-- Peak dot -->
-  <circle cx="258" cy="178" r="5" fill="url(#gold)"/>
-  <circle cx="258" cy="178" r="11" fill="url(#gold)" opacity="0.12"/>
+  <!-- Brand name -->
+  <text x="256" y="460" text-anchor="middle" fill="white" font-size="42" font-weight="800" font-family="system-ui, sans-serif" letter-spacing="8">SOLIQ</text>
+  <text x="256" y="460" text-anchor="middle" fill="url(#gold)" font-size="42" font-weight="800" font-family="system-ui, sans-serif" letter-spacing="8" opacity="0.15">SOLIQ</text>
 
-  <!-- Letter U in gold -->
-  <text x="256" y="450" text-anchor="middle" fill="white" font-size="72" font-weight="800" font-family="system-ui, sans-serif" letter-spacing="1">U</text>
-  
-  <!-- Thin underline accent -->
-  <rect x="220" y="468" width="72" height="3" rx="1.5" fill="url(#teal)" opacity="0.6"/>
-
-  <!-- Decorative -->
-  <circle cx="90" cy="100" r="3" fill="#77b39b" opacity="0.12"/>
-  <circle cx="420" cy="140" r="4" fill="#f9d898" opacity="0.1"/>
-  <circle cx="430" cy="400" r="2.5" fill="#77b39b" opacity="0.08"/>
-  <circle cx="80" cy="400" r="2" fill="#f9d898" opacity="0.08"/>
+  <text x="256" y="485" text-anchor="middle" fill="url(#teal)" font-size="28" font-weight="700" font-family="system-ui, sans-serif" letter-spacing="6" opacity="0.8">PAY</text>
 </svg>

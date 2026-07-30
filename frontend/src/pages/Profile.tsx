@@ -23,7 +23,7 @@ const FAQs = [
   { q: "Qaysi to'lov tizimlari qo'llab-quvvatlanadi?", a: "Payme, Click, Uzum, Humo va Uzcard." },
   { q: "Xarajatlarni qanday qo'shish mumkin?", a: "Xarajatlar sahifasida '+' tugmasini bosing va summani kiriting." },
   { q: "Ma'lumotlarim xavfsizmi?", a: "Barcha ma'lumotlar Telegram orqali himoyalangan va shifrlangan." },
-  { q: "Qanday qilib qo'llab-quvvatlash olish mumkin?", a: "@uzbtax_bot orqali yoki profil sahifasidagi feedback formasi." },
+  { q: "Qanday qilib qo'llab-quvvatlash olish mumkin?", a: "@SoliqPay_bot orqali yoki profil sahifasidagi feedback formasi." },
 ];
 
 export default function Profile() {
@@ -96,7 +96,7 @@ export default function Profile() {
     } catch {}
   };
 
-  const referralLink = user ? `https://t.me/uzbtax_bot?start=ref_${user.tg_id}` : "";
+  const referralLink = user ? `https://t.me/SoliqPay_bot?start=ref_${user.tg_id}` : "";
 
   if (loading) {
     return (
@@ -204,7 +204,7 @@ export default function Profile() {
       <div className="card sub-card fade-in-d3">
         <div className="row" style={{ border: "none" }}>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--gold)" }}>UzTax Pro</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--gold)" }}>SoliqPay</div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>Tarif: Free</div>
           </div>
           <span className="badge badge-gold">Bepul</span>
@@ -227,7 +227,7 @@ export default function Profile() {
       {/* Strategy 1: Telegram Stars Premium */}
       <div className="card card-primary fade-in-d3" style={{ padding: 20, textAlign: "center" }}>
         <div style={{ fontSize: 32, marginBottom: 8 }}>⭐</div>
-        <div style={{ fontSize: 18, fontWeight: 700, color: "#0a0e1a", marginBottom: 4 }}>UzTax Premium</div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "#0a0e1a", marginBottom: 4 }}>SoliqPay Premium</div>
         <div style={{ fontSize: 13, color: "rgba(0,0,0,0.6)", marginBottom: 12 }}>
           Cheksiz to'lovlar · PDF · 0.5% komissiya
         </div>
@@ -466,7 +466,7 @@ export default function Profile() {
       </div>
 
       <div style={{ textAlign: "center", padding: "16px 0", fontSize: 11, color: "var(--text-muted)" }}>
-        UzTax Pro v0.1.0
+        SoliqPay v0.1.0
       </div>
 
       {refreshing && <div className="toast toast-refresh">Yangilanmoqda...</div>}

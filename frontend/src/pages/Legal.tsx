@@ -13,7 +13,7 @@ export default function Legal() {
 
       <div className="card fade-in-d1" style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-secondary)" }}>
         <h3 style={{ color: "var(--text)", marginBottom: 8, fontSize: 15 }}>1. Umumiy qoidalar</h3>
-        <p style={{ marginBottom: 12 }}>UzTax Pro — yakka tartibdagi tadbirkorlar uchun 1% soliqni hisoblash va to'lov havolalarini yaratish vositasi. Foydalanuvchi ushbu shartnomani qabul qilish orqali xizmatdan foydalanishni boshlaydi.</p>
+        <p style={{ marginBottom: 12 }}>SoliqPay — yakka tartibdagi tadbirkorlar uchun 1% soliqni hisoblash va to'lov havolalarini yaratish vositasi. Foydalanuvchi ushbu shartnomani qabul qilish orqali xizmatdan foydalanishni boshlaydi.</p>
 
         <h3 style={{ color: "var(--text)", marginBottom: 8, fontSize: 15 }}>2. Персональные данные</h3>
         <p style={{ marginBottom: 8 }}>В соответствии с Законом РУз «О персональных данных» (№ЗРУ-547 от 02.07.2019):</p>
@@ -44,12 +44,12 @@ export default function Legal() {
         </ul>
 
         <h3 style={{ color: "var(--text)", marginBottom: 8, fontSize: 15 }}>5. Контакты</h3>
-        <p style={{ marginBottom: 4 }}>По вопросам обработки данных: @uzbtax_bot (вкладка Feedback)</p>
+        <p style={{ marginBottom: 4 }}>По вопросам обработки данных: @SoliqPay_bot (вкладка Feedback)</p>
         <p style={{ marginBottom: 12 }}>Уполномоченный орган: УзКомНазорат (uzkomnazorat.uz)</p>
       </div>
 
       <div style={{ textAlign: "center", padding: "16px 0", fontSize: 11, color: "var(--text-muted)" }}>
-        UzTax Pro v0.2.0 · Последнее обновление: 2026
+        SoliqPay v0.2.0 · Последнее обновление: 2026
       </div>
     </div>
   );

@@ -234,7 +234,7 @@ def get_report_html(user: dict = Depends(get_current_user)):
 
     html = f"""<!DOCTYPE html>
 <html lang="uz">
-<head><meta charset="UTF-8"><title>Hisobot - UzTax Pro</title>
+<head><meta charset="UTF-8"><title>Hisobot - SoliqPay</title>
 <style>
 body{{font-family:sans-serif;max-width:600px;margin:40px auto;padding:20px;color:#222}}
 h1{{font-size:20px;margin-bottom:4px}}
@@ -246,7 +246,7 @@ td:last-child{{text-align:right;font-weight:600}}
 .footer{{margin-top:24px;font-size:11px;color:#999;text-align:center}}
 </style></head>
 <body>
-<h1>UzTax Pro — Hisobot</h1>
+<h1>SoliqPay — Hisobot</h1>
 <div class="date">{datetime.now().strftime('%B %Y')}</div>
 <table>
 <tr><td>Daromad</td><td>{revenue:,} so'm</td></tr>
@@ -254,7 +254,7 @@ td:last-child{{text-align:right;font-weight:600}}
 <tr><td>Xarajatlar</td><td>{exp_sum:,} so'm</td></tr>
 <tr class="total"><td>Sof daromad</td><td>{net:,} so'm</td></tr>
 </table>
-<div class="footer">UzTax Pro — 1% soliq avtomatik | {datetime.now().strftime('%d.%m.%Y')}</div>
+<div class="footer">SoliqPay — 1% soliq avtomatik | {datetime.now().strftime('%d.%m.%Y')}</div>
 </body></html>"""
     return HTMLResponse(content=html, media_type="text/html")
 
@@ -309,7 +309,7 @@ def stars_purchase(user: dict = Depends(get_current_user)):
     """Creates a Telegram Stars invoice link for Premium subscription."""
     tg_id = user["tg_id"]
     order_id = f"stars_{tg_id}_{int(datetime.now().timestamp())}"
-    title = "UzTax Pro Premium — 1 oy"
+    title = "SoliqPay Premium — 1 oy"
     description = "Barcha imkoniyatlar: cheksiz to'lovlar, PDF hisobot, AI yordamchi"
     payload = f"premium_{tg_id}_{order_id}"
     currency = "XTR"  # Telegram Stars
@@ -350,7 +350,7 @@ def partner_register(body: UpdateProfileRequest, user: dict = Depends(get_curren
         "INSERT INTO partners (tg_id, full_name, phone, api_key) VALUES (%s, %s, %s, %s) ON CONFLICT (tg_id) DO NOTHING",
         tg_id, body.full_name or user.get("full_name", ""), body.phone or "", f"pk_{code}",
     )
-    return {"ok": True, "referral_link": f"https://t.me/uzbtax_bot?start=partner_{code}"}
+    return {"ok": True, "referral_link": f"https://t.me/SoliqPay_bot?start=partner_{code}"}
 
 
 @router.get("/partner/stats")

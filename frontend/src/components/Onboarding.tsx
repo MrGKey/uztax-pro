@@ -6,7 +6,7 @@ import { OnboardIllustration1, OnboardIllustration2, OnboardIllustration3 } from
 const slides = [
   {
     title: "1% soliq avtomatik",
-    desc: "UzTax avtomatik tarzda 1% soliqni hisoblab beradi. Siz faqat daromad olasiz.",
+    desc: "SoliqPay avtomatik tarzda 1% soliqni hisoblab beradi. Siz faqat daromad olasiz.",
     Illustration: OnboardIllustration1,
   },
   {
