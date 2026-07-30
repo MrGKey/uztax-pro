@@ -1,34 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0a0e1a"/>
-      <stop offset="100%" stop-color="#1a2a4a"/>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#77b39b"/>
+      <stop offset="50%" stop-color="#6aaa90"/>
+      <stop offset="100%" stop-color="#4d8a72"/>
     </linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#f9d898"/>
-      <stop offset="30%" stop-color="#fbe8b8"/>
-      <stop offset="60%" stop-color="#f9d898"/>
-      <stop offset="100%" stop-color="#d4a843"/>
-    </linearGradient>
-    <linearGradient id="goldLight" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#fbe8b8"/>
-      <stop offset="100%" stop-color="#f9d898"/>
-    </linearGradient>
-    <filter id="sGlow">
-      <feGaussianBlur stdDeviation="6" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
   </defs>
 
-  <rect width="512" height="512" rx="512" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="512" fill="white"/>
 
-  <!-- Subtle ring -->
-  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#gold)" stroke-width="0.5" opacity="0.08"/>
-
-  <!-- Big bold S - Stripe/Samsung style -->
-  <text x="256" y="330" text-anchor="middle" fill="url(#gold)" font-size="350" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="-8" filter="url(#sGlow)">S</text>
-  <text x="256" y="330" text-anchor="middle" fill="url(#goldLight)" font-size="350" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="-8">S</text>
-
-  <!-- Thin gold underline -->
-  <rect x="150" y="370" width="212" height="3" rx="1.5" fill="url(#gold)" opacity="0.3"/>
+  <!-- Minimalist abstract S curve -->
+  <g transform="translate(256, 260)">
+    <!-- Three horizontal bars forming an abstract S -->
+    <rect x="-90" y="-65" width="180" height="30" rx="15" fill="url(#g)" opacity="0.9"/>
+    <rect x="-110" y="-15" width="140" height="30" rx="15" fill="url(#g)" opacity="0.55"/>
+    <rect x="-90" y="35" width="180" height="30" rx="15" fill="url(#g)" opacity="0.9"/>
+  </g>
 </svg>
