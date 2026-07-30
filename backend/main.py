@@ -101,141 +101,171 @@ def run_bot_sync():
         )
         dp = Dispatcher()
 
-        async def send_branded(chat_id, text, buttons=None):
-            header = "━━━━━━━━━━━━━━━\n<b>UzTax Pro</b>  |  1% soliq avtomatik\n━━━━━━━━━━━━━━━\n\n"
+        def fmt(text): return text.strip()
+
+        async def send(chat_id, text, buttons=None, big=False):
             kb = InlineKeyboardMarkup(inline_keyboard=buttons) if buttons else None
-            await bot.send_message(chat_id, header + text, reply_markup=kb)
+            msg = fmt(text)
+            if not big:
+                msg = f"<b>▎UzTax Pro</b>\n{msg}"
+            await bot.send_message(chat_id, msg, reply_markup=kb)
 
         @dp.message(Command("start"))
         async def cmd_start(message: Message):
             mini = f"{config.app_url}?start={message.from_user.id}"
-            await send_branded(
-                message.from_user.id,
-                f"👋 <b>Assalomu alaykum!</b>\n\n"
-                f"🤖 Yakka tartibdagi tadbirkorlar uchun eng qulay ilova:\n\n"
-                f"✅ <b>1% soliq</b> — avtomatik hisoblash\n"
-                f"💳 <b>To'lov havolalari</b> — Payme, Click, Uzum, Humo, Uzcard\n"
-                f"📊 <b>Hisobot</b> — PDF ko'rinishida yuklab olish\n"
-                f"💰 <b>Xarajatlar</b> — ovozli kiritish va avto-kategoriyalash\n\n"
-                f"🔽 Бошлаш учун пастдаги тугмани босинг",
-                buttons=[[InlineKeyboardButton(text="🚀 Иловани очиш", web_app=WebAppInfo(url=mini))]]
-            )
+            await send(message.from_user.id, f"""
+👋 <b>Assalomu alaykum!</b>
+
+<i>Yakka tartibdagi tadbirkorlar uchun raqamli ofis</i>
+
+<b>📌 Имкониятлар:</b>
+├ 💰 1% солиқни авто-ҳисоблаш
+├ 💳 Payme · Click · Uzum · Humo · Uzcard
+├ 📊 PDF ҳисоботлар
+├ 🎤 Овозли харажат киритиш
+└ 🔄 Telegram Stars орқали тўлов
+
+<b>Бошлаш учун пастдаги тугмани босинг</b>
+""", buttons=[[InlineKeyboardButton(text="🚀 Иловани очиш", web_app=WebAppInfo(url=mini))],
+             [InlineKeyboardButton(text="📢 Янгиликлар", url="https://t.me/uztax_news")]])
 
         @dp.message(Command("report"))
         async def cmd_report(message: Message):
-            await send_branded(
-                message.from_user.id,
-                "📊 <b>Hisobot</b>\n\n"
-                "Ойлик ва йиллик ҳисоботларни илова ичида кўринг:\n\n"
-                "• Даромад ва харажатлар\n"
-                "• 1% солиқ ҳисоби\n"
-                "• PDF кўринишида юклаб олиш",
-                buttons=[[InlineKeyboardButton(text="📊 Ҳисоботни очиш", web_app=WebAppInfo(url=f"{config.app_url}/#/tax"))]]
-            )
+            await send(message.from_user.id, f"""
+📊 <b>Солиқ ҳисоботи</b>
+
+Ойлик ва йиллик ҳисоботлар:
+├ Даромад ва харажатлар
+├ 1% солиқ ҳисоби  
+├ PDF кўринишида юклаб олиш
+""", buttons=[[InlineKeyboardButton(text="📊 Ҳисоботни очиш", web_app=WebAppInfo(url=f"{config.app_url}/#/tax"))]])
 
         @dp.message(Command("help"))
         async def cmd_help(message: Message):
-            await send_branded(
-                message.from_user.id,
-                f"❓ <b>Тез-тез сўраладиган саволлар</b>\n\n"
-                f"📌 <b>/start</b> — Иловани очиш\n"
-                f"📌 <b>/report</b> — Солиқ ҳисоботи\n"
-                f"📌 <b>/premium</b> — Premium имкониятлар\n"
-                f"📌 <b>/partner</b> — Партнёрлик дастури\n"
-                f"\n"
-                f"💡 <b>Inline режим:</b>\n"
-                f"Ҳар қандай чатда: @uzbtax_bot 50000 payme\n"
-                f"Тўлов ҳаволасини яратади\n\n"
-                f"Қўллаб-қувватланадиган тўлов тизимлари:\n"
-                f"▫️ Payme  ▫️ Click  ▫️ Uzum  ▫️ Humo  ▫️ Uzcard"
-            )
+            await send(message.from_user.id, f"""
+❓ <b>Ёрдам ва командалар</b>
+
+<b>📋 Командалар:</b>
+├ /start — иловани очиш
+├ /report — солиқ ҳисоботи
+├ /premium — Premium имкониятлар
+├ /partner — партнёрлик дастури
+├ /news — сўнгги янгиликлар
+├ /help — ёрдам
+
+<b>💡 Inline режим:</b>
+Ҳар қандай чатда:
+<code>@uzbtax_bot 50000 payme</code>
+
+<b>Қўллаб-қувватланадиган тизимлар:</b>
+Payme · Click · Uzum · Humo · Uzcard
+
+<b>🆘 Муаммо бўлса:</b>
+Илова ичида → Профил → Feedback
+""")
 
         @dp.message(Command("notify"))
         async def cmd_notify(message: Message):
-            await send_branded(
-                message.from_user.id,
-                "🔔 <b>Билдиришномалар</b>\n\n"
-                "Мен сизга ҳар ой эслатиб тураман:\n\n"
-                "📅 22-кун: \"25-гача 3 кун қолди\"\n"
-                "📅 25-кун: \"Бугун солиқ тўлаш куни!\"\n\n"
-                "Билдиришномалар автоматик ёқилган ✅"
-            )
+            await send(message.from_user.id, f"""
+🔔 <b>Билдиришномалар</b>
+
+Мен сизга ҳар ой эслатиб тураман:
+
+📅 <b>22-кун:</b> «25-гача 3 кун қолди»
+📅 <b>25-кун:</b> «Бугун солиқ тўлов куни!»
+📅 <b>1-март:</b> «Йиллик декларация топиширинг»
+
+Билдиришномалар автоматик ёқилган ✅
+""")
+
+        @dp.message(Command("news"))
+        async def cmd_news(message: Message):
+            await send(message.from_user.id, f"""
+📢 <b>Сўнгги янгиликлар</b>
+
+• <b>UzTax Premium:</b> Telegram Stars (5 Stars/ой)
+• <b>Humo ва Uzcard:</b> Қўшиб бўлди ✅
+• <b>Овозли киритиш:</b> Харажатларни овоз билан қўшинг
+• <b>PDF ҳисобот:</b> Нашриётлар учун
+
+<b>Янгиликларга обуна бўлинг:</b>
+""", buttons=[[InlineKeyboardButton(text="📢 UzTax News", url="https://t.me/uztax_news")]])
 
         import asyncio as _asyncio
 
-        async def broadcast_messages(users, text_func):
+        async def broadcast(users, text_func):
             sem = _asyncio.Semaphore(20)
-            async def send(u):
+            async def send_one(u):
                 async with sem:
                     try:
                         await bot.send_message(u["tg_id"], text_func(u))
-                    except:
-                        pass
-            await _asyncio.gather(*[send(u) for u in users])
+                    except: pass
+            await _asyncio.gather(*[send_one(u) for u in users])
 
         async def reminder_job():
             tz = timezone(timedelta(hours=5))
-            header = "━━━━━━━━━━━━━━━\n<b>UzTax Pro</b>  |  Eslatma\n━━━━━━━━━━━━━━━\n\n"
             while True:
                 try:
                     await _asyncio.sleep(3600)
                     now = datetime.now(tz)
                     if now.day == 22 and now.hour == 10:
                         users = fetch("SELECT tg_id, full_name FROM users")
-                        await broadcast_messages(users, lambda u:
-                            f"{header}"
+                        await broadcast(users, lambda u:
+                            f"<b>▎UzTax Pro</b>\n\n"
                             f"🔔 <b>Эслатма!</b>\n\n"
-                            f"Салом, {u['full_name']}! {25 - now.day} кун қолди.\n"
-                            f"1% солиқни тўлашни унутманг.\n\n"
-                            f"📅 Муддат: 25-{now.month}-{now.year}"
-                        )
+                            f"<b>{u['full_name']}</b>, {25 - now.day} кун қолди.\n"
+                            f"1% солиқни тўлаш муддати: <b>25-{now.month}</b>\n\n"
+                            f"📌 <i>Тўловни илова орқали амалга оширинг</i>")
                     if now.day == 25 and now.hour == 9:
                         users = fetch("SELECT tg_id FROM users")
-                        await broadcast_messages(users, lambda u:
-                            f"{header}"
-                            f"⚠️ <b>Бугун — солиқ тўлов куни!</b>\n\n"
+                        await broadcast(users, lambda u:
+                            f"<b>▎UzTax Pro</b>\n\n"
+                            f"⚠️ <b>Бугун солиқ тўлов куни!</b>\n\n"
                             f"Илтимос, 1% солиқни тўланг.\n"
-                            f"Кечикиш учун пени: 0.5%/кун"
-                        )
+                            f"Кечикиш учун пени: <b>0.5%/кун</b>\n\n"
+                            f"🚀 <i>Иловани очинг → Профил → Солиқ</i>")
                 except Exception as e:
-                    logger.error(f"Reminder job error: {e}")
+                    logger.error(f"Reminder error: {e}")
 
         _asyncio.create_task(reminder_job())
 
         @dp.message(Command("premium"))
         async def cmd_premium(message: Message):
-            await send_branded(
-                message.from_user.id,
-                "⭐ <b>UzTax Premium</b>\n\n"
-                "▫️ Чексиз тўлов ҳаволаси\n"
-                "▫️ PDF ҳисоботлар\n"
-                "▫️ 0.5% комиссия\n"
-                "▫️ Telegram Stars: 5 Stars/ой\n\n"
-                "Иловадаги Профил → Premium бўлимида",
-                buttons=[[InlineKeyboardButton(text="⭐ Premium олиш", web_app=WebAppInfo(url=f"{config.app_url}/#/profile"))]]
-            )
+            await send(message.from_user.id, f"""
+⭐ <b>UzTax Premium</b>
+
+<b>Имкониятлар:</b>
+├ ✅ Чексиз тўлов ҳаволаси
+├ ✅ PDF ҳисоботлар
+├ ✅ 0.5% комиссия
+├ ✅ Приоритет қўллаб-қувватлаш
+
+<b>💰 Нархи:</b>
+└ Telegram Stars: 5 Stars/ой
+""", buttons=[[InlineKeyboardButton(text="⭐ Premium олиш", web_app=WebAppInfo(url=f"{config.app_url}/#/profile"))]])
 
         @dp.message(Command("partner"))
         async def cmd_partner(message: Message):
-            await send_branded(
-                message.from_user.id,
-                "🤝 <b>Партнёрлик дастури</b>\n\n"
-                "Ҳар бир таклиф қилинган ИП учун 20% комиссия.\n\n"
-                "Қанча кўп таклиф қилсангиз, шунча кўп ишлайсиз!\n\n"
-                "Иловадаги Профил → Партнёр бўлимида",
-                buttons=[[InlineKeyboardButton(text="🤝 Партнёр бўлиш", web_app=WebAppInfo(url=f"{config.app_url}/#/profile"))]]
-            )
+            await send(message.from_user.id, f"""
+🤝 <b>Партнёрлик дастури</b>
+
+<b>Шартлар:</b>
+├ Ҳар бир таклиф қилинган ИП учун 20%
+├ Чексиз даромад
+├ Автоматик ҳисоб
+
+<b>Қанча кўп таклиф → шунча кўп даромад</b>
+""", buttons=[[InlineKeyboardButton(text="🤝 Партнёр бўлиш", web_app=WebAppInfo(url=f"{config.app_url}/#/profile"))]])
 
         @dp.message(lambda msg: msg.text and msg.text.startswith("/start partner_"))
         async def start_with_partner(message: Message):
             code = message.text.split("_", 1)[1] if "_" in message.text else ""
-            await send_branded(
-                message.from_user.id,
-                f"🤝 <b>Сизни партнёр таклиф қилди!</b>\n\n"
-                f"UzTax Pro — ИП учун 1% солиқни авто-ҳисоблаш ва тўлов ҳаволаси.\n\n"
-                f"Иловани очинг ва рўйхатдан ўтинг!",
-                buttons=[[InlineKeyboardButton(text="🚀 Иловани очиш", web_app=WebAppInfo(url=f"{config.app_url}?partner={code}"))]]
-            )
+            await send(message.from_user.id, f"""
+🤝 <b>Сизни партнёр таклиф қилди!</b>
+
+UzTax Pro — ИП учун 1% солиқни авто-ҳисоблаш
+ва тўлов ҳаволаси. Рўйхатдан ўтинг!
+""", buttons=[[InlineKeyboardButton(text="🚀 Иловани очиш", web_app=WebAppInfo(url=f"{config.app_url}?partner={code}"))]])
 
         @dp.inline_query()
         async def inline_pay(inline_query: InlineQuery):
@@ -251,44 +281,32 @@ def run_bot_sync():
                 if len(parts) > 1 and parts[1] in ("payme", "click", "uzum", "humo", "uzcard"):
                     method = parts[1]
             if amount < 100:
-                results = [
-                    InlineQueryResultArticle(
-                        id="1",
-                        title="💳 Тўлов ҳаволасини яратиш",
-                        description="Мисол: 50000 payme (минимал 100 so'm)",
-                        input_message_content=InputTextMessageContent(
-                            message_text="━━━━━━━━━━━━━━━\n<b>UzTax Pro</b>\n━━━━━━━━━━━━━━━\n\n<b>Тўлов ҳаволаси</b>\n\nИшлатиш: @uzbtax_bot 50000 payme\nМинимал сумма: 100 so'm"
-                        ),
-                    )
-                ]
+                results = [InlineQueryResultArticle(id="1",
+                    title="💳 Тўлов ҳаволасини яратиш",
+                    description="Мисол: 50000 payme",
+                    input_message_content=InputTextMessageContent(
+                        message_text=f"<b>▎UzTax Pro</b>\n\n💳 Тўлов ҳаволаси\n\n<code>@uzbtax_bot 50000 payme</code>\n\nМинимал сумма: 100 so'm"))]
             else:
                 from services.payme import generate_payme_link
                 order_id = f"inline_{inline_query.from_user.id}_{int(datetime.now().timestamp())}"
-                if method == "payme":
-                    url = generate_payme_link(amount, order_id)
-                else:
-                    url = f"https://pay/{method}?amount={amount}&order_id={order_id}"
+                if method == "payme": url = generate_payme_link(amount, order_id)
+                else: url = f"https://pay/{method}?amount={amount}&order_id={order_id}"
                 fee = int(amount * 0.005)
-                label = f"{amount:,} so'm"
-                results = [
-                    InlineQueryResultArticle(
-                        id="1",
-                        title=label,
-                        description=f"{method.upper()} · Комиссия: {fee:,} so'm",
-                        input_message_content=InputTextMessageContent(
-                            message_text=f"━━━━━━━━━━━━━━━\n<b>UzTax Pro</b>\n━━━━━━━━━━━━━━━\n\n💳 <b>Тўлов ҳаволаси</b>\n\nСумма: <b>{amount:,}</b> so'm\nТизим: {method}\n\n{url}\n\nКомиссия: {fee:,} so'm (0.5%)"
-                        ),
-                    )
-                ]
+                results = [InlineQueryResultArticle(id="1",
+                    title=f"{amount:,} so'm",
+                    description=f"{method.upper()} · Комиссия: {fee:,} so'm",
+                    input_message_content=InputTextMessageContent(
+                        message_text=f"<b>▎UzTax Pro</b>\n\n💳 <b>Тўлов ҳаволаси</b>\n\nСумма: <b>{amount:,}</b> so'm\nТизим: {method}\n\n{url}\n\nКомиссия: {fee:,} so'm (0.5%)"))]
             await inline_query.answer(results, cache_time=5)
 
         await bot.set_my_commands([
-            BotCommand(command="start", description="Открыть приложение"),
-            BotCommand(command="premium", description="Premium podpiska"),
-            BotCommand(command="partner", description="Partnerlik dasturi"),
-            BotCommand(command="report", description="Отчёт за сегодня"),
-            BotCommand(command="help", description="Помощь"),
-            BotCommand(command="notify", description="Уведомления о налоге"),
+            BotCommand(command="start", description="🚀 Открыть приложение"),
+            BotCommand(command="premium", description="⭐ Premium"),
+            BotCommand(command="partner", description="🤝 Партнёрлар"),
+            BotCommand(command="report", description="📊 Отчёт"),
+            BotCommand(command="news", description="📢 Янгиликлар"),
+            BotCommand(command="notify", description="🔔 Эслатмалар"),
+            BotCommand(command="help", description="❓ Ёрдам"),
         ])
         logger.info("Bot started (polling)")
         await dp.start_polling(bot)
