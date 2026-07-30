@@ -106,15 +106,22 @@ export interface Expense {
 }
 
 export const api = {
-  auth: (force = false) =>
-    force
-      ? request<User>("/api/auth")
-      : request<User>("/api/auth"),
+  auth: (force = false) => {
+    const cached = loadFromStorage<User>("auth");
+    if (!force && cached) {
+      request<User>("/api/auth").then((u) => { saveToStorage("auth", u); }).catch(() => {});
+      return Promise.resolve(cached);
+    }
+    return request<User>("/api/auth").then((u) => { saveToStorage("auth", u); return u; });
+  },
 
   profile: () => request<User>("/api/user"),
 
   updateProfile: (data: Partial<User>) =>
-    request<User>("/api/user", { method: "PUT", body: JSON.stringify(data) }),
+    request<User>("/api/user", { method: "PUT", body: JSON.stringify(data) }).then((u) => {
+      saveToStorage("auth", u);
+      return u;
+    }),
 
   generatePaymentLink: (amount: number, method: string) =>
     request<PaymentLink>("/api/payment/generate", { method: "POST", body: JSON.stringify({ amount, method }) }).then((res) => {
