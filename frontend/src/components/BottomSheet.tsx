@@ -16,7 +16,7 @@ export default function BottomSheet({ open, onClose, children }: Props) {
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
-    return () => { document.body.style.overflow = ""; cancelAnimationFrame(raf.current!); };
+    return () => { document.body.style.overflow = ""; if (raf.current) cancelAnimationFrame(raf.current); };
   }, [open]);
 
   if (!open) return null;

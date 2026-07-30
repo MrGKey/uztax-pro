@@ -23,7 +23,7 @@ export default class ErrorBoundary extends Component<Props, State> {
             </div>
             <div className="error-title">Xatolik yuz berdi</div>
             <div className="error-text">{this.state.error.message}</div>
-            <button className="btn" onClick={() => this.setState({ error: null })}>
+            <button className="btn" onClick={() => window.location.reload()}>
               Qayta urinish
             </button>
           </div>
