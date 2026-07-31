@@ -1,5 +1,6 @@
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { retrieveLaunchParams, isTMA } from "@telegram-apps/sdk";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import PaymentLink from "./pages/PaymentLink";
@@ -12,47 +13,33 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { T } from "./utils/i18n";
 
 function useTheme() {
-  const [isDark, setIsDark] = useState(() => {
-    try { return localStorage.getItem("soliqpay_theme") === "dark"; }
-    catch { return true; }
-  });
+  const [isDark, setIsDark] = useState(true);
   useEffect(() => {
     try {
-      const WebApp = (window as any).Telegram?.WebApp;
-      if (WebApp?.colorScheme && !localStorage.getItem("soliqpay_theme")) {
-        setIsDark(WebApp.colorScheme === "dark");
-      }
-      WebApp?.ready();
-      WebApp?.expand();
-      WebApp?.enableClosingConfirmation?.();
-      WebApp?.onEvent?.("themeChanged", () => {
-        if (!localStorage.getItem("soliqpay_theme")) {
-          setIsDark(WebApp.colorScheme === "dark");
-          document.querySelector(".app")?.setAttribute("data-theme", WebApp.colorScheme);
-        }
-      });
+      const saved = localStorage.getItem("soliqpay_theme");
+      if (saved) { setIsDark(saved === "dark"); return; }
+    } catch {}
+    try {
+      const lp = retrieveLaunchParams() as any;
+      if (lp?.themeParams?.bgColor) setIsDark(true);
+      if (isTMA()) document.documentElement.classList.add("tma");
     } catch {}
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.matches) setIsDark(true);
     const handler = (e: MediaQueryListEvent) => {
       if (!localStorage.getItem("soliqpay_theme")) setIsDark(e.matches);
     };
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
-  const toggleTheme = () => {
-    const next = !isDark;
-    setIsDark(next);
-    try { localStorage.setItem("soliqpay_theme", next ? "dark" : "light"); } catch {}
-  };
-  return { colorScheme: isDark ? "dark" : "light", isDark, toggleTheme };
+  return isDark ? "dark" : "light";
 }
 
-
 function AnimatedRoutes() {
-  const location = useLocation();
+  const loc = useLocation();
   return (
-    <div key={location.pathname} className="page-enter">
-      <Routes location={location}>
+    <div key={loc.pathname} className="fade-in">
+      <Routes location={loc}>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/payment" element={<PaymentLink />} />
@@ -68,13 +55,12 @@ function AnimatedRoutes() {
 }
 
 export default function App() {
-  const { colorScheme, isDark, toggleTheme } = useTheme();
+  const theme = useTheme();
   const { seen, dismiss } = useOnboarding();
-
   return (
     <ErrorBoundary>
       <T>
-        <div className="app" data-theme={colorScheme}>
+        <div data-theme={theme} className="max-w-[420px] mx-auto px-4 pt-4">
           {!seen && <Onboarding onDone={dismiss} />}
           <AnimatedRoutes />
         </div>
@@ -82,5 +68,3 @@ export default function App() {
     </ErrorBoundary>
   );
 }
-
-export { useTheme };

@@ -1,19 +1,9 @@
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api, type User, type Payment } from "../utils/api";
-import { Icons, ChartSparkline, PremiumHero } from "../utils/icons";
-import PullToRefresh from "../components/PullToRefresh";
 import { AnimatedNumber } from "../utils/useCountUp";
 import { useT } from "../utils/i18n";
 import { haptic, formatSum, formatDate } from "../utils/telegram";
-
-const PAYMENT_METHODS: Record<string, { label: string; color: string }> = {
-  payme: { label: "Payme", color: "#27AE60" },
-  click: { label: "Click", color: "#0972D3" },
-  uzum: { label: "Uzum", color: "#7B2FF7" },
-};
-
-const todayStr = new Date().toDateString();
 
 export default function Home() {
   const { t } = useT();
@@ -21,189 +11,84 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const todayStr = new Date().toDateString();
 
-  const load = async (force = false) => {
-    if (!force) setLoading(true);
-    setError(null);
-    try {
-      const [u, p] = await Promise.all([api.auth(force), api.payments(force)]);
-      setUser(u);
-      setPayments(p);
-    } catch {
-      setError(t("error_loading"));
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => { api.auth().then(setUser).catch(() => {}); api.payments().then(setPayments).catch(() => {}).finally(() => setLoading(false)); }, []);
 
-  useEffect(() => { load(); }, []);
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await load(true);
-    setRefreshing(false);
-  };
-
-  const todayPayments = payments.filter((p) => new Date(p.created_at).toDateString() === todayStr);
+  const todayPayments = payments.filter(p => new Date(p.created_at).toDateString() === todayStr);
   const todayRevenue = todayPayments.reduce((s, p) => s + p.amount, 0);
   const monthlyRevenue = payments.reduce((s, p) => s + p.amount, 0);
   const monthlyTax = Math.round(monthlyRevenue * 0.01);
 
-  if (loading) {
-    return (
-      <div>
-        <div className="header"><h1 className="header-title shimmer-card">SoliqPay</h1></div>
-        <div><div className="skeleton skeleton-block" style={{ height: 120 }} /></div>
-        <div className="grid-2" style={{ marginTop: 12 }}>
-          <div className="skeleton skeleton-h60" />
-          <div className="skeleton skeleton-h60" />
-        </div>
-        <div className="skeleton skeleton-h20" style={{ marginTop: 12, height: 40 }} />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="space-y-3">
+      <div className="h-8 bg-surface-alt rounded animate-pulse" />
+      <div className="h-28 bg-surface-alt rounded-[16px] animate-pulse" />
+      <div className="grid grid-cols-2 gap-3"><div className="h-20 bg-surface-alt rounded-[16px] animate-pulse" /><div className="h-20 bg-surface-alt rounded-[16px] animate-pulse" /></div>
+    </div>
+  );
 
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
-      <div className="header fade-in">
-        <div className="header-avatar" style={{
-          width: 38, height: 38, borderRadius: "50%",
-          background: "linear-gradient(145deg, var(--primary), var(--primary-dark))",
-          color: "#0a0e1a", display: "flex", alignItems: "center",
-          justifyContent: "center", fontWeight: 700, fontSize: 17, flexShrink: 0,
-          boxShadow: "0 2px 12px rgba(119,179,155,0.3)"
-        }}>
-          {user ? user.full_name[0] : "U"}
-        </div>
-        <h1 className="header-title" style={{ letterSpacing: "1px" }}>SoliqPay</h1>
+    <div>
+      <div className="flex items-center gap-3 py-3 mb-4 fade-in">
+        <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-navy text-base font-bold shrink-0">{user ? user.full_name[0] : "S"}</div>
+        <h1 className="text-xl font-bold tracking-tight">SoliqPay</h1>
       </div>
 
-      {error && (
-        <div className="error-banner fade-in" onClick={() => { setError(null); load(); }}>
-          {error} — {t("error_retry")}
+      <div className="flex items-center gap-4 mb-4 fade-in-d1">
+        <div>
+          <h2 className="text-2xl font-bold">{t("greets")},<br />{user ? user.full_name.split(" ")[0] : "IP"}!</h2>
+          <p className="text-sm text-text-secondary mt-1">{todayPayments.length > 0 ? t("bugun", { n: todayPayments.length }) : t("home_no_payments")}</p>
         </div>
-      )}
-
-      <div className="hero-section fade-in-d1">
-        <div className="hero-text">
-          <h2>{t("greets")},<br />{user ? user.full_name.split(" ")[0] : "IP"}!</h2>
-          <p>{todayPayments.length > 0 ? t("bugun", { n: todayPayments.length }) : t("home_no_payments")}</p>
-        </div>
-        <PremiumHero />
       </div>
 
-      <div className="card card-primary stat fade-in-d2" style={{ padding: 20, position: "relative" }}>
-        <div className="stat-label" style={{ color: "rgba(0,0,0,0.55)", textTransform: "none", fontSize: 12 }}>
-          {t("home_today_revenue")}
-        </div>
-        <div className="stat-value-lg" style={{ marginTop: 2 }}>
-          <AnimatedNumber value={todayRevenue} />
-        </div>
-        {todayPayments.length > 0 && (
-          <div style={{ position: "absolute", top: 12, right: 16, fontSize: 11, opacity: 0.5, fontWeight: 500 }}>
-            {todayPayments.length} ta to'lov
-          </div>
-        )}
+      <div className="card-primary rounded-[16px] p-5 mb-3 fade-in-d2">
+        <div className="text-xs opacity-60 mb-1">{t("home_today_revenue")}</div>
+        <div className="text-3xl font-extrabold"><AnimatedNumber value={todayRevenue} /></div>
       </div>
 
-      <div className="grid-2 fade-in-d3">
-        <div className="card stat" style={{ position: "relative" }}>
-          <div className="stat-value" style={{ color: "var(--success)" }}>
-            <AnimatedNumber value={monthlyRevenue} />
-          </div>
-          <div className="stat-label">{t("home_monthly")}</div>
-        </div>
-        <div className="card stat" style={{ position: "relative" }}>
-          <div className="stat-value" style={{ color: "var(--warning)" }}>
-            {user ? <AnimatedNumber value={monthlyTax} /> : "—"}
-          </div>
-          <div className="stat-label">{t("soliq")} 1%</div>
-        </div>
+      <div className="grid grid-cols-2 gap-3 mb-3 fade-in-d3">
+        <div className="card text-center py-5"><div className="text-2xl font-bold text-success"><AnimatedNumber value={monthlyRevenue} /></div><div className="text-xs text-text-secondary mt-1">{t("home_monthly")}</div></div>
+        <div className="card text-center py-5"><div className="text-2xl font-bold text-warning">{user ? <AnimatedNumber value={monthlyTax} /> : "—"}</div><div className="text-xs text-text-secondary mt-1">{t("soliq_txt")} 1%</div></div>
       </div>
 
       {payments.length > 0 && (
-        <div className="card fade-in-d4" style={{ padding: "12px 16px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <span style={{ fontSize: 13, color: "var(--text-secondary)", fontWeight: 500 }}>{t("home_chart")}</span>
-            <span style={{ color: "var(--primary)", display: "flex" }}>{Icons.trendingUp}</span>
+        <div className="fade-in-d4">
+          <div className="flex items-center justify-between px-1 mb-2">
+            <span className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{t("home_recent")}</span>
+            <span className="text-xs text-primary font-medium cursor-pointer" onClick={() => { haptic("impact"); navigate("/payment"); }}>{t("home_all")}</span>
           </div>
-          <ChartSparkline data={payments.map(p => p.amount)} />
-        </div>
-      )}
-
-      {payments.length > 0 && (
-        <div className="fade-in-d5">
-          <div className="section-header" style={{ padding: "0 4px" }}>
-            <span className="section-title">{t("home_recent")}</span>
-            <span className="section-link" onClick={() => { haptic("impact"); navigate("/payment"); }}>{t("home_all")}</span>
-          </div>
-          <div className="card" style={{ padding: "4px 16px" }}>
+          <div className="card py-1 px-4">
             {payments.slice(0, 3).map((p, i) => (
-              <div key={p.id} className="payment-item" style={{ animationDelay: `${i * 0.05}s` } as React.CSSProperties}>
-                <div className="payment-icon" style={{ background: `${PAYMENT_METHODS[p.method]?.color || "#566478"}15` }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: PAYMENT_METHODS[p.method]?.color || "#566478" }}>
-                    {p.method[0].toUpperCase()}
-                  </span>
+              <div key={p.id} className="flex items-center gap-3 py-3 border-b border-border last:border-0">
+                <div className="w-9 h-9 rounded-[10px] bg-primary/10 flex items-center justify-center shrink-0 border border-primary/10">
+                  <span className="text-xs font-bold text-primary">{p.method[0].toUpperCase()}</span>
                 </div>
-                <div className="payment-info">
-                  <div className="payment-amount">{formatSum(p.amount)}</div>
-                  <div className="payment-meta">
-                    {p.description || PAYMENT_METHODS[p.method]?.label || p.method}
-                    {" · "}{formatDate(p.created_at)}
-                  </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold">{formatSum(p.amount)}</div>
+                  <div className="text-xs text-text-secondary mt-0.5">{p.description || p.method} · {formatDate(p.created_at)}</div>
                 </div>
-                <span className={`badge ${p.status === "completed" ? "badge-success" : "badge-primary"}`} style={{ fontSize: 10 }}>
-                  {p.status === "completed" ? "Bajarildi" : "Kutilmoqda"}
-                </span>
+                <span className={`badge ${p.status === "completed" ? "badge-success" : "badge-primary"}`}>{p.status === "completed" ? "✅" : "⏳"}</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Tax Calculator */}
-      <div className="card fade-in-d5" style={{ padding: 14 }}>
-        <div style={{ fontSize: 12, color: "var(--text-secondary)", fontWeight: 500, marginBottom: 8 }}>💰 {t("soliq_txt")} калькулятори</div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <input className="input" type="number" placeholder="1 000 000"
-            style={{ flex: 1, fontSize: 14, padding: "10px 12px" }}
-            onChange={(e) => {
-              const amt = parseInt(e.target.value) || 0;
-              (e.target as any)._tax = Math.round(amt * (user ? 1 : 1) / 100);
-            }}
-            onInput={(e) => {
-              const v = parseInt((e.target as HTMLInputElement).value) || 0;
-              const taxEl = (e.target as HTMLElement).parentElement?.querySelector(".tax-result");
-              if (taxEl) taxEl.textContent = `${(v * 0.01).toLocaleString()} so'm (1%)`;
-            }}
-          />
-          <div style={{ fontSize: 16, fontWeight: 700, color: "var(--danger)", minWidth: 100, textAlign: "right" }} className="tax-result">0 so'm</div>
-        </div>
-        <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 6 }}>1% солиқ: автоматик ҳисоб</div>
+      <div className="flex gap-2.5 overflow-x-auto py-1 fade-in-d4 scrollbar-none">
+        {[
+          { icon: "💳", label: t("nav_pay"), to: "/payment" },
+          { icon: "📊", label: t("nav_tax"), to: "/tax" },
+          { icon: "📝", label: t("nav_exp"), to: "/expenses" },
+          { icon: "👤", label: t("nav_prof"), to: "/profile" },
+        ].map((a) => (
+          <div key={a.to} className="flex flex-col items-center gap-2 py-4 px-6 bg-surface/80 backdrop-blur rounded-[16px] border border-border cursor-pointer text-text-secondary text-xs font-medium shrink-0 transition-all active:scale-95"
+            onClick={() => { haptic("impact"); navigate(a.to); }}>
+            <div className="text-xl text-primary">{a.icon}</div>
+            <span>{a.label}</span>
+          </div>
+        ))}
       </div>
-
-      <div className="quick-actions fade-in-d5" style={{ marginTop: 4 }}>
-        <div className="quick-action" onClick={() => { haptic("impact"); navigate("/payment"); }}>
-          {Icons.payment}
-          <span>To'lov</span>
-        </div>
-        <div className="quick-action" onClick={() => { haptic("impact"); navigate("/tax"); }}>
-          {Icons.tax}
-          <span>Hisobot</span>
-        </div>
-        <div className="quick-action" onClick={() => { haptic("impact"); navigate("/expenses"); }}>
-          {Icons.expense}
-          <span>Xarajat</span>
-        </div>
-        <div className="quick-action" onClick={() => { haptic("impact"); navigate("/profile"); }}>
-          {Icons.profile}
-          <span>Profil</span>
-        </div>
-      </div>
-
-      {refreshing && <div className="toast toast-refresh">Yangilanmoqda...</div>}
-    </PullToRefresh>
+    </div>
   );
 }
