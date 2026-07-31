@@ -299,7 +299,7 @@ def backup_db(user: dict = Depends(get_current_user)):
     try:
         subprocess.run(["pg_dump", url, "-f", tmp.name], capture_output=True, timeout=30)
         return FileResponse(tmp.name, media_type="application/sql", filename=f"soliqpay_backup_{datetime.now().strftime('%Y%m%d')}.sql")
-    except:
+    except Exception:
         logger.error("Backup failed", exc_info=True)
         raise HTTPException(500, "Backup failed")
 
@@ -554,7 +554,7 @@ async def get_currency_rates():
                         rates[item["Ccy"]] = float(item.get("Rate", 0))
                 from datetime import date as dt_date
                 return {"date": dt_date.today().isoformat(), "rates": rates}
-    except:
+    except Exception:
         pass
     return {"date": datetime.now().strftime("%Y-%m-%d"), "rates": {"UZS": 1, "USD": 12700, "EUR": 13800}}
 
@@ -631,7 +631,7 @@ def notify_payment(user: dict = Depends(get_current_user)):
                     f"Batafsil: {config.app_url}",
             "parse_mode": "HTML",
         }, timeout=5)
-    except:
+    except Exception:
         pass
     return {"ok": True}
 

@@ -127,6 +127,8 @@ def run_bot_sync():
 └ 🔄 Telegram Stars орқали тўлов
 
 <b>Дўстларингизни таклиф қилинг ва бонус олинг! 🎁</b>
+
+💡 <i>Inline: @SoliqPay_bot 50000 payme</i>
 """, buttons=[[InlineKeyboardButton(text="🚀 Иловани очиш", web_app=WebAppInfo(url=mini))],
              [InlineKeyboardButton(text="👥 Дўстга юбориш", url=f"https://t.me/share/url?url={ref}&text=1%25+солиқни+авто-ҳисоблаш")],
              [InlineKeyboardButton(text="📢 Янгиликлар", url="https://t.me/SoliqPay_News")]])
