@@ -24,62 +24,63 @@ export default function Home() {
 
   if (loading) return (
     <div className="space-y-4">
-      <div className="h-10 bg-surface-alt rounded-[16px] animate-pulse" />
-      <div className="h-[200px] bg-surface-alt rounded-[24px] animate-pulse" />
-      <div className="grid grid-cols-2 gap-4"><div className="h-[100px] bg-surface-alt rounded-[20px] animate-pulse" /><div className="h-[100px] bg-surface-alt rounded-[20px] animate-pulse" /></div>
+      <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full sk" /><div className="flex-1"><div className="h-5 sk w-32 mb-2" /><div className="h-3 sk w-20" /></div></div>
+      <div className="h-[200px] sk" />
+      <div className="grid grid-cols-2 gap-4"><div className="h-[110px] sk" /><div className="h-[110px] sk" /></div>
+      <div className="h-[150px] sk" />
     </div>
   );
 
   return (
     <div className="px-1">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 fade-up">
+      <div className="flex items-center justify-between mb-6 fu">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-navy font-bold text-lg" style={{ boxShadow: "0 4px 12px rgba(245,158,11,0.25)" }}>{user ? user.full_name[0] : "S"}</div>
+          <div className="w-10 h-10 rounded-full pcard-teal flex items-center justify-center text-navy font-bold text-lg" style={{ padding: 0, boxShadow: "0 4px 16px rgba(119,179,155,0.3)" }}>{user ? user.full_name[0] : "S"}</div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>SoliqPay</h1>
+            <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 18 }}>SoliqPay</h1>
             <p className="text-xs text-text-secondary">{t("greets")}, {user?.full_name?.split(" ")[0] || "IP"}</p>
           </div>
         </div>
       </div>
 
-      {/* Hero Card */}
-      <div className="clay-gold mb-4 fade-up-1" style={{ padding: "28px 24px" }}>
-        <p className="text-sm opacity-70 font-medium mb-1">{t("home_today_revenue")}</p>
-        <div className="text-4xl font-extrabold tracking-tight"><AnimatedNumber value={todayRev} /></div>
+      {/* Hero */}
+      <div className="pcard-gold rounded-[22px] mb-4 fu-1" style={{ padding: "28px 24px" }}>
+        <p className="text-sm opacity-60 font-medium mb-1">{t("home_today_revenue")}</p>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 34, fontWeight: 600, letterSpacing: -1 }}><AnimatedNumber value={todayRev} /></div>
         <p className="text-xs mt-2 opacity-60">{todayPayments.length > 0 ? t("bugun", { n: todayPayments.length }) : t("home_no_payments")}</p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-6 fade-up-2">
-        <div className="clay text-center py-6">
-          <div className="text-2xl font-bold text-primary"><AnimatedNumber value={monthRev} /></div>
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-4 mb-4 fu-2">
+        <div className="pcard text-center" style={{ padding: "20px 12px" }}>
+          <div className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-mono)" }}><AnimatedNumber value={monthRev} /></div>
           <p className="text-xs text-text-secondary mt-1">{t("home_monthly")}</p>
         </div>
-        <div className="clay text-center py-6">
-          <div className="text-2xl font-bold text-accent">{user ? <AnimatedNumber value={monthTax} /> : "—"}</div>
+        <div className="pcard text-center" style={{ padding: "20px 12px" }}>
+          <div className="text-2xl font-bold text-gold" style={{ fontFamily: "var(--font-mono)" }}>{user ? <AnimatedNumber value={monthTax} /> : "—"}</div>
           <p className="text-xs text-text-secondary mt-1">{t("soliq_txt")} 1%</p>
         </div>
       </div>
 
-      {/* Recent Payments */}
+      {/* Recent */}
       {payments.length > 0 && (
-        <div className="fade-up-3 mb-4">
+        <div className="fu-3 mb-4">
           <div className="flex items-center justify-between mb-3 px-1">
-            <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider">{t("home_recent")}</span>
+            <span className="text-xs font-semibold text-text-secondary uppercase tracking-widest">{t("home_recent")}</span>
             <button className="text-xs text-primary font-medium" onClick={() => { haptic("impact"); navigate("/payment"); }}>{t("home_all")} →</button>
           </div>
-          <div className="clay py-2 px-4">
+          <div className="pcard py-2 px-4">
             {payments.slice(0, 3).map((p, i) => (
               <div key={p.id} className={`flex items-center gap-3 py-3 ${i < 2 ? "border-b border-border" : ""}`}>
-                <div className="w-10 h-10 rounded-[12px] bg-primary/10 flex items-center justify-center shrink-0 border border-primary/10">
-                  <span className="text-xs font-bold text-primary">{p.method[0].toUpperCase()}</span>
+                <div className="w-10 h-10 rounded-[12px] pcard-teal flex items-center justify-center shrink-0" style={{ padding: 0 }}>
+                  <span className="text-xs font-bold text-navy">{p.method[0].toUpperCase()}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold">{formatSum(p.amount)}</div>
+                  <div className="text-sm font-semibold" style={{ fontFamily: "var(--font-mono)" }}>{formatSum(p.amount)}</div>
                   <div className="text-xs text-text-secondary mt-0.5">{p.description || p.method} · {formatDate(p.created_at)}</div>
                 </div>
-                <span className={`badge ${p.status === "completed" ? "badge-success" : "badge-primary"}`}>✅</span>
+                <span className="pbadge pbadge-success">✓</span>
               </div>
             ))}
           </div>
@@ -87,14 +88,14 @@ export default function Home() {
       )}
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-4 gap-3 mb-4 fade-up-4">
+      <div className="grid grid-cols-4 gap-3 mb-4 fu-4">
         {[
           { icon: "💳", label: t("nav_pay"), to: "/payment" },
           { icon: "📊", label: t("nav_tax"), to: "/tax" },
           { icon: "📝", label: t("nav_exp"), to: "/expenses" },
           { icon: "👤", label: t("nav_prof"), to: "/profile" },
         ].map((a) => (
-          <button key={a.to} className="clay flex flex-col items-center gap-2 py-5 px-2 cursor-pointer border-none text-text-secondary text-xs font-medium transition-all active:scale-95"
+          <button key={a.to} className="pcard flex flex-col items-center gap-2 py-5 px-2 cursor-pointer border-none text-text-secondary text-xs font-medium transition-all active:scale-95" style={{ border: "1px solid var(--color-border)", padding: "20px 8px" }}
             onClick={() => { haptic("impact"); navigate(a.to); }}>
             <span className="text-2xl">{a.icon}</span>
             <span>{a.label}</span>
