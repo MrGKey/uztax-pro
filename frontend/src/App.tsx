@@ -1,16 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { retrieveLaunchParams, isTMA } from "@telegram-apps/sdk";
+import { retrieveLaunchParams } from "@telegram-apps/sdk";
 import Layout from "./components/Layout";
-import Home from "./pages/Home";
-import PaymentLink from "./pages/PaymentLink";
-import TaxReport from "./pages/TaxReport";
-import Expenses from "./pages/Expenses";
-import Profile from "./pages/Profile";
-import Legal from "./pages/Legal";
 import Onboarding, { useOnboarding } from "./components/Onboarding";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { T } from "./utils/i18n";
+
+const Home = lazy(() => import("./pages/Home"));
+const PaymentLink = lazy(() => import("./pages/PaymentLink"));
+const TaxReport = lazy(() => import("./pages/TaxReport"));
+const Expenses = lazy(() => import("./pages/Expenses"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Legal = lazy(() => import("./pages/Legal"));
 
 function useTheme() {
   const [isDark, setIsDark] = useState(true);
@@ -22,7 +23,6 @@ function useTheme() {
     try {
       const lp = retrieveLaunchParams() as any;
       if (lp?.themeParams?.bgColor) setIsDark(true);
-      if (isTMA()) document.documentElement.classList.add("tma");
     } catch {}
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     if (mq.matches) setIsDark(true);
@@ -62,7 +62,7 @@ export default function App() {
       <T>
         <div data-theme={theme} className="max-w-[420px] mx-auto px-4 pt-4">
           {!seen && <Onboarding onDone={dismiss} />}
-          <AnimatedRoutes />
+          <Suspense fallback={<div className="flex items-center justify-center h-40"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}><AnimatedRoutes /></Suspense>
         </div>
       </T>
     </ErrorBoundary>

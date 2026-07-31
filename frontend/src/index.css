@@ -19,7 +19,8 @@
   --font-sans: "Inter", system-ui, sans-serif;
 }
 
-body { background: #0a0e1a; color: #f0f2f5; font-family: var(--font-sans); -webkit-font-smoothing: antialiased; min-height: 100dvh; overflow-y: auto; overflow-x: hidden; padding-bottom: 76px; background-image: radial-gradient(ellipse at 20% 0%, rgba(119,179,155,0.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(249,216,152,0.04) 0%, transparent 50%); }
+body { background: #0a0e1a; color: #f0f2f5; font-family: var(--font-sans); -webkit-font-smoothing: antialiased; min-height: 100dvh; min-height: 100svh; overflow-y: auto; overflow-x: hidden; padding-bottom: 76px; padding-bottom: calc(76px + env(safe-area-inset-bottom,0px)); background-image: radial-gradient(ellipse at 20% 0%, rgba(119,179,155,0.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 100%, rgba(249,216,152,0.04) 0%, transparent 50%); }
+@media (min-width: 768px) { body { max-width: 420px; margin: 0 auto; } }
 
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px; border: none; border-radius: 14px; background: linear-gradient(145deg, #77b39b, #5a9a82); color: #0a0e1a; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: var(--font-sans); }
 .btn:active { transform: scale(0.97); }

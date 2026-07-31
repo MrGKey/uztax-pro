@@ -95,17 +95,22 @@ type Lang = "uz" | "ru";
 const Ctx = createContext<{ lang: Lang; t: (k: string, p?: Record<string,string|number>) => string } | null>(null);
 
 export function T({ children }: { children: ReactNode }) {
-  const [lang, set] = useState<Lang>("uz");
+  const [lang, set] = useState<Lang>(() => {
+    try {
+      const saved = localStorage.getItem("soliqpay_lang") as Lang | null;
+      if (saved === "uz" || saved === "ru") return saved;
+      const tgLang: string | undefined = (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
+      if (tgLang === "uz" || tgLang === "ru") return tgLang;
+      if (tgLang?.startsWith("uz")) return "uz";
+      if (tgLang?.startsWith("ru")) return "ru";
+    } catch {}
+    return "uz";
+  });
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("soliqpay_lang");
-      if (saved === "uz" || saved === "ru") { set(saved); return; }
-      const tgLang = (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
-      if (tgLang === "uz" || tgLang === "ru") { set(tgLang); return; }
-      if (tgLang?.startsWith("uz")) { set("uz"); return; }
-      if (tgLang?.startsWith("ru")) { set("ru"); return; }
+      document.documentElement.lang = lang;
     } catch {}
-  }, []);
+  }, [lang]);
   const t = (k: string, p?: Record<string,string|number>) => {
     let v = dict[lang]?.[k] ?? dict.uz[k] ?? k;
     if (p) for (const [k2, v2] of Object.entries(p)) v = v.replace(`{${k2}}`, String(v2));
