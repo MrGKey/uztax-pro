@@ -113,11 +113,32 @@ def update_profile(
     if body.currency is not None:
         sets.append("currency = %s")
         vals.append(body.currency)
+    was_empty = not user.get("phone") and not user.get("inn")
     if sets:
         execute(
             f"UPDATE users SET {', '.join(sets)} WHERE tg_id = %s",
             *vals, tg_id,
         )
+        if was_empty and body.full_name:
+            try:
+                import requests as _r
+                _r.post(f"https://api.telegram.org/bot{config.bot_token}/sendMessage", json={
+                    "chat_id": tg_id,
+                    "text": (
+                        "👋 <b>SoliqPay</b>\n\n"
+                        "Ro'yxatdan o'tganingiz uchun rahmat, "
+                        f"<b>{body.full_name}</b>!\n\n"
+                        "Endi mumkin:\n"
+                        "💳 To'lov havolasi yaratish\n"
+                        "📊 1% soliqni avtomatik hisoblash\n"
+                        "📝 Xarajatlarni qo'shish\n\n"
+                        "Omad! 🚀"
+                    ),
+                    "parse_mode": "HTML",
+                }, timeout=5)
+            except Exception:
+                pass
+        return fetchrow("SELECT * FROM users WHERE tg_id = %s", tg_id)
     return fetchrow("SELECT * FROM users WHERE tg_id = %s", tg_id)
 
 

@@ -88,6 +88,42 @@ export default function Home() {
         </div>
       )}
 
+      {/* 30-day chart */}
+      {payments.length > 0 && (
+        <div className="pcard mb-4 fu-3">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold text-text-secondary uppercase tracking-widest">{t("home_chart")}</span>
+            <span style={{ color: "#77b39b" }}>{Icons.trendingUp}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 80 }}>
+            {(() => {
+              const days = 30;
+              const bars: number[] = [];
+              for (let i = 0; i < days; i++) {
+                const d = new Date(); d.setDate(d.getDate() - (29 - i));
+                const dayStr = d.toDateString();
+                const sum = payments.filter(p => new Date(p.created_at).toDateString() === dayStr).reduce((s, p) => s + p.amount, 0);
+                bars.push(sum);
+              }
+              const max = Math.max(...bars, 1);
+              return bars.map((v, i) => (
+                <div key={i} style={{
+                  flex: 1,
+                  height: `${Math.max((v / max) * 100, 2)}%`,
+                  background: v > 0 ? "linear-gradient(180deg, #f9d898, #d4a843)" : "rgba(148,163,184,0.08)",
+                  borderRadius: "3px 3px 0 0",
+                  transition: "height 0.5s ease",
+                }} />
+              ));
+            })()}
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 10, color: "#5c6f8f" }}>
+            <span>30 кун</span>
+            <span>бугун</span>
+          </div>
+        </div>
+      )}
+
       {/* Quick Actions */}
       <div className="grid grid-cols-4 gap-3 mb-4 fu-4">
         {[
