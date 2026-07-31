@@ -108,7 +108,10 @@ export default function TaxReport() {
               } catch { showToast("Xatolik"); }
             }} style={{ cursor: "pointer" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>📥 1С экспорт</span>
+                <span style={{ fontSize: 13, color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: 8 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#77b39b" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                  1С экспорт
+                </span>
                 <span className="badge badge-primary">CSV</span>
               </div>
             </div>

@@ -2,18 +2,18 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useT } from "../utils/i18n";
 import { useOnlineStatus } from "../utils/useOnlineStatus";
 import { haptic } from "../utils/telegram";
-
-const links = [
-  { to: "/", icon: "🏠", key: "nav_home" },
-  { to: "/payment", icon: "💳", key: "nav_pay" },
-  { to: "/tax", icon: "📊", key: "nav_tax" },
-  { to: "/expenses", icon: "📝", key: "nav_exp" },
-  { to: "/profile", icon: "👤", key: "nav_prof" },
-];
+import { Icons } from "../utils/icons";
 
 export default function Layout() {
   const { t } = useT();
   const online = useOnlineStatus();
+  const links = [
+    { to: "/", icon: Icons.home, key: "nav_home" },
+    { to: "/payment", icon: Icons.payment, key: "nav_pay" },
+    { to: "/tax", icon: Icons.tax, key: "nav_tax" },
+    { to: "/expenses", icon: Icons.expense, key: "nav_exp" },
+    { to: "/profile", icon: Icons.profile, key: "nav_prof" },
+  ];
   return (
     <div>
       {!online && (
@@ -27,8 +27,8 @@ export default function Layout() {
           <NavLink key={l.to} to={l.to} end={l.to === "/"}
             className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
             onClick={() => haptic("impact")}>
-            <div className="text-lg mb-0.5">{l.icon}</div>
-            <div className="text-[10px]">{t(l.key)}</div>
+            <div className="nav-icon">{l.icon}</div>
+            <div>{t(l.key)}</div>
           </NavLink>
         ))}
       </nav>

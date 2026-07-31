@@ -226,7 +226,9 @@ export default function Profile() {
 
       {/* Strategy 1: Telegram Stars Premium */}
       <div className="card card-primary fade-in-d3" style={{ padding: 20, textAlign: "center" }}>
-        <div style={{ fontSize: 32, marginBottom: 8 }}>⭐</div>
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="#f9d898" style={{ marginBottom: 8 }}>
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
         <div style={{ fontSize: 18, fontWeight: 700, color: "#0a0e1a", marginBottom: 4 }}>SoliqPay Premium</div>
         <div style={{ fontSize: 13, color: "rgba(0,0,0,0.6)", marginBottom: 12 }}>
           Cheksiz to'lovlar · PDF · 0.5% komissiya
@@ -246,7 +248,7 @@ export default function Profile() {
               } catch { showToast("Xatolik"); }
             }}
           >
-            ⭐ Ойлик $5
+            Oylik $5
           </button>
           <button className="btn" style={{ background: "linear-gradient(135deg, #f9d898, #e8b84a)", color: "#0a0e1a", width: "auto", display: "inline-flex", padding: "12px 20px", fontSize: 13 }}
             onClick={async () => {
@@ -359,7 +361,7 @@ export default function Profile() {
       }} style={{ cursor: "pointer" }}>
         <div className="row" style={{ border: "none" }}>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>📋 SOLIQ deklaratsiyasi</div>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>SOLIQ deklaratsiyasi</div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>1% soliqni avtomatik topshirish</div>
           </div>
           <span className="badge badge-primary">Sinov</span>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, type User, type Payment } from "../utils/api";
+import { Icons } from "../utils/icons";
 import { AnimatedNumber } from "../utils/useCountUp";
 import { useT } from "../utils/i18n";
 import { haptic, formatSum, formatDate } from "../utils/telegram";
@@ -90,14 +91,14 @@ export default function Home() {
       {/* Quick Actions */}
       <div className="grid grid-cols-4 gap-3 mb-4 fu-4">
         {[
-          { icon: "💳", label: t("nav_pay"), to: "/payment" },
-          { icon: "📊", label: t("nav_tax"), to: "/tax" },
-          { icon: "📝", label: t("nav_exp"), to: "/expenses" },
-          { icon: "👤", label: t("nav_prof"), to: "/profile" },
+          { icon: Icons.payment, label: t("nav_pay"), to: "/payment", color: "#77b39b" },
+          { icon: Icons.tax, label: t("nav_tax"), to: "/tax", color: "#f9d898" },
+          { icon: Icons.expense, label: t("nav_exp"), to: "/expenses", color: "#77b39b" },
+          { icon: Icons.profile, label: t("nav_prof"), to: "/profile", color: "#f9d898" },
         ].map((a) => (
           <button key={a.to} className="pcard flex flex-col items-center gap-2 py-5 px-2 cursor-pointer border-none text-text-secondary text-xs font-medium transition-all active:scale-95" style={{ border: "1px solid var(--color-border)", padding: "20px 8px" }}
             onClick={() => { haptic("impact"); navigate(a.to); }}>
-            <span className="text-2xl">{a.icon}</span>
+            <span style={{ color: a.color, display: "flex" }}>{a.icon}</span>
             <span>{a.label}</span>
           </button>
         ))}
