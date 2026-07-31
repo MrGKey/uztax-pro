@@ -13,80 +13,92 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const todayStr = new Date().toDateString();
 
-  useEffect(() => { api.auth().then(setUser).catch(() => {}); api.payments().then(setPayments).catch(() => {}).finally(() => setLoading(false)); }, []);
+  useEffect(() => {
+    Promise.all([api.auth(), api.payments()]).then(([u, p]) => { setUser(u); setPayments(p); }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
 
   const todayPayments = payments.filter(p => new Date(p.created_at).toDateString() === todayStr);
-  const todayRevenue = todayPayments.reduce((s, p) => s + p.amount, 0);
-  const monthlyRevenue = payments.reduce((s, p) => s + p.amount, 0);
-  const monthlyTax = Math.round(monthlyRevenue * 0.01);
+  const todayRev = todayPayments.reduce((s, p) => s + p.amount, 0);
+  const monthRev = payments.reduce((s, p) => s + p.amount, 0);
+  const monthTax = Math.round(monthRev * 0.01);
 
   if (loading) return (
-    <div className="space-y-3">
-      <div className="h-8 bg-surface-alt rounded animate-pulse" />
-      <div className="h-28 bg-surface-alt rounded-[16px] animate-pulse" />
-      <div className="grid grid-cols-2 gap-3"><div className="h-20 bg-surface-alt rounded-[16px] animate-pulse" /><div className="h-20 bg-surface-alt rounded-[16px] animate-pulse" /></div>
+    <div className="space-y-4">
+      <div className="h-10 bg-surface-alt rounded-[16px] animate-pulse" />
+      <div className="h-[200px] bg-surface-alt rounded-[24px] animate-pulse" />
+      <div className="grid grid-cols-2 gap-4"><div className="h-[100px] bg-surface-alt rounded-[20px] animate-pulse" /><div className="h-[100px] bg-surface-alt rounded-[20px] animate-pulse" /></div>
     </div>
   );
 
   return (
-    <div>
-      <div className="flex items-center gap-3 py-3 mb-4 fade-in">
-        <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-navy text-base font-bold shrink-0">{user ? user.full_name[0] : "S"}</div>
-        <h1 className="text-xl font-bold tracking-tight">SoliqPay</h1>
-      </div>
-
-      <div className="flex items-center gap-4 mb-4 fade-in-d1">
-        <div>
-          <h2 className="text-2xl font-bold">{t("greets")},<br />{user ? user.full_name.split(" ")[0] : "IP"}!</h2>
-          <p className="text-sm text-text-secondary mt-1">{todayPayments.length > 0 ? t("bugun", { n: todayPayments.length }) : t("home_no_payments")}</p>
+    <div className="px-1">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6 fade-up">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-navy font-bold text-lg" style={{ boxShadow: "0 4px 12px rgba(245,158,11,0.25)" }}>{user ? user.full_name[0] : "S"}</div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>SoliqPay</h1>
+            <p className="text-xs text-text-secondary">{t("greets")}, {user?.full_name?.split(" ")[0] || "IP"}</p>
+          </div>
         </div>
       </div>
 
-      <div className="card-primary rounded-[16px] p-5 mb-3 fade-in-d2">
-        <div className="text-xs opacity-60 mb-1">{t("home_today_revenue")}</div>
-        <div className="text-3xl font-extrabold"><AnimatedNumber value={todayRevenue} /></div>
+      {/* Hero Card */}
+      <div className="clay-gold mb-4 fade-up-1" style={{ padding: "28px 24px" }}>
+        <p className="text-sm opacity-70 font-medium mb-1">{t("home_today_revenue")}</p>
+        <div className="text-4xl font-extrabold tracking-tight"><AnimatedNumber value={todayRev} /></div>
+        <p className="text-xs mt-2 opacity-60">{todayPayments.length > 0 ? t("bugun", { n: todayPayments.length }) : t("home_no_payments")}</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mb-3 fade-in-d3">
-        <div className="card text-center py-5"><div className="text-2xl font-bold text-success"><AnimatedNumber value={monthlyRevenue} /></div><div className="text-xs text-text-secondary mt-1">{t("home_monthly")}</div></div>
-        <div className="card text-center py-5"><div className="text-2xl font-bold text-warning">{user ? <AnimatedNumber value={monthlyTax} /> : "—"}</div><div className="text-xs text-text-secondary mt-1">{t("soliq_txt")} 1%</div></div>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 gap-4 mb-6 fade-up-2">
+        <div className="clay text-center py-6">
+          <div className="text-2xl font-bold text-primary"><AnimatedNumber value={monthRev} /></div>
+          <p className="text-xs text-text-secondary mt-1">{t("home_monthly")}</p>
+        </div>
+        <div className="clay text-center py-6">
+          <div className="text-2xl font-bold text-accent">{user ? <AnimatedNumber value={monthTax} /> : "—"}</div>
+          <p className="text-xs text-text-secondary mt-1">{t("soliq_txt")} 1%</p>
+        </div>
       </div>
 
+      {/* Recent Payments */}
       {payments.length > 0 && (
-        <div className="fade-in-d4">
-          <div className="flex items-center justify-between px-1 mb-2">
-            <span className="text-xs font-semibold text-text-secondary uppercase tracking-wide">{t("home_recent")}</span>
-            <span className="text-xs text-primary font-medium cursor-pointer" onClick={() => { haptic("impact"); navigate("/payment"); }}>{t("home_all")}</span>
+        <div className="fade-up-3 mb-4">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider">{t("home_recent")}</span>
+            <button className="text-xs text-primary font-medium" onClick={() => { haptic("impact"); navigate("/payment"); }}>{t("home_all")} →</button>
           </div>
-          <div className="card py-1 px-4">
+          <div className="clay py-2 px-4">
             {payments.slice(0, 3).map((p, i) => (
-              <div key={p.id} className="flex items-center gap-3 py-3 border-b border-border last:border-0">
-                <div className="w-9 h-9 rounded-[10px] bg-primary/10 flex items-center justify-center shrink-0 border border-primary/10">
+              <div key={p.id} className={`flex items-center gap-3 py-3 ${i < 2 ? "border-b border-border" : ""}`}>
+                <div className="w-10 h-10 rounded-[12px] bg-primary/10 flex items-center justify-center shrink-0 border border-primary/10">
                   <span className="text-xs font-bold text-primary">{p.method[0].toUpperCase()}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold">{formatSum(p.amount)}</div>
                   <div className="text-xs text-text-secondary mt-0.5">{p.description || p.method} · {formatDate(p.created_at)}</div>
                 </div>
-                <span className={`badge ${p.status === "completed" ? "badge-success" : "badge-primary"}`}>{p.status === "completed" ? "✅" : "⏳"}</span>
+                <span className={`badge ${p.status === "completed" ? "badge-success" : "badge-primary"}`}>✅</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <div className="flex gap-2.5 overflow-x-auto py-1 fade-in-d4 scrollbar-none">
+      {/* Quick Actions */}
+      <div className="grid grid-cols-4 gap-3 mb-4 fade-up-4">
         {[
           { icon: "💳", label: t("nav_pay"), to: "/payment" },
           { icon: "📊", label: t("nav_tax"), to: "/tax" },
           { icon: "📝", label: t("nav_exp"), to: "/expenses" },
           { icon: "👤", label: t("nav_prof"), to: "/profile" },
         ].map((a) => (
-          <div key={a.to} className="flex flex-col items-center gap-2 py-4 px-6 bg-surface/80 backdrop-blur rounded-[16px] border border-border cursor-pointer text-text-secondary text-xs font-medium shrink-0 transition-all active:scale-95"
+          <button key={a.to} className="clay flex flex-col items-center gap-2 py-5 px-2 cursor-pointer border-none text-text-secondary text-xs font-medium transition-all active:scale-95"
             onClick={() => { haptic("impact"); navigate(a.to); }}>
-            <div className="text-xl text-primary">{a.icon}</div>
+            <span className="text-2xl">{a.icon}</span>
             <span>{a.label}</span>
-          </div>
+          </button>
         ))}
       </div>
     </div>
